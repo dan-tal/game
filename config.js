@@ -7,8 +7,6 @@
 var AppConfig = {
   // acces dev/debug doar via ?dev in URL
   DEBUG_URL_REGEX: /(\?|&|#)dev(\b|=|&|$)/,
-  // acces panou admin (editare config) doar via ?admin in URL
-  ADMIN_URL_REGEX: /(\?|&|#)admin(\b|=|&|$)/,
 
   NORMAL_MAX_LIVES: 3,
   DEBUG_MAX_LIVES: 10,
@@ -76,6 +74,12 @@ var AppConfig = {
   // acum. Codul ramane in exercises.js (makeBiggestRound), doar il scoatem
   // din rotatie aici.
   EXERCISE_BIGGEST_ENABLED: false,
+
+  // exercitii de adunat/scazut cu cosuri de mere (makeAdditionRound /
+  // makeSubtractionRound in exercises.js) - active implicit, de la 4 ani in
+  // sus (vezi tier !== 'toddler' in newRound)
+  EXERCISE_ADDITION_ENABLED: true,
+  EXERCISE_SUBTRACTION_ENABLED: true,
 
   COLORS: ['#e53935', '#1e88e5', '#43a047', '#fdd835', '#fb8c00', '#8e24aa', '#ec407a'],
   COLOR_NAMES: {

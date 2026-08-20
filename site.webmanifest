@@ -1,0 +1,11 @@
+{
+  "name": "Arcade Vesel",
+  "short_name": "Arcade Vesel",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#6ec6f1",
+  "theme_color": "#6ec6f1",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -50,7 +50,7 @@
     state.target = next;
     state.targetTimer = TARGET_DURATION;
     targetIndicatorEl.textContent = next.emoji;
-    Exercises.speak('Acum prinde balonul cu: ' + next.name);
+    Exercises.speak('Acum prinde: ' + next.name);
   }
 
   function startGame() {

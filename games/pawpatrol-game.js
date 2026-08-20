@@ -34,6 +34,17 @@
   var VEHICLE_ORDER = PawPatrolGameConfig.VEHICLE_ORDER;
   var CHARACTER_OPTION_COUNT = PawPatrolGameConfig.CHARACTER_OPTION_COUNT;
 
+  // poze reale ale personajilor, preincarcate o singura data — pe canvas
+  // (faza de vehicul) avem nevoie de un Image gata incarcat ca sa-l putem
+  // desena; pana se incarca, desenam emoji-ul de rezerva
+  var CHARACTER_IMAGES = {};
+  CHARACTERS.forEach(function (ch) {
+    if (!ch.image) return;
+    var img = new Image();
+    img.src = ch.image;
+    CHARACTER_IMAGES[ch.key] = img;
+  });
+
   function sfxGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
   function sfxTryAgain() { Exercises.beep(260, 0.15, 'sine'); }
   function sfxFanfare() {
@@ -81,8 +92,11 @@
       var btn = document.createElement('button');
       btn.className = 'typeBtn ppCharBtn';
       var capBadge = state.capped[ch.key] ? '<span class="ppCap" style="background:' + ch.color + '"></span>' : '';
+      var portrait = ch.image
+        ? '<img class="ppCharImg" src="' + ch.image + '" alt="' + ch.name + '">'
+        : '<span class="emoji">' + ch.emoji + '</span>';
       btn.innerHTML =
-        '<span class="emoji">' + ch.emoji + '</span>' +
+        portrait +
         '<span class="ppDot" style="background:' + ch.color + '"></span>' +
         ch.name + capBadge;
       btn.addEventListener('click', function () {
@@ -311,8 +325,14 @@
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     if (state.phase === 'vehicle') {
-      ctx.font = Math.round(H * 0.24) + 'px sans-serif';
-      ctx.fillText(state.target.emoji, W / 2, H * 0.36);
+      var img = CHARACTER_IMAGES[state.target.key];
+      if (img && img.complete && img.naturalWidth) {
+        var ih = H * 0.3, iw = ih * (img.naturalWidth / img.naturalHeight);
+        ctx.drawImage(img, W / 2 - iw / 2, H * 0.16, iw, ih);
+      } else {
+        ctx.font = Math.round(H * 0.24) + 'px sans-serif';
+        ctx.fillText(state.target.emoji, W / 2, H * 0.36);
+      }
       ctx.font = 'bold ' + Math.round(H * 0.06) + 'px sans-serif';
       ctx.fillStyle = '#fff';
       ctx.fillText(state.target.name, W / 2, H * 0.5);

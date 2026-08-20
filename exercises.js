@@ -19,7 +19,50 @@ var Exercises = (function () {
 
   var COLORS = AppConfig.COLORS;
   var COLOR_NAMES = AppConfig.COLOR_NAMES;
+  // numarul de optiuni si greutatea exercitiilor se adapteaza dupa varsta
+  // aleasa pe ecranul de start (vezi age.js) — OPTION_COUNT e recalculat la
+  // fiecare exercitiu nou, in newRound(), pe baza lui ageTier()
   var OPTION_COUNT = 5;
+
+  // grupeaza varsta (2-10, vezi age.js) in 3 trepte de dificultate. Fara
+  // varsta selectata (ex: pagini vechi/ecran de dev) se comporta ca inainte:
+  // treapta 'preschool'.
+  function ageTier() {
+    var age = window.ChildAge && ChildAge.get();
+    if (!age) return 'preschool';
+    if (age <= 3) return 'toddler';
+    if (age <= 6) return 'preschool';
+    return 'school';
+  }
+
+  function optionCountForTier(tier) {
+    if (tier === 'toddler') return 3;
+    if (tier === 'school') return 5;
+    return 4;
+  }
+
+  // pana la ce cifra merg exercitiile de recunoastere/numarat, dupa treapta
+  // de varsta — copiii mici invata inca primele cifre, cei mari (7-10 ani)
+  // deja stiu numerele pana la 9 si merg mai departe, pana la 20 (doua
+  // cifre incap usor pe orice telefon)
+  function maxDigitForTier(tier) {
+    if (tier === 'toddler') return 5;
+    if (tier === 'preschool') return 7;
+    return 20;
+  }
+
+  // pana la cate fructe pune intr-un cos exercitiile de adunat/scazut — mai
+  // putine decat maxDigitForTier, ca sa poata fi numarate din priviri pe ecran
+  function maxBasketForTier(tier) {
+    if (tier === 'preschool') return 3;
+    return 6;
+  }
+
+  function repeatEmoji(emoji, n) {
+    var s = '';
+    for (var i = 0; i < n; i++) s += emoji;
+    return s;
+  }
 
   var SHAPES = [
     { key: 'circle', symbol: '⚫', name: 'Cerc' },
@@ -152,13 +195,14 @@ var Exercises = (function () {
   // ---------- Round generators ----------
   // Each round: correctValue, speakText, renderTarget(box), options[{value, kind, label}]
   function makeDigitRound(mode) {
-    var target = 1 + Math.floor(Math.random() * 9);
-    var options = pickOptions(target, 1, 9, OPTION_COUNT);
+    var maxDigit = maxDigitForTier(ageTier());
+    var target = 1 + Math.floor(Math.random() * maxDigit);
+    var options = pickOptions(target, 1, maxDigit, OPTION_COUNT);
     return {
       correctValue: target,
       speakText: 'Găsește cifra ' + target,
       renderTarget: function (box) {
-        box.classList.remove('mode-stars', 'mode-audio');
+        box.classList.remove('mode-stars', 'mode-audio', 'mode-puzzle');
         box.style.background = '#fff';
         if (mode === 'visual') {
           box.textContent = target;
@@ -183,7 +227,7 @@ var Exercises = (function () {
       correctValue: target,
       speakText: 'Găsește culoarea ' + COLOR_NAMES[target],
       renderTarget: function (box) {
-        box.classList.remove('mode-stars', 'mode-audio');
+        box.classList.remove('mode-stars', 'mode-audio', 'mode-puzzle');
         if (mode === 'visual') {
           box.textContent = '';
           box.style.background = target;
@@ -206,7 +250,7 @@ var Exercises = (function () {
       correctValue: target,
       speakText: 'Câte stele sunt?',
       renderTarget: function (box) {
-        box.classList.remove('mode-audio');
+        box.classList.remove('mode-audio', 'mode-puzzle');
         box.classList.add('mode-stars');
         box.style.background = '#fff';
         box.textContent = stars;
@@ -222,7 +266,7 @@ var Exercises = (function () {
       correctValue: target.key,
       speakText: 'Găsește forma ' + target.name,
       renderTarget: function (box) {
-        box.classList.remove('mode-stars', 'mode-audio');
+        box.classList.remove('mode-stars', 'mode-audio', 'mode-puzzle');
         box.style.background = '#fff';
         box.textContent = mode === 'visual' ? target.symbol : '🔊';
         if (mode !== 'visual') box.classList.add('mode-audio');
@@ -238,7 +282,7 @@ var Exercises = (function () {
       correctValue: target.key,
       speakText: 'Găsește animalul: ' + target.name,
       renderTarget: function (box) {
-        box.classList.remove('mode-stars', 'mode-audio');
+        box.classList.remove('mode-stars', 'mode-audio', 'mode-puzzle');
         box.style.background = '#fff';
         box.textContent = mode === 'visual' ? target.emoji : '🔊';
         if (mode !== 'visual') box.classList.add('mode-audio');
@@ -254,7 +298,7 @@ var Exercises = (function () {
       correctValue: target.key,
       speakText: 'Găsește fructul: ' + target.name,
       renderTarget: function (box) {
-        box.classList.remove('mode-stars', 'mode-audio');
+        box.classList.remove('mode-stars', 'mode-audio', 'mode-puzzle');
         box.style.background = '#fff';
         box.textContent = mode === 'visual' ? target.emoji : '🔊';
         if (mode !== 'visual') box.classList.add('mode-audio');
@@ -270,7 +314,7 @@ var Exercises = (function () {
       correctValue: target.key,
       speakText: 'Găsește: ' + target.name,
       renderTarget: function (box) {
-        box.classList.remove('mode-stars', 'mode-audio');
+        box.classList.remove('mode-stars', 'mode-audio', 'mode-puzzle');
         box.style.background = '#fff';
         box.textContent = mode === 'visual' ? target.emoji : '🔊';
         if (mode !== 'visual') box.classList.add('mode-audio');
@@ -279,18 +323,53 @@ var Exercises = (function () {
     };
   }
 
+  function iconOf(item) { return item.emoji || item.symbol; }
+
+  // Puzzle: un șir care se repetă (ex: 🐄 🐱 🐄 🐱 ❓) — copilul trebuie sa
+  // ghiceasca ce urmeaza. Lungimea tiparului creste cu varsta (2 elemente
+  // care alterneaza pentru cei mici, 3 pentru cei mari), ca sa fie mereu o
+  // provocare potrivita.
+  function makePuzzleRound(mode, tier) {
+    var lists = [SHAPES, ANIMALS, FRUITS, VEHICLES];
+    var list = lists[Math.floor(Math.random() * lists.length)];
+    var patternLen = tier === 'school' ? 3 : 2;
+    var pattern = shuffle(list.slice()).slice(0, patternLen);
+    var repeats = 2;
+    var sequence = [];
+    for (var i = 0; i < patternLen * repeats; i++) sequence.push(pattern[i % patternLen]);
+    var target = pattern[0]; // dupa un numar intreg de repetari, urmatorul e mereu primul din tipar
+    var opts = pickFromList(list, target, OPTION_COUNT, function (x) { return x.key; });
+    return {
+      correctValue: target.key,
+      speakText: 'Ce vine la rând în șir?',
+      renderTarget: function (box) {
+        box.classList.remove('mode-stars', 'mode-audio', 'mode-puzzle');
+        box.classList.add('mode-puzzle');
+        box.style.background = '#fff';
+        if (mode === 'visual') {
+          box.textContent = sequence.map(iconOf).join(' ') + ' ❓';
+        } else {
+          box.textContent = '🔊';
+          box.classList.add('mode-audio');
+        }
+      },
+      options: opts.map(function (x) { return { value: x.key, kind: 'emoji', label: iconOf(x) }; })
+    };
+  }
+
   // "Ce cifră vine după N?" — exercitiu mai greu, testeaza ordinea numerelor,
   // nu doar recunoasterea unei cifre aratate. Fara casuta de tinta vizuala,
   // doar vocea spune intrebarea (copilul trebuie sa tina minte, nu sa citeasca).
-  function makeNextNumberRound() {
-    var target = 1 + Math.floor(Math.random() * 8); // 1..8, ca sa existe mereu un "urmator"
+  function makeNextNumberRound(tier) {
+    var max = maxDigitForTier(tier);
+    var target = 1 + Math.floor(Math.random() * (max - 1)); // 1..max-1, ca sa existe mereu un "urmator"
     var answer = target + 1;
-    var options = pickOptions(answer, 1, 9, OPTION_COUNT);
+    var options = pickOptions(answer, 1, max, OPTION_COUNT);
     return {
       correctValue: answer,
       speakText: 'Ce cifră vine după ' + target + '?',
       renderTarget: function (box) {
-        box.classList.remove('mode-stars');
+        box.classList.remove('mode-stars', 'mode-puzzle');
         box.classList.add('mode-audio');
         box.style.background = '#fff';
         box.textContent = '';
@@ -301,10 +380,11 @@ var Exercises = (function () {
 
   // "Care număr e cel mai mare?" — fara nimic afisat in casuta de tinta,
   // doar vocea intreaba; copilul alege direct dintre cifrele-optiune.
-  function makeBiggestRound() {
+  function makeBiggestRound(tier) {
+    var max = maxDigitForTier(tier);
     var pool = [];
     while (pool.length < OPTION_COUNT) {
-      var d = 1 + Math.floor(Math.random() * 9);
+      var d = 1 + Math.floor(Math.random() * max);
       if (pool.indexOf(d) === -1) pool.push(d);
     }
     var answer = Math.max.apply(null, pool);
@@ -312,12 +392,55 @@ var Exercises = (function () {
       correctValue: answer,
       speakText: 'Care număr este cel mai mare?',
       renderTarget: function (box) {
-        box.classList.remove('mode-stars');
+        box.classList.remove('mode-stars', 'mode-puzzle');
         box.classList.add('mode-audio');
         box.style.background = '#fff';
         box.textContent = '';
       },
       options: shuffle(pool).map(function (v) { return { value: v, kind: 'digit', label: v }; })
+    };
+  }
+
+  // Adunat: doua cosuri cu mere, copilul numara si aduna totalul. Mereu
+  // vizual (ca la makeCountRound) — fara sa vada merele nu are cum sa
+  // numere, deci exercitiul nu are sens doar din auz.
+  function makeAdditionRound(tier) {
+    var maxEach = maxBasketForTier(tier);
+    var a = 1 + Math.floor(Math.random() * maxEach);
+    var b = 1 + Math.floor(Math.random() * maxEach);
+    var sum = a + b;
+    var options = pickOptions(sum, 1, maxEach * 2, OPTION_COUNT);
+    return {
+      correctValue: sum,
+      speakText: 'Câte mere sunt în total în cele două coșuri?',
+      renderTarget: function (box) {
+        box.classList.remove('mode-stars', 'mode-audio');
+        box.classList.add('mode-puzzle'); // refoloseste stilul cu latime automata, potrivit pt siruri de emoji
+        box.style.background = '#fff';
+        box.textContent = '🧺' + repeatEmoji('🍎', a) + '  +  🧺' + repeatEmoji('🍎', b) + '  =  ❓';
+      },
+      options: options.map(function (v) { return { value: v, kind: 'digit', label: v }; })
+    };
+  }
+
+  // Scadere: un cos cu mere, din care se scad cateva — copilul numara cate
+  // raman. Tot mereu vizual, din acelasi motiv ca adunarea.
+  function makeSubtractionRound(tier) {
+    var maxStart = maxBasketForTier(tier) + 1; // cat un cos de adunare (+1, ca sa existe cateva variante de plecare), usor de numarat dintr-o privire
+    var start = 2 + Math.floor(Math.random() * (maxStart - 1)); // 2..maxStart
+    var taken = 1 + Math.floor(Math.random() * (start - 1)); // 1..start-1, ca sa ramana macar un mar
+    var remainder = start - taken;
+    var options = pickOptions(remainder, 0, maxStart, OPTION_COUNT);
+    return {
+      correctValue: remainder,
+      speakText: 'Erau ' + start + ' mere în coș și am mâncat ' + taken + '. Câte mere au mai rămas?',
+      renderTarget: function (box) {
+        box.classList.remove('mode-stars', 'mode-audio');
+        box.classList.add('mode-puzzle');
+        box.style.background = '#fff';
+        box.textContent = '🧺' + repeatEmoji('🍎', start) + '  −  ' + repeatEmoji('🍎', taken) + '  =  ❓';
+      },
+      options: options.map(function (v) { return { value: v, kind: 'digit', label: v }; })
     };
   }
 
@@ -363,8 +486,10 @@ var Exercises = (function () {
   }
 
   function newRound(mode) {
+    var tier = ageTier();
+    OPTION_COUNT = optionCountForTier(tier);
+
     var generators = [
-      function () { return makeDigitRound(mode); },
       function () { return makeColorRound(mode); },
       function () { return makeCountRound(); },   // numaratul e mereu vizual, prin natura lui
       function () { return makeShapeRound(mode); },
@@ -372,12 +497,30 @@ var Exercises = (function () {
       function () { return makeFruitRound(mode); },
       function () { return makeVehicleRound(mode); }
     ];
-    // dezactivate momentan din config.js
-    if (AppConfig.EXERCISE_NEXT_NUMBER_ENABLED) {
-      generators.push(function () { return makeNextNumberRound(); });
+    // cifrele sunt inca prea abstracte la 2-3 ani — vezi maxDigitForTier
+    if (tier !== 'toddler') {
+      generators.push(function () { return makeDigitRound(mode); });
+      // puzzle-ul cere sa tii minte un tipar din mai multe elemente, prea
+      // greu pentru cei mai mici
+      generators.push(function () { return makePuzzleRound(mode, tier); });
+      // adunatul/scaderea cu cosuri de mere cer sa numeri, la fel ca
+      // makeCountRound — prea abstract la 2-3 ani, potrivit de la 4 ani in sus
+      if (AppConfig.EXERCISE_ADDITION_ENABLED) {
+        generators.push(function () { return makeAdditionRound(tier); });
+      }
+      if (AppConfig.EXERCISE_SUBTRACTION_ENABLED) {
+        generators.push(function () { return makeSubtractionRound(tier); });
+      }
     }
-    if (AppConfig.EXERCISE_BIGGEST_ENABLED) {
-      generators.push(function () { return makeBiggestRound(); });
+    // dezactivate momentan din config.js — chiar si activate acolo, ramân
+    // rezervate copiilor mari, care deja stiu ordinea cifrelor
+    if (tier === 'school') {
+      if (AppConfig.EXERCISE_NEXT_NUMBER_ENABLED) {
+        generators.push(function () { return makeNextNumberRound(tier); });
+      }
+      if (AppConfig.EXERCISE_BIGGEST_ENABLED) {
+        generators.push(function () { return makeBiggestRound(tier); });
+      }
     }
     var gen = generators[Math.floor(Math.random() * generators.length)];
     currentRound = gen();

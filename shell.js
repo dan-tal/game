@@ -12,6 +12,8 @@
   'use strict';
 
   var menuEl = document.getElementById('screenMenu');
+  var ageSelectEl = document.getElementById('screenAgeSelect');
+  var ageRowEl = document.getElementById('ageRow');
   var exerciseSlotEl = document.getElementById('exerciseSlot');
   var creditsBadgeEl = document.getElementById('creditsBadge');
   var homeBtnEl = document.getElementById('homeBtn');
@@ -39,6 +41,24 @@
     Exercises.speak('Ce joc vrei să joci?');
   }
 
+  // ecranul de selectie a vârstei apare o singura data, la prima deschidere
+  // a jocului (sau dupa ce parintele o reseteaza din admin.html) — vezi
+  // age.js. Varsta aleasa e folosita de exercises.js ca sa regleze cat de
+  // grele sunt exercitiile.
+  for (var age = ChildAge.MIN_AGE; age <= ChildAge.MAX_AGE; age++) {
+    (function (age) {
+      var btn = document.createElement('button');
+      btn.className = 'typeBtn';
+      btn.innerHTML = '<span class="emoji">' + age + '</span>ani';
+      btn.addEventListener('click', function () {
+        ChildAge.set(age);
+        ageSelectEl.classList.remove('show');
+        goToMenu();
+      });
+      ageRowEl.appendChild(btn);
+    })(age);
+  }
+
   // multe browsere tin sunetul "mut" pana la prima atingere a ecranului —
   // la acea prima atingere, deblocam audio-ul si reluam salutul, ca sunetul
   // sa fie garantat activ chiar de la inceput, nu doar dupa ce copilul a
@@ -47,37 +67,42 @@
     document.removeEventListener('pointerdown', unlockOnFirstTouch);
     Exercises.unlockAudio();
     if (menuEl.classList.contains('show')) speakMenu();
+    else if (ageSelectEl.classList.contains('show')) Exercises.speak('Câți ani ai?');
   }, { once: true });
 
-  // cate steluțe ii mai trebuie copilului ca sa deblocheze definitiv acest
-  // joc (vezi AppConfig.GAME_UNLOCK_STARS) — 0 sau mai putin = deja deblocat
-  function starsMissingToUnlock(key) {
+  // cate steluțe ii mai trebuie copilului CHIAR ACUM ca sa poata porni acest
+  // joc — un singur calcul, bazat doar pe AppConfig, folosit si pentru
+  // aspectul vizual (.locked) si pentru mesajul vorbit, ca sa nu mai existe
+  // tile-uri care arata "enable" dar refuza la apasare: fie jocul nu e inca
+  // deblocat definitiv (AppConfig.GAME_UNLOCK_STARS), fie e deblocat dar nu
+  // sunt destule steluțe in cont acum pentru cost (AppConfig.GAME_COST_CREDITS).
+  // 0 sau mai putin = poate fi jucat acum.
+  function starsMissingFor(key) {
     var need = AppConfig.GAME_UNLOCK_STARS[key];
-    if (need === undefined) return 0; // ex: "practice" - mereu deblocat
-    return need - Credits.getTotalEarned();
+    if (need !== undefined && Credits.getTotalEarned() < need) {
+      return need - Credits.getTotalEarned();
+    }
+    return AppConfig.GAME_COST_CREDITS - Credits.get();
   }
 
-  // jocurile se deblocheaza permanent pe masura ce copilul strange steluțe
-  // (vezi AppConfig.GAME_UNLOCK_STARS) — reafisam starea de blocare de
-  // fiecare data cand meniul e vizibil din nou, ca sa se vada progresul.
-  // "locked" e doar vizual (filtru gri + lacăt) — butonul ramane clickabil
-  // (nu .disabled), ca la apasare copilul sa auda mereu un raspuns, nu
-  // tacere (vezi handler-ul de click mai jos).
+  // reafisam starea de blocare de fiecare data cand meniul e vizibil din
+  // nou, ca sa se vada progresul. "locked" e doar vizual (filtru gri +
+  // lacăt) — butonul ramane clickabil (nu .disabled), ca la apasare copilul
+  // sa auda mereu un raspuns, nu tacere (vezi handler-ul de click mai jos).
   function refreshTileLocks() {
     Array.prototype.forEach.call(tiles, function (tile) {
       var key = tile.getAttribute('data-game');
-      var need = AppConfig.GAME_UNLOCK_STARS[key];
-      if (need === undefined) return; // ex: "practice" - mereu deblocat
-      var locked = starsMissingToUnlock(key) > 0;
-      tile.classList.toggle('locked', locked);
+      if (AppConfig.GAME_UNLOCK_STARS[key] === undefined) return; // ex: "practice" - mereu deblocat
+      var missing = starsMissingFor(key);
+      tile.classList.toggle('locked', missing > 0);
       var note = tile.querySelector('.lockNote');
-      if (locked) {
+      if (missing > 0) {
         if (!note) {
           note = document.createElement('span');
           note.className = 'lockNote';
           tile.appendChild(note);
         }
-        note.textContent = '🔒 ' + need + ' ⭐';
+        note.textContent = '🔒 ' + missing + ' ⭐';
       } else if (note) {
         note.remove();
       }
@@ -118,20 +143,16 @@
       var game = GAMES[key];
       if (!game) return;
 
-      // jocul e inca blocat definitiv (nu are destule steluțe castigate
-      // vreodata) — spunem exact cate ii mai trebuie, in loc sa ramana tacut
-      var missing = starsMissingToUnlock(key);
+      // acelasi calcul ca la aspectul vizual (.locked) — daca tile-ul arata
+      // blocat, apasarea trebuie sa spuna exact acelasi numar, niciodata sa
+      // ramana tacuta
+      var missing = starsMissingFor(key);
       if (missing > 0) {
-        Exercises.speak('Mai ai nevoie de ' + missing + ' steluțe ca să deblochezi acest joc! Fă exerciții ca să câștigi.');
+        Exercises.speak('Mai ai nevoie de ' + missing + ' steluțe! Fă exerciții ca să câștigi.');
         return;
       }
 
-      if (!Credits.spend(AppConfig.GAME_COST_CREDITS)) {
-        var missingCredits = AppConfig.GAME_COST_CREDITS - Credits.get();
-        Exercises.speak('Mai ai nevoie de ' + missingCredits + ' steluțe! Fă exerciții ca să câștigi.');
-        return;
-      }
-
+      Credits.spend(AppConfig.GAME_COST_CREDITS);
       menuEl.classList.remove('show');
       stopCurrentGame();
       currentGame = game;
@@ -142,6 +163,12 @@
 
   homeBtnEl.addEventListener('click', goToMenu);
 
-  refreshTileLocks();
-  speakMenu();
+  if (ChildAge.isSet()) {
+    refreshTileLocks();
+    menuEl.classList.add('show');
+    speakMenu();
+  } else {
+    ageSelectEl.classList.add('show');
+    Exercises.speak('Câți ani ai?');
+  }
 })();

@@ -416,7 +416,7 @@
       var lvl = currentLevelCfg();
       if (state.roundCorrect >= lvl.exitStars) {
         exitPos.unlocked = true;
-        Exercises.speak('Portalul s-a deschis! Găsește ieșirea!');
+        Exercises.speak('Găsește ieșirea!');
         state.orbs = [];
         questionEl.textContent = '🚪 Găsește ieșirea!';
       } else {
@@ -717,7 +717,7 @@
   window.MazeGame = {
     activate: function () {
       screenSelectEl.classList.add('show');
-      Exercises.speak('Alege o culoare pentru felinarul tău magic');
+      Exercises.speak('Alege o culoare!');
       if (rafId === null) {
         lastTime = null;
         rafId = requestAnimationFrame(loop);

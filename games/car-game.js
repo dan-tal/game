@@ -632,7 +632,7 @@
   window.CarGame = {
     activate: function () {
       screenSelectEl.classList.add('show');
-      Exercises.speak('Alege o culoare, apoi alege o mașină');
+      Exercises.speak('Alege o culoare, apoi mașina!');
       if (rafId === null) {
         lastTime = null;
         rafId = requestAnimationFrame(loop);

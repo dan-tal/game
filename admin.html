@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ro" class="adminBody">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Arcade Vesel ⚙️</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg">
+<meta name="theme-color" content="#0a0f0a">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="adminBody">
+<div id="adminPanel" class="adminPage">
+  <h2>⚙️ Admin Arcade Vesel</h2>
+  <p><a href="/">← înapoi la joc</a></p>
+
+  <h3>Setări principale</h3>
+  <div id="adminMainFields" class="adminFieldGrid"></div>
+
+  <h3>Steluțe necesare ca să se deblocheze fiecare joc</h3>
+  <div id="adminUnlockFields" class="adminFieldGrid"></div>
+
+  <div id="adminBtnRow">
+    <button id="adminSaveMainBtn">💾 Salvează și reîncarcă</button>
+  </div>
+
+  <div id="adminMsg"></div>
+
+  <hr>
+  <div id="adminBtnRow">
+    <button id="adminResetCreditsBtn">🔄 Resetează steluțele copilului</button>
+    <button id="adminResetPlaytimeBtn">⏳ Resetează timpul de joc</button>
+    <button id="adminResetAgeBtn">🎂 Resetează vârsta</button>
+  </div>
+  <p id="adminAgeInfo"></p>
+
+  <hr>
+  <details id="adminAdvanced">
+    <summary>Avansat: editare AppConfig complet, ca JSON</summary>
+    <p>Pentru celelalte setări (culori, gamepad etc), care nu au un input dedicat mai sus.</p>
+    <textarea id="adminConfigText" spellcheck="false"></textarea>
+    <div id="adminBtnRow">
+      <button id="adminSaveJsonBtn">💾 Salvează JSON și reîncarcă</button>
+      <button id="adminResetBtn">↩️ Resetează tot la valorile implicite</button>
+    </div>
+  </details>
+</div>
+
+<script src="config.js"></script>
+<script src="admin.js"></script>
+<script src="age.js"></script>
+<script src="credits.js"></script>
+<script>Credits.init();</script>
+<script src="admin-page.js"></script>
+</body>
+</html>

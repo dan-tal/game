@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Arcade Vesel 🎮</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#6ec6f1">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,11 +23,13 @@
       <div id="hearts"></div>
       <div id="score">⭐ 0</div>
     </div>
-    <div id="screenMenu" class="screen show menuScreen">
-      <div id="menuDevLinks">
-        <a href="?dev">🐞 dev</a>
-        <a href="?admin">⚙️ admin</a>
-      </div>
+    <div id="screenAgeSelect" class="screen">
+      <h1>Câți ani ai? 🎂</h1>
+      <h2>Alege vârsta ta</h2>
+      <div class="typeRow" id="ageRow"></div>
+    </div>
+
+    <div id="screenMenu" class="screen menuScreen">
       <h1>Ce joc vrei să joci? 🎮</h1>
       <div class="menuTileRow" id="menuTileRow">
         <button class="typeBtn" data-game="car"><span class="emoji">🚗</span>Mașina Veselă</button>
@@ -76,6 +82,7 @@
 
 <script src="config.js"></script>
 <script src="admin.js"></script>
+<script src="age.js"></script>
 <script src="debug.js"></script>
 <script src="playtime.js"></script>
 <script src="credits.js"></script>

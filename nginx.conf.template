@@ -15,6 +15,11 @@ server {
         add_header X-App-Version "__VERSION__" always;
     }
 
+    # admin.html accesibil si fara extensie, ca link mai scurt
+    location = /admin {
+        try_files /admin.html =404;
+    }
+
     location / {
         add_header X-App-Version "__VERSION__" always;
         try_files $uri $uri/ =404;
