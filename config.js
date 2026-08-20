@@ -30,7 +30,7 @@ var AppConfig = {
   // credite facand exercitii si le foloseste ca sa porneasca un joc
   STARTING_CREDITS: 3,
   CREDIT_PER_EXERCISE: 1,
-  GAME_COST_CREDITS: 1,
+  GAME_COST_CREDITS: 10,
   // cand copilul greseste (in jocuri sau la exercitii) se scade o steluta
   // din cont — nu si din totalul castigat vreodata, ca sa nu se blocheze
   // jocuri deja deblocate din cauza unei greseli
@@ -57,6 +57,11 @@ var AppConfig = {
     letters: 25,
     maze: 200
   },
+
+  // timp maxim continuu de joc (minute) inainte sa apara ecranul de pauza,
+  // si cat asteapta (minute) inainte sa poata rejuca
+  PLAY_MAX_MINUTES: 30,
+  PLAY_RESET_MINUTES: 15,
 
   GAMEPAD_DEADZONE: 0.06,
   GAMEPAD_GAIN: 1.6, // amplifica rotatiile mici ale volanului pentru reactie mai rapida

@@ -9,6 +9,7 @@
 <body>
 <button id="debugToggle">🐞 debug</button>
 <div id="debugPanel"></div>
+<div id="appFooter"></div>
 <div id="wrap">
   <div id="stage">
     <canvas id="game" width="420" height="700"></canvas>
@@ -20,6 +21,10 @@
     </div>
     <div id="screenMenu" class="screen show menuScreen">
       <button id="resetCreditsBtn" title="Resetează steluțele">🔄 Resetează steluțele</button>
+      <div id="menuDevLinks">
+        <a href="?dev">🐞 dev</a>
+        <a href="?admin">⚙️ admin</a>
+      </div>
       <h1>Ce joc vrei să joci? 🎮</h1>
       <div class="menuTileRow" id="menuTileRow">
         <button class="typeBtn" data-game="car"><span class="emoji">🚗</span>Mașina Veselă</button>
@@ -72,6 +77,7 @@
 <script src="config.js"></script>
 <script src="admin.js"></script>
 <script src="debug.js"></script>
+<script src="playtime.js"></script>
 <script src="credits.js"></script>
 <script src="exercises.js"></script>
 <script src="games/car-game.config.js"></script>
@@ -98,6 +104,8 @@
 <script src="games/letter-game.js"></script>
 <script src="games/maze-game.config.js"></script>
 <script src="games/maze-game.js"></script>
+<script src="version.js"></script>
 <script src="shell.js"></script>
+<script>document.getElementById('appFooter').textContent = 'v' + (window.APP_VERSION || 'dev');</script>
 </body>
 </html>

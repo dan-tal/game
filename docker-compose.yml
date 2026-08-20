@@ -4,15 +4,13 @@ services:
     container_name: arcade-vesel
     restart: unless-stopped
     networks:
-      - traefik
+      - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.game.rule=Host(`game.example.com`)"
-      - "traefik.http.routers.game.entrypoints=websecure"
-      - "traefik.http.routers.game.tls=true"
-      - "traefik.http.routers.game.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.game.rule=Host(`game.casatd.org`)"
+      - "traefik.http.routers.game.entrypoints=web"
       - "traefik.http.services.game.loadbalancer.server.port=80"
 
 networks:
-  traefik:
+  proxy:
     external: true
