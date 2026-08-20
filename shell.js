@@ -28,6 +28,7 @@
     fishing: window.FishingGame,
     shapes: window.ShapeGame,
     zoo: window.ZooGame,
+    pawpatrol: window.PawPatrolGame,
     train: window.TrainGame,
     boat: window.BoatGame,
     letters: window.LetterGame,
@@ -48,20 +49,29 @@
     if (menuEl.classList.contains('show')) speakMenu();
   }, { once: true });
 
+  // cate steluțe ii mai trebuie copilului ca sa deblocheze definitiv acest
+  // joc (vezi AppConfig.GAME_UNLOCK_STARS) — 0 sau mai putin = deja deblocat
+  function starsMissingToUnlock(key) {
+    var need = AppConfig.GAME_UNLOCK_STARS[key];
+    if (need === undefined) return 0; // ex: "practice" - mereu deblocat
+    return need - Credits.getTotalEarned();
+  }
+
   // jocurile se deblocheaza permanent pe masura ce copilul strange steluțe
   // (vezi AppConfig.GAME_UNLOCK_STARS) — reafisam starea de blocare de
-  // fiecare data cand meniul e vizibil din nou, ca sa se vada progresul
+  // fiecare data cand meniul e vizibil din nou, ca sa se vada progresul.
+  // "locked" e doar vizual (filtru gri + lacăt) — butonul ramane clickabil
+  // (nu .disabled), ca la apasare copilul sa auda mereu un raspuns, nu
+  // tacere (vezi handler-ul de click mai jos).
   function refreshTileLocks() {
-    var total = Credits.getTotalEarned();
     Array.prototype.forEach.call(tiles, function (tile) {
       var key = tile.getAttribute('data-game');
       var need = AppConfig.GAME_UNLOCK_STARS[key];
       if (need === undefined) return; // ex: "practice" - mereu deblocat
-      var unlocked = total >= need;
-      tile.classList.toggle('locked', !unlocked);
-      tile.disabled = !unlocked;
+      var locked = starsMissingToUnlock(key) > 0;
+      tile.classList.toggle('locked', locked);
       var note = tile.querySelector('.lockNote');
-      if (!unlocked) {
+      if (locked) {
         if (!note) {
           note = document.createElement('span');
           note.className = 'lockNote';
@@ -93,7 +103,6 @@
 
   var tiles = document.querySelectorAll('#menuTileRow [data-game]');
   Array.prototype.forEach.call(tiles, function (tile) {
-    if (tile.disabled) return;
     tile.addEventListener('click', function () {
       var key = tile.getAttribute('data-game');
 
@@ -109,8 +118,17 @@
       var game = GAMES[key];
       if (!game) return;
 
+      // jocul e inca blocat definitiv (nu are destule steluțe castigate
+      // vreodata) — spunem exact cate ii mai trebuie, in loc sa ramana tacut
+      var missing = starsMissingToUnlock(key);
+      if (missing > 0) {
+        Exercises.speak('Mai ai nevoie de ' + missing + ' steluțe ca să deblochezi acest joc! Fă exerciții ca să câștigi.');
+        return;
+      }
+
       if (!Credits.spend(AppConfig.GAME_COST_CREDITS)) {
-        Exercises.speak('Ai nevoie de mai multe steluțe! Fă exerciții ca să câștigi.');
+        var missingCredits = AppConfig.GAME_COST_CREDITS - Credits.get();
+        Exercises.speak('Mai ai nevoie de ' + missingCredits + ' steluțe! Fă exerciții ca să câștigi.');
         return;
       }
 
