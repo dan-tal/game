@@ -77,6 +77,16 @@ var Exercises = (function () {
   function sfxCorrect() { beep(880, 0.15, 'triangle'); setTimeout(function () { beep(1180, 0.15, 'triangle'); }, 90); }
   function sfxTryAgain() { beep(260, 0.15, 'sine'); }
 
+  // browserele tin AudioContext "suspended" (si uneori ignora vocea) pana la
+  // primul gest al utilizatorului pe pagina — apelata la prima atingere a
+  // ecranului (vezi shell.js), ca sunetul sa fie garantat pornit din start
+  function unlockAudio() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) { /* audio not available, ignore */ }
+  }
+
   // ---------- Voice (Text-to-Speech, for kids who can't read yet) ----------
   var voicesCache = [];
   var romanianVoice = null;
@@ -454,6 +464,7 @@ var Exercises = (function () {
     cancel: cancel,
     speak: speak,
     beep: beep,
+    unlockAudio: unlockAudio,
     getDebugInfo: getDebugInfo
   };
 })();

@@ -46,7 +46,11 @@
         '<button id="adminSaveBtn">💾 Salvează și reîncarcă</button>' +
         '<button id="adminResetBtn">↩️ Resetează la valorile implicite</button>' +
       '</div>' +
-      '<div id="adminMsg"></div>';
+      '<div id="adminMsg"></div>' +
+      '<hr>' +
+      '<div id="adminBtnRow">' +
+        '<button id="adminResetCreditsBtn">🔄 Resetează steluțele copilului</button>' +
+      '</div>';
     document.body.appendChild(panel);
 
     var textEl = document.getElementById('adminConfigText');
@@ -79,6 +83,15 @@
       if (!window.confirm('Sigur revii la configul implicit din config.js?')) return;
       try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
       window.location.reload();
+    });
+
+    // reseteaza steluțele copilului (si progresul de deblocare a jocurilor)
+    // — mutat aici din meniul principal, ca sa nu poata fi apasat din greseala
+    // de copil, doar de parinte/admin
+    document.getElementById('adminResetCreditsBtn').addEventListener('click', function () {
+      if (!window.confirm('Sigur resetezi steluțele copilului? Jocurile deblocate se vor bloca din nou.')) return;
+      if (window.Credits) window.Credits.reset();
+      msgEl.textContent = 'Steluțele au fost resetate.';
     });
   });
 })();

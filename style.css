@@ -143,21 +143,6 @@ canvas {
 .menuScreen { justify-content: flex-start; padding-top: clamp(24px, 8vh, 60px); }
 .menuTileRow { margin-top: auto; padding-bottom: clamp(10px, 3vh, 26px); }
 
-#resetCreditsBtn {
-  position: absolute;
-  top: 50px;
-  right: 10px;
-  font-size: 11px;
-  background: rgba(0,0,0,0.12);
-  color: #5d4037;
-  border: none;
-  border-radius: 10px;
-  padding: 4px 10px;
-  cursor: pointer;
-  opacity: 0.6;
-}
-#resetCreditsBtn:hover { opacity: 1; }
-
 #menuDevLinks {
   position: absolute;
   top: 10px;
@@ -395,6 +380,8 @@ canvas {
 }
 #adminSaveBtn { background: #4caf50; color: #fff; }
 #adminResetBtn { background: #e53935; color: #fff; }
+#adminResetCreditsBtn { background: #fb8c00; color: #fff; }
+#adminPanel hr { border: none; border-top: 1px solid #444; margin: 16px 0; width: 100%; }
 #adminMsg { margin-top: 8px; color: #ff8a80; font-size: 12px; min-height: 16px; }
 
 #playtimeOverlay {

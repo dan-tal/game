@@ -38,6 +38,16 @@
     Exercises.speak('Ce joc vrei să joci?');
   }
 
+  // multe browsere tin sunetul "mut" pana la prima atingere a ecranului —
+  // la acea prima atingere, deblocam audio-ul si reluam salutul, ca sunetul
+  // sa fie garantat activ chiar de la inceput, nu doar dupa ce copilul a
+  // apasat deja un buton
+  document.addEventListener('pointerdown', function unlockOnFirstTouch() {
+    document.removeEventListener('pointerdown', unlockOnFirstTouch);
+    Exercises.unlockAudio();
+    if (menuEl.classList.contains('show')) speakMenu();
+  }, { once: true });
+
   // jocurile se deblocheaza permanent pe masura ce copilul strange steluțe
   // (vezi AppConfig.GAME_UNLOCK_STARS) — reafisam starea de blocare de
   // fiecare data cand meniul e vizibil din nou, ca sa se vada progresul
@@ -113,14 +123,6 @@
   });
 
   homeBtnEl.addEventListener('click', goToMenu);
-
-  var resetCreditsBtnEl = document.getElementById('resetCreditsBtn');
-  resetCreditsBtnEl.addEventListener('click', function () {
-    if (!window.confirm('Sigur resetezi steluțele? Jocurile deblocate se vor bloca din nou.')) return;
-    Credits.reset();
-    refreshTileLocks();
-    Exercises.speak('Steluțele au fost resetate');
-  });
 
   refreshTileLocks();
   speakMenu();
