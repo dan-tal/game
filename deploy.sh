@@ -9,6 +9,7 @@ cd "$(dirname "$0")"
 VERSION="$(date -u +%Y%m%d-%H%M)-$(git rev-parse --short HEAD 2>/dev/null || echo local)"
 echo "==> Version $VERSION"
 echo "window.APP_VERSION = '$VERSION';" > version.js
+sed "s/__VERSION__/$VERSION/g" nginx.conf.template > nginx.conf
 
 echo "==> Build $IMAGE:$TAG"
 docker build -t "$IMAGE:$TAG" .

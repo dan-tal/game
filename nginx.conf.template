@@ -1,0 +1,22 @@
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # index.html si version.js trebuie sa fie mereu proaspete, ca telefonul
+    # sa vada noua versiune imediat dupa deploy, fara cache vechi din browser
+    location = /index.html {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header X-App-Version "__VERSION__" always;
+    }
+    location = /version.js {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header X-App-Version "__VERSION__" always;
+    }
+
+    location / {
+        add_header X-App-Version "__VERSION__" always;
+        try_files $uri $uri/ =404;
+    }
+}
