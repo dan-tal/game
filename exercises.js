@@ -96,7 +96,7 @@ var Exercises = (function () {
     { key: 'plane', emoji: '✈️', name: 'Avion' }
   ];
 
-  var containerEl, titleEl, promptEl, targetBoxEl, optionsRowEl, feedbackEl;
+  var containerEl, titleEl, promptEl, targetBoxEl, optionsRowEl, feedbackEl, repeatBtnEl;
   var currentRound = null;
   var onCompleteCb = null;
 
@@ -153,7 +153,13 @@ var Exercises = (function () {
     window.speechSynthesis.onvoiceschanged = refreshVoices;
   }
 
+  // tinut minte ca sa poata fi rostit din nou la apasarea butonului de
+  // repetare (util mai ales in modul audio, unde nu exista nimic vizual de
+  // recitit — copilul trebuie sa auda din nou intrebarea)
+  var lastSpokenText = null;
+
   function speak(text) {
+    lastSpokenText = text;
     try {
       if (!window.speechSynthesis) return;
       window.speechSynthesis.cancel();
@@ -164,6 +170,10 @@ var Exercises = (function () {
       u.pitch = 1.15;
       window.speechSynthesis.speak(u);
     } catch (e) { /* speech not available, ignore */ }
+  }
+
+  function repeatLast() {
+    if (lastSpokenText) speak(lastSpokenText);
   }
 
   function shuffle(arr) {
@@ -538,13 +548,16 @@ var Exercises = (function () {
       '<h1 class="exTitle"></h1>' +
       '<p class="exPrompt"></p>' +
       '<div class="exTargetBox"></div>' +
+      '<button type="button" class="exRepeatBtn" title="Repetă întrebarea">🔊 Repetă</button>' +
       '<div class="exOptionsRow"></div>' +
       '<div class="exFeedback"></div>';
     titleEl = containerEl.querySelector('.exTitle');
     promptEl = containerEl.querySelector('.exPrompt');
     targetBoxEl = containerEl.querySelector('.exTargetBox');
+    repeatBtnEl = containerEl.querySelector('.exRepeatBtn');
     optionsRowEl = containerEl.querySelector('.exOptionsRow');
     feedbackEl = containerEl.querySelector('.exFeedback');
+    repeatBtnEl.addEventListener('click', repeatLast);
   }
 
   // mode: 'visual' (shows the target) or 'audio' (only spoken, harder recall)
@@ -606,6 +619,7 @@ var Exercises = (function () {
     isShowing: isShowing,
     cancel: cancel,
     speak: speak,
+    repeatLast: repeatLast,
     beep: beep,
     unlockAudio: unlockAudio,
     getDebugInfo: getDebugInfo

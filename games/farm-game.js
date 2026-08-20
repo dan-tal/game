@@ -118,15 +118,7 @@
   }
 
   function updateHUD() {
-    if (state.maxLives > 12) {
-      heartsEl.textContent = '❤️ x' + state.lives;
-    } else {
-      var h = '';
-      for (var i = 0; i < state.maxLives; i++) {
-        h += i < state.lives ? '❤️' : '🤍';
-      }
-      heartsEl.textContent = h;
-    }
+    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -284,7 +276,8 @@
   function update(dt) {
     if (!state.running) return;
 
-    var fallSpeed = state.speed * (dt / 16.6667);
+    var tempo = GameShared.tempoMultiplier(state.score);
+    var fallSpeed = state.speed * tempo * (dt / 16.6667);
 
     // --- basket movement ---
     var dir = 0;
@@ -299,15 +292,10 @@
     if (basket.x > W - 40 - half) basket.x = W - 40 - half;
 
     // --- spawn ---
-    state.spawnTimer += dt;
-    if (state.spawnTimer >= state.spawnInterval) {
-      state.spawnTimer = 0;
-      spawnAnimal();
-    }
+    GameShared.tickSpawn(state, dt, spawnAnimal);
 
     // --- gentle difficulty ramp (very mild, capped) ---
-    if (state.speed < FarmGameConfig.WORLD_SPEED_MAX) state.speed += FarmGameConfig.WORLD_SPEED_RAMP * dt;
-    if (state.spawnInterval > FarmGameConfig.SPAWN_INTERVAL_MIN) state.spawnInterval -= FarmGameConfig.SPAWN_INTERVAL_RAMP * dt;
+    GameShared.rampDifficulty(state, dt, FarmGameConfig.WORLD_SPEED_MAX, FarmGameConfig.WORLD_SPEED_RAMP, FarmGameConfig.SPAWN_INTERVAL_MIN, FarmGameConfig.SPAWN_INTERVAL_RAMP);
 
     // --- invulnerability timer ---
     if (state.invuln > 0) state.invuln -= dt;

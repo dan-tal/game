@@ -70,15 +70,7 @@
   }
 
   function updateHUD() {
-    if (state.maxLives > 12) {
-      heartsEl.textContent = '❤️ x' + state.lives;
-    } else {
-      var h = '';
-      for (var i = 0; i < state.maxLives; i++) {
-        h += i < state.lives ? '❤️' : '🤍';
-      }
-      heartsEl.textContent = h;
-    }
+    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -206,7 +198,8 @@
   function update(dt) {
     if (!state.running) return;
 
-    var scrollSpeed = state.speed * (dt / 16.6667);
+    var tempo = GameShared.tempoMultiplier(state.score);
+    var scrollSpeed = state.speed * tempo * (dt / 16.6667);
     state.trackOffset += scrollSpeed;
     if (state.trackOffset > 40) state.trackOffset -= 40;
 
@@ -221,14 +214,9 @@
     if (train.x < TRACK_LEFT + half) train.x = TRACK_LEFT + half;
     if (train.x > TRACK_RIGHT - half) train.x = TRACK_RIGHT - half;
 
-    state.spawnTimer += dt;
-    if (state.spawnTimer >= state.spawnInterval) {
-      state.spawnTimer = 0;
-      spawnEntity();
-    }
+    GameShared.tickSpawn(state, dt, spawnEntity);
 
-    if (state.speed < TrainGameConfig.WORLD_SPEED_MAX) state.speed += TrainGameConfig.WORLD_SPEED_RAMP * dt;
-    if (state.spawnInterval > TrainGameConfig.SPAWN_INTERVAL_MIN) state.spawnInterval -= TrainGameConfig.SPAWN_INTERVAL_RAMP * dt;
+    GameShared.rampDifficulty(state, dt, TrainGameConfig.WORLD_SPEED_MAX, TrainGameConfig.WORLD_SPEED_RAMP, TrainGameConfig.SPAWN_INTERVAL_MIN, TrainGameConfig.SPAWN_INTERVAL_RAMP);
 
     if (state.invuln > 0) state.invuln -= dt;
 

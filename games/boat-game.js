@@ -71,15 +71,7 @@
   }
 
   function updateHUD() {
-    if (state.maxLives > 12) {
-      heartsEl.textContent = '❤️ x' + state.lives;
-    } else {
-      var h = '';
-      for (var i = 0; i < state.maxLives; i++) {
-        h += i < state.lives ? '❤️' : '🤍';
-      }
-      heartsEl.textContent = h;
-    }
+    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -207,7 +199,8 @@
   function update(dt) {
     if (!state.running) return;
 
-    var scrollSpeed = state.speed * (dt / 16.6667);
+    var tempo = GameShared.tempoMultiplier(state.score);
+    var scrollSpeed = state.speed * tempo * (dt / 16.6667);
     state.waveOffset += scrollSpeed;
     if (state.waveOffset > 40) state.waveOffset -= 40;
 
@@ -222,14 +215,9 @@
     if (boat.x < SEA_LEFT + half) boat.x = SEA_LEFT + half;
     if (boat.x > SEA_RIGHT - half) boat.x = SEA_RIGHT - half;
 
-    state.spawnTimer += dt;
-    if (state.spawnTimer >= state.spawnInterval) {
-      state.spawnTimer = 0;
-      spawnEntity();
-    }
+    GameShared.tickSpawn(state, dt, spawnEntity);
 
-    if (state.speed < BoatGameConfig.WORLD_SPEED_MAX) state.speed += BoatGameConfig.WORLD_SPEED_RAMP * dt;
-    if (state.spawnInterval > BoatGameConfig.SPAWN_INTERVAL_MIN) state.spawnInterval -= BoatGameConfig.SPAWN_INTERVAL_RAMP * dt;
+    GameShared.rampDifficulty(state, dt, BoatGameConfig.WORLD_SPEED_MAX, BoatGameConfig.WORLD_SPEED_RAMP, BoatGameConfig.SPAWN_INTERVAL_MIN, BoatGameConfig.SPAWN_INTERVAL_RAMP);
 
     if (state.invuln > 0) state.invuln -= dt;
 

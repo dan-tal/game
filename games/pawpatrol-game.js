@@ -199,6 +199,8 @@
   function episodeComplete() {
     sfxFanfare();
     Exercises.speak('Bravo! Ați ajutat toată Patrula Cățelușilor!');
+    // bonus de final de episod (nu per potrivire — vezi afterCorrect), de-asta
+    // foloseste CREDIT_PER_EXERCISE, nu CREDIT_PER_GAME_MATCH
     if (window.Credits) Credits.add(AppConfig.CREDIT_PER_EXERCISE);
     targetIndicatorEl.textContent = '🎉';
     optionsWrapEl.innerHTML = '';
@@ -216,7 +218,7 @@
   }
 
   function afterCorrect(next) {
-    if (window.Credits) Credits.add(AppConfig.CREDIT_PER_EXERCISE);
+    if (window.Credits) Credits.add(AppConfig.CREDIT_PER_GAME_MATCH);
     if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) {
       setTimeout(function () { triggerLearningBreak(next); }, 600);
     } else {

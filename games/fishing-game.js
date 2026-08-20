@@ -88,15 +88,7 @@
   }
 
   function updateHUD() {
-    if (state.maxLives > 12) {
-      heartsEl.textContent = '❤️ x' + state.lives;
-    } else {
-      var h = '';
-      for (var i = 0; i < state.maxLives; i++) {
-        h += i < state.lives ? '❤️' : '🤍';
-      }
-      heartsEl.textContent = h;
-    }
+    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -246,7 +238,8 @@
   function update(dt) {
     if (!state.running) return;
 
-    var swimSpeed = state.speed * (dt / 16.6667);
+    var tempo = GameShared.tempoMultiplier(state.score);
+    var swimSpeed = state.speed * tempo * (dt / 16.6667);
 
     var dir = 0;
     if (keyUp) dir -= 1;
@@ -258,14 +251,11 @@
     if (net.y < PLAY_TOP) net.y = PLAY_TOP;
     if (net.y > PLAY_BOTTOM) net.y = PLAY_BOTTOM;
 
-    state.spawnTimer += dt;
-    if (state.spawnTimer >= state.spawnInterval) {
-      state.spawnTimer = 0;
+    GameShared.tickSpawn(state, dt, function () {
       if (state.entities.length < FishingGameConfig.MAX_ON_SCREEN) spawnFish();
-    }
+    });
 
-    if (state.speed < FishingGameConfig.FISH_SPEED_MAX) state.speed += FishingGameConfig.FISH_SPEED_RAMP * dt;
-    if (state.spawnInterval > FishingGameConfig.SPAWN_INTERVAL_MIN) state.spawnInterval -= FishingGameConfig.SPAWN_INTERVAL_RAMP * dt;
+    GameShared.rampDifficulty(state, dt, FishingGameConfig.FISH_SPEED_MAX, FishingGameConfig.FISH_SPEED_RAMP, FishingGameConfig.SPAWN_INTERVAL_MIN, FishingGameConfig.SPAWN_INTERVAL_RAMP);
 
     if (state.invuln > 0) state.invuln -= dt;
 

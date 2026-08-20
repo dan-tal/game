@@ -123,15 +123,7 @@
   }
 
   function updateHUD() {
-    if (state.maxLives > 12) {
-      heartsEl.textContent = '❤️ x' + state.lives;
-    } else {
-      var h = '';
-      for (var i = 0; i < state.maxLives; i++) {
-        h += i < state.lives ? '❤️' : '🤍';
-      }
-      heartsEl.textContent = h;
-    }
+    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -325,7 +317,8 @@
     // screens so it's unmistakable that those are a separate mode from driving
     if (!state.running) return;
 
-    var scrollSpeed = state.speed * (dt / 16.6667);
+    var tempo = GameShared.tempoMultiplier(state.score);
+    var scrollSpeed = state.speed * tempo * (dt / 16.6667);
     state.roadOffset += scrollSpeed;
     if (state.roadOffset > 40) state.roadOffset -= 40;
 
@@ -342,15 +335,10 @@
     if (car.x > ROAD_RIGHT - half) car.x = ROAD_RIGHT - half;
 
     // --- spawn ---
-    state.spawnTimer += dt;
-    if (state.spawnTimer >= state.spawnInterval) {
-      state.spawnTimer = 0;
-      spawnEntity();
-    }
+    GameShared.tickSpawn(state, dt, spawnEntity);
 
     // --- gentle difficulty ramp (very mild, capped) ---
-    if (state.speed < CarGameConfig.WORLD_SPEED_MAX) state.speed += CarGameConfig.WORLD_SPEED_RAMP * dt;
-    if (state.spawnInterval > CarGameConfig.SPAWN_INTERVAL_MIN) state.spawnInterval -= CarGameConfig.SPAWN_INTERVAL_RAMP * dt;
+    GameShared.rampDifficulty(state, dt, CarGameConfig.WORLD_SPEED_MAX, CarGameConfig.WORLD_SPEED_RAMP, CarGameConfig.SPAWN_INTERVAL_MIN, CarGameConfig.SPAWN_INTERVAL_RAMP);
 
     // --- invulnerability timer ---
     if (state.invuln > 0) state.invuln -= dt;

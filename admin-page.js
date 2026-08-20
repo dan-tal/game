@@ -40,13 +40,16 @@
   // din AppConfig raman editabile doar din sectiunea avansata (JSON)
   var FIELDS = [
     { key: 'STARTING_CREDITS', label: 'Steluțe la pornire', hint: 'cu câte steluțe începe copilul prima dată' },
-    { key: 'CREDIT_PER_EXERCISE', label: 'Steluțe câștigate per exercițiu corect' },
+    { key: 'CREDIT_PER_EXERCISE', label: 'Steluțe câștigate per exercițiu corect', hint: 'Exerciții de sine stătătoare + pauzele de învățare din jocuri' },
+    { key: 'CREDIT_PER_GAME_MATCH', label: 'Steluțe câștigate per răspuns corect în joc', hint: 'ex: potrivirile din Patrula Cățelușilor' },
     { key: 'GAME_COST_CREDITS', label: 'Cost în steluțe ca să pornească un joc' },
     { key: 'CREDIT_PENALTY_PER_MISTAKE', label: 'Steluțe pierdute la o greșeală' },
     { key: 'EXERCISES_BEFORE_START', label: 'Exerciții obligatorii înainte de "Exerciții"' },
     { key: 'EXERCISE_EVERY_SCORE', label: 'Pauză de exercițiu la fiecare X steluțe câștigate în joc' },
     { key: 'HIDE_PREVIEW_AFTER_STARS', label: 'Ascunde ținta vizuală după X steluțe totale', hint: 'exercițiile devin doar din auz' },
     { key: 'NORMAL_MAX_LIVES', label: 'Vieți per joc' },
+    { key: 'TEMPO_PERCENT_PER_STAR', label: 'Creștere tempo per steluță din rundă', hint: '0.02 = +2% viteză per steluță (Mașina, Ferma, Baloanele, Vaporul, Trenul, Pescarul)' },
+    { key: 'TEMPO_MAX_MULTIPLIER', label: 'Plafon multiplicator tempo', hint: '1.6 = jocul nu depășește 1.6x viteza de bază' },
     { key: 'PLAY_MAX_MINUTES', label: 'Minute maxime de joc continuu' },
     { key: 'PLAY_RESET_MINUTES', label: 'Minute de pauză înainte să poată rejuca' }
   ];

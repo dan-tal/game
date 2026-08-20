@@ -25,9 +25,14 @@ var AppConfig = {
   HIDE_PREVIEW_AFTER_STARS: 15,
 
   // sistemul de credite (ca la aparatele de arcade clasice): copilul castiga
-  // credite facand exercitii si le foloseste ca sa porneasca un joc
+  // credite facand exercitii si le foloseste ca sa porneasca un joc.
+  // Exercitiile (modulul Exercises — atat "Exerciții" de sine statatoare,
+  // cat si pauzele de invatare din mijlocul unui joc) merita mai mult decat
+  // un simplu raspuns corect in timpul joaca (ex: Patrula Cățelușilor), ca
+  // sa motiveze copilul sa faca exercitii, nu doar sa se joace
   STARTING_CREDITS: 3,
-  CREDIT_PER_EXERCISE: 1,
+  CREDIT_PER_EXERCISE: 2,
+  CREDIT_PER_GAME_MATCH: 1,
   GAME_COST_CREDITS: 10,
   // cand copilul greseste (in jocuri sau la exercitii) se scade o steluta
   // din cont — nu si din totalul castigat vreodata, ca sa nu se blocheze
@@ -64,6 +69,14 @@ var AppConfig = {
 
   GAMEPAD_DEADZONE: 0.06,
   GAMEPAD_GAIN: 1.6, // amplifica rotatiile mici ale volanului pentru reactie mai rapida
+
+  // tempoul jocurilor cu "viteza lumii" (Mașina, Ferma, Baloanele, Vaporul,
+  // Trenul, Pescarul — vezi state.speed in fiecare) creste usor si cu timpul
+  // (WORLD_SPEED_RAMP din configul fiecarui joc), dar si cu steluțele
+  // castigate in runda curenta: cu cat copilul prinde mai multe, cu atat mai
+  // repede devine jocul, ca provocare si motivatie suplimentara
+  TEMPO_PERCENT_PER_STAR: 0.02, // +2% viteza per steluta castigata in runda curenta
+  TEMPO_MAX_MULTIPLIER: 1.6,    // plafon, ca sa nu devina imposibil de jucat la scoruri mari
 
   // "Ce cifra vine dupa N?" cere sa cunosti ordinea numerelor - dezactivat
   // acum pentru ca cel care joaca inca nu stie numaratoarea. Codul ramane

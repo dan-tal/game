@@ -82,15 +82,7 @@
   }
 
   function updateHUD() {
-    if (state.maxLives > 12) {
-      heartsEl.textContent = '❤️ x' + state.lives;
-    } else {
-      var h = '';
-      for (var i = 0; i < state.maxLives; i++) {
-        h += i < state.lives ? '❤️' : '🤍';
-      }
-      heartsEl.textContent = h;
-    }
+    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -195,16 +187,14 @@
   function update(dt) {
     if (!state.running) return;
 
-    var rise = state.speed * (dt / 16.6667);
+    var tempo = GameShared.tempoMultiplier(state.score);
+    var rise = state.speed * tempo * (dt / 16.6667);
 
-    state.spawnTimer += dt;
-    if (state.spawnTimer >= state.spawnInterval) {
-      state.spawnTimer = 0;
+    GameShared.tickSpawn(state, dt, function () {
       if (state.entities.length < BalloonGameConfig.MAX_ON_SCREEN) spawnBalloon();
-    }
+    });
 
-    if (state.speed < BalloonGameConfig.RISE_SPEED_MAX) state.speed += BalloonGameConfig.RISE_SPEED_RAMP * dt;
-    if (state.spawnInterval > BalloonGameConfig.SPAWN_INTERVAL_MIN) state.spawnInterval -= BalloonGameConfig.SPAWN_INTERVAL_RAMP * dt;
+    GameShared.rampDifficulty(state, dt, BalloonGameConfig.RISE_SPEED_MAX, BalloonGameConfig.RISE_SPEED_RAMP, BalloonGameConfig.SPAWN_INTERVAL_MIN, BalloonGameConfig.SPAWN_INTERVAL_RAMP);
 
     state.targetTimer -= dt;
     if (state.targetTimer <= 0) pickNewTarget();
