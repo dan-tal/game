@@ -1,6 +1,6 @@
 services:
   game:
-    build: .
+    image: dan4kl/game:latest
     container_name: arcade-vesel
     restart: unless-stopped
     networks:
