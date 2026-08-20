@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Arcade Vesel 🎮</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<button id="debugToggle">🐞 debug</button>
+<div id="debugPanel"></div>
+<div id="wrap">
+  <div id="stage">
+    <canvas id="game" width="420" height="700"></canvas>
+    <button id="homeBtn" title="Acasă">🏠</button>
+    <div id="creditsBadge"></div>
+    <div id="hud">
+      <div id="hearts"></div>
+      <div id="score">⭐ 0</div>
+    </div>
+    <div id="screenMenu" class="screen show menuScreen">
+      <button id="resetCreditsBtn" title="Resetează steluțele">🔄 Resetează steluțele</button>
+      <h1>Ce joc vrei să joci? 🎮</h1>
+      <div class="menuTileRow" id="menuTileRow">
+        <button class="typeBtn" data-game="car"><span class="emoji">🚗</span>Mașina Veselă</button>
+        <button class="typeBtn" data-game="farm"><span class="emoji">🐄</span>Ferma Veselă</button>
+        <button class="typeBtn" data-game="balloons"><span class="emoji">🎈</span>Baloane Vesele</button>
+        <button class="typeBtn" data-game="numbers"><span class="emoji">🔢</span>Numere Curajoase</button>
+        <button class="typeBtn" data-game="fruit"><span class="emoji">🍓</span>Grădina Fructelor</button>
+        <button class="typeBtn" data-game="fishing"><span class="emoji">🐠</span>Pescarul Vesel</button>
+        <button class="typeBtn" data-game="shapes"><span class="emoji">🔺</span>Formele Zburătoare</button>
+        <button class="typeBtn" data-game="zoo"><span class="emoji">🦁</span>Zoo Zburător</button>
+        <button class="typeBtn" data-game="train"><span class="emoji">🚂</span>Trenul Vesel</button>
+        <button class="typeBtn" data-game="boat"><span class="emoji">⛵</span>Vaporul Curajos</button>
+        <button class="typeBtn" data-game="letters"><span class="emoji">🔤</span>Litere Vesele</button>
+        <button class="typeBtn" data-game="maze"><span class="emoji">🌀</span>Labirintul Magic</button>
+        <button class="typeBtn" data-game="practice"><span class="emoji">⭐</span>Exerciții</button>
+      </div>
+    </div>
+
+    <div id="screenSelect" class="screen">
+      <h1>Alege mașina ta! 🚗</h1>
+      <h2>Ce culoare?</h2>
+      <div class="colorRow" id="colorRow"></div>
+      <h2>Ce tip de vehicul?</h2>
+      <div class="typeRow" id="typeRow">
+        <button class="typeBtn" data-type="car"><span class="emoji">🚗</span>Mașină</button>
+        <button class="typeBtn" data-type="moto"><span class="emoji">🏍️</span>Motocicletă</button>
+        <button class="typeBtn" data-type="tractor"><span class="emoji">🚜</span>Tractor</button>
+      </div>
+      <button id="startBtn" class="bigStartBtn" disabled>Start! 🚦</button>
+    </div>
+
+    <div id="screenFarmSelect" class="screen">
+      <h1>Alege coșul tău! 🧺</h1>
+      <h2>Ce culoare?</h2>
+      <div class="colorRow" id="farmColorRow"></div>
+      <button id="farmStartBtn" class="bigStartBtn" disabled>Start! 🚦</button>
+    </div>
+
+    <div id="screenMazeSelect" class="screen">
+      <h1>Alege culoarea felinarului tău! 🏮</h1>
+      <h2>Ce culoare?</h2>
+      <div class="colorRow" id="mazeColorRow"></div>
+      <button id="mazeStartBtn" class="bigStartBtn" disabled>Start! 🚦</button>
+    </div>
+
+    <div id="exerciseSlot"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="admin.js"></script>
+<script src="debug.js"></script>
+<script src="credits.js"></script>
+<script src="exercises.js"></script>
+<script src="games/car-game.config.js"></script>
+<script src="games/car-game.js"></script>
+<script src="games/farm-game.config.js"></script>
+<script src="games/farm-game.js"></script>
+<script src="games/balloon-game.config.js"></script>
+<script src="games/balloon-game.js"></script>
+<script src="games/numbers-game.config.js"></script>
+<script src="games/numbers-game.js"></script>
+<script src="games/fruit-game.config.js"></script>
+<script src="games/fruit-game.js"></script>
+<script src="games/fishing-game.config.js"></script>
+<script src="games/fishing-game.js"></script>
+<script src="games/shape-game.config.js"></script>
+<script src="games/shape-game.js"></script>
+<script src="games/zoo-game.config.js"></script>
+<script src="games/zoo-game.js"></script>
+<script src="games/train-game.config.js"></script>
+<script src="games/train-game.js"></script>
+<script src="games/boat-game.config.js"></script>
+<script src="games/boat-game.js"></script>
+<script src="games/letter-game.config.js"></script>
+<script src="games/letter-game.js"></script>
+<script src="games/maze-game.config.js"></script>
+<script src="games/maze-game.js"></script>
+<script src="shell.js"></script>
+</body>
+</html>
