@@ -103,6 +103,7 @@
 
   function correct() {
     state.score += 1;
+    GameShared.awardMatch();
     sfxGood();
     updateHUD();
     Exercises.speak('Bravo!');

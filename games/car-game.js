@@ -361,6 +361,7 @@
           ent.collected = true;
           state.entities.splice(i, 1);
           state.score += 1;
+          GameShared.awardMatch();
           updateHUD();
           sfxStar();
         } else if (state.invuln <= 0) {

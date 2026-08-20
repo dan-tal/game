@@ -404,6 +404,7 @@
     if (orb.digit === state.question.answer) {
       orb.alive = false;
       state.score += 1;
+      GameShared.awardMatch();
       state.roundCorrect += 1;
       updateHUD();
       sfxStar();
@@ -447,6 +448,7 @@
       if (star.alive && dist2(player.x, player.y, star.x, star.y) < CFG.BONUS_STAR_TOUCH_DIST) {
         star.alive = false;
         state.score += 1;
+        GameShared.awardMatch();
         updateHUD();
         sfxStar();
       }

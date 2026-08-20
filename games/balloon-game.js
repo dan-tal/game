@@ -92,6 +92,7 @@
     state.entities.splice(index, 1);
     if (b.color === state.target) {
       state.score += 1;
+      GameShared.awardMatch();
       sfxGood();
       updateHUD();
       // pauza scurta de exercitiu la fiecare X steluțe — exercitiile apar mai des, nu doar la pierdere

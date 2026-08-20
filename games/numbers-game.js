@@ -215,6 +215,7 @@
   function resolveCatch(n) {
     if (n.value === state.target) {
       state.score += 1;
+      GameShared.awardMatch();
       updateHUD();
       sfxCatchGood();
       if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) triggerLearningBreak();

@@ -49,10 +49,19 @@ var GameShared = (function () {
     }
   }
 
+  // steluta reala (Credits), acordata la fiecare prindere/potrivire corecta
+  // din joc — separat de state.score, care e doar scorul rundei curente
+  // afisat in HUD si resetat des. Fara asta, jocul nu da steluțe deloc in
+  // timpul jocului propriu-zis, doar din pauzele de invatare periodice.
+  function awardMatch() {
+    if (window.Credits) Credits.add(AppConfig.CREDIT_PER_GAME_MATCH);
+  }
+
   return {
     tempoMultiplier: tempoMultiplier,
     rampDifficulty: rampDifficulty,
     tickSpawn: tickSpawn,
-    renderHearts: renderHearts
+    renderHearts: renderHearts,
+    awardMatch: awardMatch
   };
 })();

@@ -237,6 +237,7 @@
           ent.collected = true;
           state.entities.splice(i, 1);
           state.score += 1;
+          GameShared.awardMatch();
           updateHUD();
           sfxStar();
           if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) { triggerLearningBreak(); break; }

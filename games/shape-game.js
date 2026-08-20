@@ -87,6 +87,7 @@
     state.entities.splice(index, 1);
     if (b.key === state.target.key) {
       state.score += 1;
+      GameShared.awardMatch();
       sfxGood();
       updateHUD();
       if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) { triggerLearningBreak(); return; }
