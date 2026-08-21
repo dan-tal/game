@@ -77,11 +77,13 @@ var GameShared = (function () {
     var active = false, last = 0;
     canvas.addEventListener('pointerdown', function (e) {
       if (!isActiveFn()) return;
+      e.preventDefault();
       active = true;
       last = e[prop];
     });
     canvas.addEventListener('pointermove', function (e) {
       if (!active || !isActiveFn()) return;
+      e.preventDefault();
       var coord = e[prop];
       var delta = coord - last;
       last = coord;
