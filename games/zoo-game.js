@@ -275,6 +275,7 @@
   var rafId = null;
   window.ZooGame = {
     activate: function () {
+      targetIndicatorEl.style.display = '';
       Exercises.speak('Hai să prindem animăluțe!');
       if (rafId === null) {
         lastTime = null;
@@ -289,6 +290,7 @@
       }
       state.running = false;
       stageEl.classList.remove('playing');
+      targetIndicatorEl.style.display = 'none';
     }
   };
 })();

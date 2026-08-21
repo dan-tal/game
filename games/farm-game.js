@@ -446,6 +446,7 @@
   var rafId = null;
   window.FarmGame = {
     activate: function () {
+      targetIndicatorEl.style.display = '';
       screenFarmSelectEl.classList.add('show');
       Exercises.speak('Alege culoarea coșului tău');
       if (rafId === null) {
@@ -460,6 +461,7 @@
       }
       state.running = false;
       stageEl.classList.remove('playing');
+      targetIndicatorEl.style.display = 'none';
       screenFarmSelectEl.classList.remove('show');
     }
   };

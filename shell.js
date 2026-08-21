@@ -27,6 +27,7 @@
     balloons: window.BalloonGame,
     numbers: window.NumbersGame,
     fruit: window.FruitGame,
+    count: window.CountGame,
     fishing: window.FishingGame,
     shapes: window.ShapeGame,
     zoo: window.ZooGame,
@@ -38,7 +39,7 @@
   };
 
   function speakMenu() {
-    Exercises.speak('Ce joc vrei să joci?');
+    Exercises.speak('Ce joc vrei să joci? Fiecare joc costă ' + AppConfig.GAME_COST_CREDITS + ' steluțe.');
   }
 
   // ecranul de selectie a vârstei apare o singura data, la prima deschidere

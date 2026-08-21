@@ -26,6 +26,7 @@
     balloons: 'Baloane Vesele 🎈',
     numbers: 'Numere Curajoase 🔢',
     fruit: 'Grădina Fructelor 🍓',
+    count: 'Dragon Vesel 🐉',
     fishing: 'Pescarul Vesel 🐠',
     shapes: 'Formele Zburătoare 🔺',
     zoo: 'Zoo Zburător 🦁',

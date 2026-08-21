@@ -401,6 +401,7 @@
   var rafId = null;
   window.FruitGame = {
     activate: function () {
+      targetIndicatorEl.style.display = '';
       Exercises.speak('Hai să culegem fructe!');
       if (rafId === null) {
         lastTime = null;
@@ -415,6 +416,7 @@
       }
       state.running = false;
       stageEl.classList.remove('playing');
+      targetIndicatorEl.style.display = 'none';
     }
   };
 })();

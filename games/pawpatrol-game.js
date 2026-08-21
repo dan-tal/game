@@ -373,6 +373,8 @@
   var rafId = null;
   window.PawPatrolGame = {
     activate: function () {
+      targetIndicatorEl.style.display = '';
+      optionsWrapEl.style.display = '';
       Exercises.speak('Hai să ajutăm Patrula Cățelușilor!');
       if (rafId === null) {
         lastTime = null;
@@ -387,6 +389,8 @@
       }
       state.running = false;
       stageEl.classList.remove('playing');
+      targetIndicatorEl.style.display = 'none';
+      optionsWrapEl.style.display = 'none';
     }
   };
 })();

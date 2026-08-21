@@ -285,6 +285,7 @@
   var rafId = null;
   window.BalloonGame = {
     activate: function () {
+      targetIndicatorEl.style.display = '';
       Exercises.speak('Hai să prindem baloane!');
       if (rafId === null) {
         lastTime = null;
@@ -299,6 +300,7 @@
       }
       state.running = false;
       stageEl.classList.remove('playing');
+      targetIndicatorEl.style.display = 'none';
     }
   };
 })();

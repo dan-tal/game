@@ -339,7 +339,7 @@ var Exercises = (function () {
   // ghiceasca ce urmeaza. Lungimea tiparului creste cu varsta (2 elemente
   // care alterneaza pentru cei mici, 3 pentru cei mari), ca sa fie mereu o
   // provocare potrivita.
-  function makePuzzleRound(mode, tier) {
+  function makePuzzleRound(tier) {
     var lists = [SHAPES, ANIMALS, FRUITS, VEHICLES];
     var list = lists[Math.floor(Math.random() * lists.length)];
     var patternLen = tier === 'school' ? 3 : 2;
@@ -352,16 +352,15 @@ var Exercises = (function () {
     return {
       correctValue: target.key,
       speakText: 'Ce vine la rând în șir?',
+      // sirul e generat aleator la fiecare runda, nu e un raspuns fix de
+      // memorat ca la "gaseste rata" — deci trebuie mereu aratat, altfel in
+      // modul audio (care ascunde tinta sub un 🔊) exercitiul devine
+      // imposibil de rezolvat. La fel ca la numarat/adunat/scazut.
       renderTarget: function (box) {
-        box.classList.remove('mode-stars', 'mode-audio', 'mode-puzzle');
+        box.classList.remove('mode-stars', 'mode-audio');
         box.classList.add('mode-puzzle');
         box.style.background = '#fff';
-        if (mode === 'visual') {
-          box.textContent = sequence.map(iconOf).join(' ') + ' ❓';
-        } else {
-          box.textContent = '🔊';
-          box.classList.add('mode-audio');
-        }
+        box.textContent = sequence.map(iconOf).join(' ') + ' ❓';
       },
       options: opts.map(function (x) { return { value: x.key, kind: 'emoji', label: iconOf(x) }; })
     };
@@ -512,7 +511,7 @@ var Exercises = (function () {
       generators.push(function () { return makeDigitRound(mode); });
       // puzzle-ul cere sa tii minte un tipar din mai multe elemente, prea
       // greu pentru cei mai mici
-      generators.push(function () { return makePuzzleRound(mode, tier); });
+      generators.push(function () { return makePuzzleRound(tier); });
       // adunatul/scaderea cu cosuri de mere cer sa numeri, la fel ca
       // makeCountRound — prea abstract la 2-3 ani, potrivit de la 4 ani in sus
       if (AppConfig.EXERCISE_ADDITION_ENABLED) {

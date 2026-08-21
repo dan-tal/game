@@ -233,6 +233,8 @@
   var rafId = null;
   window.LetterGame = {
     activate: function () {
+      targetIndicatorEl.style.display = '';
+      optionsWrapEl.style.display = '';
       Exercises.speak('Hai să învățăm literele!');
       if (rafId === null) {
         lastTime = null;
@@ -247,6 +249,8 @@
       }
       state.running = false;
       stageEl.classList.remove('playing');
+      targetIndicatorEl.style.display = 'none';
+      optionsWrapEl.style.display = 'none';
     }
   };
 })();

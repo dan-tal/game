@@ -267,6 +267,7 @@
   var rafId = null;
   window.ShapeGame = {
     activate: function () {
+      targetIndicatorEl.style.display = '';
       Exercises.speak('Hai să prindem forme!');
       if (rafId === null) {
         lastTime = null;
@@ -281,6 +282,7 @@
       }
       state.running = false;
       stageEl.classList.remove('playing');
+      targetIndicatorEl.style.display = 'none';
     }
   };
 })();

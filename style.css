@@ -84,6 +84,34 @@ canvas {
   box-shadow: 0 0 0 3px rgba(0,0,0,0.1) inset;
 }
 
+/* ---------- Sageti/D-pad pe ecran, pentru control pe telefon (masina, labirint) ---------- */
+.carTouchControls, .mazeTouchControls {
+  position: absolute;
+  left: 14px; right: 14px; bottom: 14px;
+  display: none;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 7;
+}
+.dpadGroup { display: flex; gap: 10px; }
+.dpadGroupMove { flex-direction: column; }
+.dpadBtn {
+  width: clamp(52px, 13vw, 68px);
+  height: clamp(52px, 13vw, 68px);
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.78);
+  color: #444;
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: bold;
+  line-height: 1;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.dpadBtn:active { background: rgba(255,255,255,0.95); transform: scale(0.94); }
+
 #homeBtn {
   position: absolute;
   top: 10px;
@@ -329,6 +357,26 @@ canvas {
   font-weight: bold;
   margin-top: 12px;
 }
+
+/* ---------- Dragon Vesel: iconita vietuitoarei cautate, in .gameTarget ---------- */
+.gameTargetIcon {
+  display: block;
+  width: clamp(28px, 5.5vw, 40px);
+  height: clamp(28px, 5.5vw, 40px);
+  vertical-align: middle;
+}
+
+/* ---------- Dragon Vesel: rand de cifre pe care copilul apasa dupa ce a numarat vietuitoarele din poza ---------- */
+.countOptionsWrap {
+  position: absolute;
+  left: 0; right: 0; bottom: 14px;
+  display: none;
+  gap: clamp(8px, 1.8vw, 16px);
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0 10px;
+}
+#stage.playing .countOptionsWrap { display: flex; }
 
 /* ---------- Patrula Cățelușilor: buline de culoare si caciula castigata pe butoanele de personaje ---------- */
 .ppCharBtn { position: relative; overflow: visible; }

@@ -262,6 +262,7 @@
     state.running = true;
     buildLevel();
     stageEl.classList.add('playing');
+    touchControlsEl.style.display = 'flex';
     updateHUD();
   }
 
@@ -272,6 +273,7 @@
     player.x = 1.5; player.y = 1.5; player.angle = 0.7;
     state.running = true;
     stageEl.classList.add('playing');
+    touchControlsEl.style.display = 'flex';
     updateHUD();
   }
 
@@ -292,6 +294,7 @@
   function triggerLearningBreak() {
     state.running = false;
     stageEl.classList.remove('playing');
+    touchControlsEl.style.display = 'none';
     Exercises.ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', continueGameAfterBreak);
   }
 
@@ -309,6 +312,32 @@
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keyLeft = false;
     if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keyRight = false;
   });
+
+  // ---------- Input: touch (D-pad: viraj stanga/dreapta + inainte/inapoi) ----------
+  var touchControlsEl = document.createElement('div');
+  touchControlsEl.className = 'mazeTouchControls';
+  touchControlsEl.innerHTML =
+    '<div class="dpadGroup dpadGroupTurn">' +
+      '<button type="button" class="dpadBtn dpadLeft" aria-label="stânga">◀</button>' +
+      '<button type="button" class="dpadBtn dpadRight" aria-label="dreapta">▶</button>' +
+    '</div>' +
+    '<div class="dpadGroup dpadGroupMove">' +
+      '<button type="button" class="dpadBtn dpadUp" aria-label="înainte">▲</button>' +
+      '<button type="button" class="dpadBtn dpadDown" aria-label="înapoi">▼</button>' +
+    '</div>';
+  touchControlsEl.style.display = 'none';
+  stageEl.appendChild(touchControlsEl);
+
+  function bindHoldButton(el, onDown, onUp) {
+    el.addEventListener('pointerdown', function (e) { e.preventDefault(); onDown(); });
+    el.addEventListener('pointerup', onUp);
+    el.addEventListener('pointercancel', onUp);
+    el.addEventListener('pointerleave', onUp);
+  }
+  bindHoldButton(touchControlsEl.querySelector('.dpadLeft'), function () { keyLeft = true; }, function () { keyLeft = false; });
+  bindHoldButton(touchControlsEl.querySelector('.dpadRight'), function () { keyRight = true; }, function () { keyRight = false; });
+  bindHoldButton(touchControlsEl.querySelector('.dpadUp'), function () { keyFwd = true; }, function () { keyFwd = false; });
+  bindHoldButton(touchControlsEl.querySelector('.dpadDown'), function () { keyBack = true; }, function () { keyBack = false; });
 
   // ---------- Input: Gamepad (stick stanga: axa 0 = viraj, axa 1 = inainte/inapoi) ----------
   var gamepadIndex = null;
@@ -712,6 +741,7 @@
   // ---------- Public entry point (called by shell.js when chosen from the menu) ----------
   window.MazeGame = {
     activate: function () {
+      questionEl.style.display = '';
       screenSelectEl.classList.add('show');
       Exercises.speak('Alege o culoare!');
       if (rafId === null) {
@@ -726,6 +756,8 @@
       }
       state.running = false;
       stageEl.classList.remove('playing');
+      questionEl.style.display = 'none';
+      touchControlsEl.style.display = 'none';
       screenSelectEl.classList.remove('show');
     }
   };
