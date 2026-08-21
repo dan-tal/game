@@ -148,38 +148,16 @@
     '<button type="button" class="dpadBtn dpadRight" aria-label="dreapta">▶</button>';
   touchControlsEl.style.display = 'none';
   stageEl.appendChild(touchControlsEl);
-  var dpadLeftEl = touchControlsEl.querySelector('.dpadLeft');
-  var dpadRightEl = touchControlsEl.querySelector('.dpadRight');
-
-  function bindHoldButton(el, onDown, onUp) {
-    el.addEventListener('pointerdown', function (e) { e.preventDefault(); onDown(); });
-    el.addEventListener('pointerup', onUp);
-    el.addEventListener('pointercancel', onUp);
-    el.addEventListener('pointerleave', onUp);
-  }
-  bindHoldButton(dpadLeftEl, function () { keyLeft = true; }, function () { keyLeft = false; });
-  bindHoldButton(dpadRightEl, function () { keyRight = true; }, function () { keyRight = false; });
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadLeft'), function () { keyLeft = true; }, function () { keyLeft = false; });
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadRight'), function () { keyRight = true; }, function () { keyRight = false; });
 
   // swipe: tragi degetul stanga/dreapta pe sosea si masina il urmareste direct
-  var dragActive = false, dragLastX = 0;
-  canvas.addEventListener('pointerdown', function (e) {
-    if (!state.running) return;
-    dragActive = true;
-    dragLastX = e.clientX;
-  });
-  canvas.addEventListener('pointermove', function (e) {
-    if (!dragActive || !state.running) return;
-    var dx = e.clientX - dragLastX;
-    dragLastX = e.clientX;
-    var rect = canvas.getBoundingClientRect();
-    var scale = W / rect.width;
-    car.x += dx * scale;
+  GameShared.attachDragAxis(canvas, 'x', W, function () { return state.running; }, function (dx) {
+    car.x += dx;
     var half = car.w / 2;
     if (car.x < ROAD_LEFT + half) car.x = ROAD_LEFT + half;
     if (car.x > ROAD_RIGHT - half) car.x = ROAD_RIGHT - half;
   });
-  window.addEventListener('pointerup', function () { dragActive = false; });
-  window.addEventListener('pointercancel', function () { dragActive = false; });
 
   // ---------- Input: Gamepad / steering wheel ----------
   var gamepadIndex = null;

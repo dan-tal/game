@@ -57,11 +57,49 @@ var GameShared = (function () {
     if (window.Credits) Credits.add(AppConfig.CREDIT_PER_GAME_MATCH);
   }
 
+  // leaga un buton de pe ecran (sageata, D-pad) de o pereche onDown/onUp,
+  // functionand identic la mouse si la atingere (pointer events) — folosit
+  // de toate jocurile cu miscare continua (masina, ferma, fructe, tren...)
+  // ca sa nu se repete aceleasi 6 linii in fiecare fisier de joc.
+  function bindHoldButton(el, onDown, onUp) {
+    el.addEventListener('pointerdown', function (e) { e.preventDefault(); onDown(); });
+    el.addEventListener('pointerup', onUp);
+    el.addEventListener('pointercancel', onUp);
+    el.addEventListener('pointerleave', onUp);
+  }
+
+  // tragere cu degetul pe canvas, pe o singura axa ('x' sau 'y') — apeleaza
+  // onDelta(deltaInLogicalPx) cat timp degetul se misca si isActiveFn()
+  // e adevarat. Touch-ul vine in px CSS, dar jocurile lucreaza in px logice
+  // (420x700), de-asta scalarea cu getBoundingClientRect().
+  function attachDragAxis(canvas, axis, logicalSize, isActiveFn, onDelta) {
+    var prop = axis === 'x' ? 'clientX' : 'clientY';
+    var active = false, last = 0;
+    canvas.addEventListener('pointerdown', function (e) {
+      if (!isActiveFn()) return;
+      active = true;
+      last = e[prop];
+    });
+    canvas.addEventListener('pointermove', function (e) {
+      if (!active || !isActiveFn()) return;
+      var coord = e[prop];
+      var delta = coord - last;
+      last = coord;
+      var rect = canvas.getBoundingClientRect();
+      var cssSize = axis === 'x' ? rect.width : rect.height;
+      onDelta(delta * (logicalSize / cssSize));
+    });
+    window.addEventListener('pointerup', function () { active = false; });
+    window.addEventListener('pointercancel', function () { active = false; });
+  }
+
   return {
     tempoMultiplier: tempoMultiplier,
     rampDifficulty: rampDifficulty,
     tickSpawn: tickSpawn,
     renderHearts: renderHearts,
-    awardMatch: awardMatch
+    awardMatch: awardMatch,
+    bindHoldButton: bindHoldButton,
+    attachDragAxis: attachDragAxis
   };
 })();

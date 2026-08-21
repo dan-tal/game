@@ -58,6 +58,7 @@
     state.running = true;
 
     stageEl.classList.add('playing');
+    touchControlsEl.style.display = 'flex';
     updateHUD();
   }
 
@@ -67,6 +68,7 @@
     state.entities = [];
     state.running = true;
     stageEl.classList.add('playing');
+    touchControlsEl.style.display = 'flex';
     updateHUD();
   }
 
@@ -84,6 +86,24 @@
   window.addEventListener('keyup', function (e) {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keyLeft = false;
     if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keyRight = false;
+  });
+
+  // ---------- Input: touch (sageti stanga/dreapta + swipe direct pe mare) ----------
+  var touchControlsEl = document.createElement('div');
+  touchControlsEl.className = 'hDpadControls';
+  touchControlsEl.innerHTML =
+    '<button type="button" class="dpadBtn dpadLeft" aria-label="stânga">◀</button>' +
+    '<button type="button" class="dpadBtn dpadRight" aria-label="dreapta">▶</button>';
+  touchControlsEl.style.display = 'none';
+  stageEl.appendChild(touchControlsEl);
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadLeft'), function () { keyLeft = true; }, function () { keyLeft = false; });
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadRight'), function () { keyRight = true; }, function () { keyRight = false; });
+
+  GameShared.attachDragAxis(canvas, 'x', W, function () { return state.running; }, function (dx) {
+    boat.x += dx;
+    var half = boat.w / 2;
+    if (boat.x < SEA_LEFT + half) boat.x = SEA_LEFT + half;
+    if (boat.x > SEA_RIGHT - half) boat.x = SEA_RIGHT - half;
   });
 
   // ---------- Input: Gamepad / steering wheel ----------
@@ -257,6 +277,7 @@
   function triggerLearningBreak() {
     state.running = false;
     stageEl.classList.remove('playing');
+    touchControlsEl.style.display = 'none';
     Exercises.ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', continueGameAfterBreak);
   }
 
@@ -413,6 +434,7 @@
       }
       state.running = false;
       stageEl.classList.remove('playing');
+      touchControlsEl.style.display = 'none';
     }
   };
 })();

@@ -24,10 +24,12 @@
 
   var targetIndicatorEl = document.createElement('div');
   targetIndicatorEl.className = 'gameTarget';
+  targetIndicatorEl.style.display = 'none';
   stageEl.appendChild(targetIndicatorEl);
 
   var optionsWrapEl = document.createElement('div');
   optionsWrapEl.className = 'letterOptionsWrap';
+  optionsWrapEl.style.display = 'none';
   stageEl.appendChild(optionsWrapEl);
 
   var LETTERS = LetterGameConfig.LETTERS;

@@ -20,6 +20,7 @@
   // eticheta cu tinta curenta (un balon colorat), injectata in scena comuna
   var targetIndicatorEl = document.createElement('div');
   targetIndicatorEl.className = 'gameTarget';
+  targetIndicatorEl.style.display = 'none';
   targetIndicatorEl.innerHTML = '<span class="gameTargetSwatch"></span>';
   stageEl.appendChild(targetIndicatorEl);
   var targetSwatchEl = targetIndicatorEl.querySelector('.gameTargetSwatch');

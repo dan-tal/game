@@ -32,6 +32,7 @@
   // .gameTarget deja folosit de alte jocuri (numere, forme etc.)
   var questionEl = document.createElement('div');
   questionEl.className = 'gameTarget mazeQuestionBox';
+  questionEl.style.display = 'none';
   stageEl.appendChild(questionEl);
 
   // ---------- Sounds (reuse the shared AudioContext from the Exercises module) ----------
@@ -328,16 +329,10 @@
   touchControlsEl.style.display = 'none';
   stageEl.appendChild(touchControlsEl);
 
-  function bindHoldButton(el, onDown, onUp) {
-    el.addEventListener('pointerdown', function (e) { e.preventDefault(); onDown(); });
-    el.addEventListener('pointerup', onUp);
-    el.addEventListener('pointercancel', onUp);
-    el.addEventListener('pointerleave', onUp);
-  }
-  bindHoldButton(touchControlsEl.querySelector('.dpadLeft'), function () { keyLeft = true; }, function () { keyLeft = false; });
-  bindHoldButton(touchControlsEl.querySelector('.dpadRight'), function () { keyRight = true; }, function () { keyRight = false; });
-  bindHoldButton(touchControlsEl.querySelector('.dpadUp'), function () { keyFwd = true; }, function () { keyFwd = false; });
-  bindHoldButton(touchControlsEl.querySelector('.dpadDown'), function () { keyBack = true; }, function () { keyBack = false; });
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadLeft'), function () { keyLeft = true; }, function () { keyLeft = false; });
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadRight'), function () { keyRight = true; }, function () { keyRight = false; });
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadUp'), function () { keyFwd = true; }, function () { keyFwd = false; });
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadDown'), function () { keyBack = true; }, function () { keyBack = false; });
 
   // ---------- Input: Gamepad (stick stanga: axa 0 = viraj, axa 1 = inainte/inapoi) ----------
   var gamepadIndex = null;

@@ -26,6 +26,7 @@
   // so the shell markup stays generic and game-agnostic)
   var targetIndicatorEl = document.createElement('div');
   targetIndicatorEl.className = 'gameTarget';
+  targetIndicatorEl.style.display = 'none';
   stageEl.appendChild(targetIndicatorEl);
 
   // ---------- Sounds (reuse the shared AudioContext from the Exercises module) ----------
@@ -104,6 +105,7 @@
 
     pickNewTarget();
     stageEl.classList.add('playing');
+    touchControlsEl.style.display = 'flex';
     updateHUD();
   }
 
@@ -114,6 +116,7 @@
     state.running = true;
     pickNewTarget();
     stageEl.classList.add('playing');
+    touchControlsEl.style.display = 'flex';
     updateHUD();
   }
 
@@ -131,6 +134,24 @@
   window.addEventListener('keyup', function (e) {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keyLeft = false;
     if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keyRight = false;
+  });
+
+  // ---------- Input: touch (sageti stanga/dreapta + swipe direct pe scena) ----------
+  var touchControlsEl = document.createElement('div');
+  touchControlsEl.className = 'hDpadControls';
+  touchControlsEl.innerHTML =
+    '<button type="button" class="dpadBtn dpadLeft" aria-label="stânga">◀</button>' +
+    '<button type="button" class="dpadBtn dpadRight" aria-label="dreapta">▶</button>';
+  touchControlsEl.style.display = 'none';
+  stageEl.appendChild(touchControlsEl);
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadLeft'), function () { keyLeft = true; }, function () { keyLeft = false; });
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadRight'), function () { keyRight = true; }, function () { keyRight = false; });
+
+  GameShared.attachDragAxis(canvas, 'x', W, function () { return state.running; }, function (dx) {
+    basket.x += dx;
+    var half = basket.w / 2;
+    if (basket.x < 40 + half) basket.x = 40 + half;
+    if (basket.x > W - 40 - half) basket.x = W - 40 - half;
   });
 
   // ---------- Input: Gamepad / steering wheel ----------
@@ -327,6 +348,7 @@
   function triggerLearningBreak() {
     state.running = false;
     stageEl.classList.remove('playing');
+    touchControlsEl.style.display = 'none';
     Exercises.ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', continueGameAfterBreak);
   }
 
@@ -462,6 +484,7 @@
       state.running = false;
       stageEl.classList.remove('playing');
       targetIndicatorEl.style.display = 'none';
+      touchControlsEl.style.display = 'none';
       screenFarmSelectEl.classList.remove('show');
     }
   };

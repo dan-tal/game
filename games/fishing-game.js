@@ -21,6 +21,7 @@
 
   var targetIndicatorEl = document.createElement('div');
   targetIndicatorEl.className = 'gameTarget';
+  targetIndicatorEl.style.display = 'none';
   stageEl.appendChild(targetIndicatorEl);
 
   var FISH = FishingGameConfig.FISH;
@@ -74,6 +75,7 @@
 
     pickNewTarget();
     stageEl.classList.add('playing');
+    touchControlsEl.style.display = 'flex';
     updateHUD();
   }
 
@@ -84,6 +86,7 @@
     state.running = true;
     pickNewTarget();
     stageEl.classList.add('playing');
+    touchControlsEl.style.display = 'flex';
     updateHUD();
   }
 
@@ -101,6 +104,23 @@
   window.addEventListener('keyup', function (e) {
     if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keyUp = false;
     if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keyDown = false;
+  });
+
+  // ---------- Input: touch (sageti sus/jos + swipe direct pe apa) ----------
+  var touchControlsEl = document.createElement('div');
+  touchControlsEl.className = 'vDpadControls';
+  touchControlsEl.innerHTML =
+    '<button type="button" class="dpadBtn dpadUp" aria-label="sus">▲</button>' +
+    '<button type="button" class="dpadBtn dpadDown" aria-label="jos">▼</button>';
+  touchControlsEl.style.display = 'none';
+  stageEl.appendChild(touchControlsEl);
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadUp'), function () { keyUp = true; }, function () { keyUp = false; });
+  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadDown'), function () { keyDown = true; }, function () { keyDown = false; });
+
+  GameShared.attachDragAxis(canvas, 'y', H, function () { return state.running; }, function (dy) {
+    net.y += dy;
+    if (net.y < PLAY_TOP) net.y = PLAY_TOP;
+    if (net.y > PLAY_BOTTOM) net.y = PLAY_BOTTOM;
   });
 
   // ---------- Input: Gamepad (axa verticala) ----------
@@ -282,6 +302,7 @@
   function triggerLearningBreak() {
     state.running = false;
     stageEl.classList.remove('playing');
+    touchControlsEl.style.display = 'none';
     Exercises.ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', continueGameAfterBreak);
   }
 
@@ -400,6 +421,7 @@
       state.running = false;
       stageEl.classList.remove('playing');
       targetIndicatorEl.style.display = 'none';
+      touchControlsEl.style.display = 'none';
     }
   };
 })();

@@ -20,6 +20,7 @@
 
   var targetIndicatorEl = document.createElement('div');
   targetIndicatorEl.className = 'gameTarget';
+  targetIndicatorEl.style.display = 'none';
   stageEl.appendChild(targetIndicatorEl);
 
   var SHAPES = ShapeGameConfig.SHAPES;

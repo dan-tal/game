@@ -84,13 +84,21 @@ canvas {
   box-shadow: 0 0 0 3px rgba(0,0,0,0.1) inset;
 }
 
-/* ---------- Sageti/D-pad pe ecran, pentru control pe telefon (masina, labirint) ---------- */
-.carTouchControls, .mazeTouchControls {
+/* ---------- Sageti/D-pad pe ecran, pentru control pe telefon (toate jocurile cu miscare continua) ---------- */
+.carTouchControls, .mazeTouchControls, .hDpadControls {
   position: absolute;
   left: 14px; right: 14px; bottom: 14px;
   display: none;
   justify-content: space-between;
   align-items: flex-end;
+  z-index: 7;
+}
+.vDpadControls {
+  position: absolute;
+  right: 14px; bottom: 14px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
   z-index: 7;
 }
 .dpadGroup { display: flex; gap: 10px; }

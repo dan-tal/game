@@ -26,10 +26,12 @@
 
   var targetIndicatorEl = document.createElement('div');
   targetIndicatorEl.className = 'gameTarget';
+  targetIndicatorEl.style.display = 'none';
   stageEl.appendChild(targetIndicatorEl);
 
   var optionsWrapEl = document.createElement('div');
   optionsWrapEl.className = 'countOptionsWrap';
+  optionsWrapEl.style.display = 'none';
   stageEl.appendChild(optionsWrapEl);
 
   var CREATURES = CountGameConfig.CREATURES;
