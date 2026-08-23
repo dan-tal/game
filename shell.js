@@ -35,7 +35,8 @@
     train: window.TrainGame,
     boat: window.BoatGame,
     letters: window.LetterGame,
-    maze: window.MazeGame
+    maze: window.MazeGame,
+    math: window.MathGame
   };
 
   function speakMenu() {

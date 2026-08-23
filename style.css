@@ -424,6 +424,31 @@ canvas {
   white-space: nowrap;
 }
 
+/* ---------- Calcule Mari: ecuatia sus, si randul de raspunsuri sub ea ---------- */
+.mathQuestionBox {
+  font-size: clamp(20px, 4vw, 30px);
+  padding: 0 clamp(14px, 3vw, 22px);
+  white-space: nowrap;
+}
+.mathOptionsWrap {
+  position: absolute;
+  left: 0; right: 0; bottom: 14px;
+  display: none;
+  gap: clamp(8px, 1.8vw, 16px);
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0 10px;
+}
+#stage.playing .mathOptionsWrap { display: flex; }
+/* raspunsurile pot avea pana la 3-4 cifre (ex: 1035), spre deosebire de
+   restul jocurilor unde .exOptionBtn arata mereu o singura cifra — nu mai
+   fortam o forma patrata fixa, doar o latime minima */
+.mathOptionsWrap .exOptionBtn {
+  width: auto;
+  min-width: clamp(64px, 12vw, 100px);
+  padding: 0 clamp(10px, 2vw, 18px);
+}
+
 #debugToggle {
   position: fixed;
   top: 10px;

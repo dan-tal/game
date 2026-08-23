@@ -60,7 +60,8 @@ var AppConfig = {
     boat: 20,
     fishing: 20,
     letters: 25,
-    maze: 200
+    maze: 200,
+    math: 250
   },
 
   // timp maxim continuu de joc (minute) inainte sa apara ecranul de pauza,

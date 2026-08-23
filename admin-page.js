@@ -34,7 +34,8 @@
     train: 'Trenul Vesel 🚂',
     boat: 'Vaporul Curajos ⛵',
     letters: 'Litere Vesele 🔤',
-    maze: 'Labirintul Magic 🌀'
+    maze: 'Labirintul Magic 🌀',
+    math: 'Calcule Mari 🧮'
   };
 
   // setarile importante, cu cate un input numeric dedicat — restul cheilor
