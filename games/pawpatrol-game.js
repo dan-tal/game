@@ -2,7 +2,7 @@
 //
 // "Patrula Cățelușilor" — joc de recunoaștere in doi pasi, fara viata
 // pierduta (ca la Litere Vesele): mai intai copilul trebuie sa gaseasca
-// personajul cerut dupa nume (primul cerut e mereu Max — cand il alege
+// personajul cerut dupa nume (primul cerut e mereu Ryder — cand il alege
 // corect primeste caciula verde), apoi, pentru fiecare personaj din
 // patrula, trebuie sa aleaga ce vehicul are (mașină, motocicletă sau
 // avion). Dupa ce a trecut prin toti membrii patrulei, runda se ia de la
@@ -140,7 +140,7 @@
   function newEpisode() {
     state.order = shuffle(CHARACTERS.slice());
     if (state.firstRoundEver) {
-      // Max e mereu cerut primul la prima runda a sesiunii curente
+      // Ryder e mereu cerut primul la prima runda a sesiunii curente
       var firstKey = PawPatrolGameConfig.FIRST_TARGET_KEY;
       state.order.sort(function (a, b) {
         if (a.key === firstKey) return -1;
@@ -168,7 +168,7 @@
     sfxGood();
     updateHUD();
     var msg = ch.key === PawPatrolGameConfig.FIRST_TARGET_KEY
-      ? 'Bravo! Iată căciula verde a lui Max!'
+      ? 'Bravo! Iată căciula verde a lui Ryder!'
       : 'Bravo!';
     Exercises.speak(msg);
     disableOptions();

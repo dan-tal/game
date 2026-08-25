@@ -15,6 +15,15 @@
 
   var START_KEY = 'arcadeSessionStart';
   var LOCK_KEY = 'arcadeLockedUntil';
+  var LAST_TICK_KEY = 'arcadeLastTick';
+
+  // daca a trecut mai mult decat atat de la ultimul tick (pagina/browserul a
+  // fost inchis sau lasat in fundal o vreme), nu mai consideram joaca
+  // "continua" — pornim o sesiune noua. Altfel un copil care a jucat 5 minute
+  // ieri si deschide din nou azi ar lua pauza imediat, ca si cum ar fi jucat
+  // continuu de atunci (START_KEY nu se reseta altfel decat cand se declanseaza
+  // pauza).
+  var INACTIVITY_RESET_MS = 2 * 60000;
 
   var overlayEl = null;
   var countdownEl = null;
@@ -76,6 +85,9 @@
 
   function tick() {
     var now = Date.now();
+    var lastTick = getNum(LAST_TICK_KEY);
+    setNum(LAST_TICK_KEY, now);
+
     var lockedUntil = getNum(LOCK_KEY);
 
     if (lockedUntil) {
@@ -90,7 +102,7 @@
     }
 
     var start = getNum(START_KEY);
-    if (!start) {
+    if (!start || (lastTick && now - lastTick > INACTIVITY_RESET_MS)) {
       start = now;
       setNum(START_KEY, start);
     }
