@@ -12,7 +12,8 @@ var PawPatrolGameConfig = {
     { key: 'skye',     name: 'Skye',     emoji: '🐶', image: 'games/assets/pawpatrol/skye.webp',     color: '#ec407a', vehicle: 'plane' },
     { key: 'rocky',    name: 'Rocky',    emoji: '🐶', image: 'games/assets/pawpatrol/rocky.webp',    color: '#43a047', vehicle: 'car'   },
     { key: 'zuma',     name: 'Zuma',     emoji: '🐶', image: 'games/assets/pawpatrol/zuma.webp',     color: '#fb8c00', vehicle: 'moto'  },
-    { key: 'everest',  name: 'Everest',  emoji: '🐶', image: 'games/assets/pawpatrol/everest.webp',  color: '#4fc3f7', vehicle: 'moto'  },
+    // Nu exista o poza oficiala de-a lui Rubble, asa ca ramane cu emoji.
+    { key: 'rubble',   name: 'Rubble',   emoji: '🐶', image: null, color: '#fdd835', vehicle: 'car'  },
     // Ryder primeste mereu caciula verde cand e ales corect prima data,
     // asa cum a cerut parintele — de-asta are culoarea verde de la inceput.
     // Nu exista o poza oficiala de-a lui Ryder, asa ca ramane cu emoji.
