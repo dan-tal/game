@@ -449,6 +449,65 @@ canvas {
   padding: 0 clamp(10px, 2vw, 18px);
 }
 
+/* ---------- Duel de Calcule: ecran impartit intre 2 jucatori, sus si jos ---------- */
+.duelZone {
+  position: absolute;
+  left: 0; right: 0;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px clamp(8px, 2vw, 16px);
+  gap: 6px;
+}
+.duelZoneBottom { bottom: 0; }
+/* jumatatea de sus e rotita 180° — jucatorul de sus sta cu fata spre celalalt
+   capat al telefonului, ca la un joc de societate pe masa, si citeste normal */
+.duelZoneTop { top: 0; transform: rotate(180deg); }
+
+.duelHud {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+  font-size: clamp(16px, 3.2vw, 24px);
+}
+
+.duelQuestion {
+  font-size: clamp(18px, 3.6vw, 28px);
+  font-weight: bold;
+  color: #444;
+  background: rgba(255,255,255,0.85);
+  border-radius: 14px;
+  padding: 4px clamp(10px, 2vw, 16px);
+  min-height: clamp(28px, 5.5vw, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.duelOptions {
+  display: flex;
+  gap: clamp(6px, 1.6vw, 12px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+/* raspunsurile pot avea pana la 3-4 cifre, si spatiul e mai stramt decat la
+   jocurile pe ecran intreg (jumatate de inaltime) — butoane mai mici */
+.duelOptions .exOptionBtn {
+  width: auto;
+  min-width: clamp(52px, 10vw, 82px);
+  height: clamp(46px, 8.5vw, 72px);
+  font-size: clamp(18px, 3.6vw, 30px);
+  padding: 0 clamp(8px, 1.6vw, 14px);
+}
+
 #debugToggle {
   position: fixed;
   top: 10px;

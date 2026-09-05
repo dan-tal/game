@@ -35,7 +35,8 @@
     boat: 'Vaporul Curajos ⛵',
     letters: 'Litere Vesele 🔤',
     maze: 'Labirintul Magic 🌀',
-    math: 'Calcule Mari 🧮'
+    math: 'Calcule Mari 🧮',
+    mathduel: 'Duel de Calcule ⚔️'
   };
 
   // setarile importante, cu cate un input numeric dedicat — restul cheilor

@@ -36,7 +36,8 @@
     boat: window.BoatGame,
     letters: window.LetterGame,
     maze: window.MazeGame,
-    math: window.MathGame
+    math: window.MathGame,
+    mathduel: window.MathDuelGame
   };
 
   function speakMenu() {
