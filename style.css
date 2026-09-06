@@ -463,8 +463,12 @@ canvas {
 }
 .duelZoneBottom { bottom: 0; }
 /* jumatatea de sus e rotita 180° — jucatorul de sus sta cu fata spre celalalt
-   capat al telefonului, ca la un joc de societate pe masa, si citeste normal */
-.duelZoneTop { top: 0; transform: rotate(180deg); }
+   capat al telefonului, ca la un joc de societate pe masa, si citeste normal.
+   Randul de raspunsuri e ultimul copil din .duelZone, deci dupa rotatie
+   ajunge langa marginea de SUS a ecranului — exact unde stau #homeBtn si
+   #creditsBadge (vezi top:10px la amandoua). Fara acest padding-bottom marit,
+   raspunsurile jucatorului 2 s-ar suprapune cu steluta totala din colt. */
+.duelZoneTop { top: 0; transform: rotate(180deg); padding-bottom: clamp(44px, 8vh, 60px); }
 
 .duelHud {
   width: 100%;
