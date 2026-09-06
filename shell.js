@@ -37,7 +37,8 @@
     letters: window.LetterGame,
     maze: window.MazeGame,
     math: window.MathGame,
-    mathduel: window.MathDuelGame
+    mathduel: window.MathDuelGame,
+    memory: window.MemoryGame
   };
 
   function speakMenu() {

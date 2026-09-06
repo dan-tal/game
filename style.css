@@ -512,6 +512,37 @@ canvas {
   padding: 0 clamp(8px, 1.6vw, 14px);
 }
 
+/* ---------- Perechi Vesele: tabla de carti de memorie, 4 coloane x 3 randuri ---------- */
+.memoryBoard {
+  position: absolute;
+  left: 0; right: 0;
+  top: clamp(72px, 13vh, 96px);
+  bottom: 14px;
+  display: none;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: clamp(6px, 1.6vw, 12px);
+  padding: 0 clamp(10px, 2.4vw, 18px);
+}
+#stage.playing .memoryBoard { display: grid; }
+
+.memoryCard {
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #7e57c2, #5e35b1);
+  color: #fff;
+  font-size: clamp(22px, 6vw, 34px);
+  font-weight: bold;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.memoryCard:active { transform: translateY(2px); box-shadow: none; }
+.memoryCardFlipped { background: #fff; color: #333; box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
+.memoryCardMatched { background: #c8e6c9; opacity: 0.85; cursor: default; }
+
 #debugToggle {
   position: fixed;
   top: 10px;

@@ -55,6 +55,7 @@ var AppConfig = {
     farm: 10,
     fruit: 10,
     count: 10,
+    memory: 10,
     car: 15,
     train: 15,
     boat: 20,

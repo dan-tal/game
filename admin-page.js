@@ -36,7 +36,8 @@
     letters: 'Litere Vesele 🔤',
     maze: 'Labirintul Magic 🌀',
     math: 'Calcule Mari 🧮',
-    mathduel: 'Duel de Calcule ⚔️'
+    mathduel: 'Duel de Calcule ⚔️',
+    memory: 'Perechi Vesele 🧠'
   };
 
   // setarile importante, cu cate un input numeric dedicat — restul cheilor
