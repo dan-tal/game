@@ -37,7 +37,8 @@
     maze: 'Labirintul Magic 🌀',
     math: 'Calcule Mari 🧮',
     mathduel: 'Duel de Calcule ⚔️',
-    memory: 'Perechi Vesele 🧠'
+    memory: 'Perechi Vesele 🧠',
+    shapesduel: 'Duel de Forme 🎨'
   };
 
   // setarile importante, cu cate un input numeric dedicat — restul cheilor

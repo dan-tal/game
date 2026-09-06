@@ -52,6 +52,7 @@ var AppConfig = {
     shapes: 5,
     zoo: 5,
     pawpatrol: 5,
+    shapesduel: 5,
     farm: 10,
     fruit: 10,
     count: 10,
