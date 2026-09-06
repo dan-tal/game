@@ -5,3 +5,6 @@ docker-compose.yml
 deploy.sh
 nginx.conf.template
 README.md
+# server/ e imaginea separata a WS-ului (server/Dockerfile) — nu are ce cauta
+# in radacina web servita de nginx (ar expune sursa serverului + node_modules)
+server

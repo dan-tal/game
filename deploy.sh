@@ -2,6 +2,7 @@
 set -euo pipefail
 
 IMAGE="dan4kl/game"
+WS_IMAGE="dan4kl/game-ws"
 
 cd "$(dirname "$0")"
 
@@ -22,4 +23,11 @@ docker build -t "$IMAGE:latest" .
 echo "==> Push $IMAGE:latest"
 docker push "$IMAGE:latest"
 
-echo "==> Done: $IMAGE:latest (version $VERSION)"
+echo "==> Build $WS_IMAGE:latest"
+docker build -t "$WS_IMAGE:latest" ./server
+
+echo "==> Push $WS_IMAGE:latest"
+docker push "$WS_IMAGE:latest"
+
+echo "==> Done: $IMAGE:latest + $WS_IMAGE:latest (version $VERSION)"
+echo "==> Pe server: docker compose pull && docker compose up -d (serviciul game-ws e nou in docker-compose.yml)"

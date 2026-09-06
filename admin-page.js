@@ -40,7 +40,8 @@
     memory: 'Perechi Vesele 🧠',
     shapesduel: 'Duel de Forme 🎨',
     simon: 'Repetă Șirul 🔁',
-    puzzle: 'Puzzle Vesel 🧩'
+    puzzle: 'Puzzle Vesel 🧩',
+    mathduelonline: 'Duel Online 🌐'
   };
 
   // setarile importante, cu cate un input numeric dedicat — restul cheilor

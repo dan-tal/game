@@ -658,6 +658,67 @@ canvas {
   pointer-events: none;
 }
 
+/* ---------- Duel Online: lobby (creare/alaturare camera) ---------- */
+.duelOnlineCodeBox {
+  font-size: clamp(32px, 8vw, 52px);
+  font-weight: bold;
+  letter-spacing: 4px;
+  background: #fff;
+  color: #5d4037;
+  border-radius: 14px;
+  padding: 8px clamp(16px, 4vw, 28px);
+  margin: 10px 0;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+}
+.duelOnlineLinkRow {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+.duelOnlineLinkInput {
+  width: 100%;
+  font-size: clamp(13px, 2.6vw, 16px);
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 2px solid #ffb300;
+  text-align: center;
+  background: #fff;
+  color: #444;
+}
+.duelOnlineError {
+  color: #c62828;
+  font-weight: bold;
+  font-size: clamp(15px, 3vw, 20px);
+  max-width: 320px;
+}
+
+/* ---------- Duel Online: ecranul de joc (un singur jucator pe acest device) ---------- */
+.duelOnlineZone {
+  position: absolute;
+  left: 0; right: 0;
+  top: clamp(72px, 13vh, 96px);
+  bottom: 14px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 14px;
+  padding: 0 10px;
+}
+#stage.playing .duelOnlineZone { display: flex; }
+.duelOnlineOpponent {
+  font-size: clamp(15px, 3.2vw, 20px);
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+  background: rgba(0,0,0,0.25);
+  border-radius: 12px;
+  padding: 6px 14px;
+}
+
 #debugToggle {
   position: fixed;
   top: 10px;

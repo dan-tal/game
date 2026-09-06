@@ -66,7 +66,8 @@ var AppConfig = {
     letters: 25,
     maze: 200,
     math: 250,
-    mathduel: 250
+    mathduel: 250,
+    mathduelonline: 250
   },
 
   // timp maxim continuu de joc (minute) inainte sa apara ecranul de pauza,

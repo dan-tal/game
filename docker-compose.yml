@@ -11,6 +11,22 @@ services:
       - "traefik.http.routers.game.entrypoints=web"
       - "traefik.http.services.game.loadbalancer.server.port=80"
 
+  # server de WebSocket pentru "Duel Online" (games/math-duel-online-game.js)
+  # — acelasi host, dar pe /ws, ca sa nu fie nevoie de un subdomeniu nou.
+  # Regula cu PathPrefix e mai specifica decat cea de mai sus (doar Host), asa
+  # ca Traefik ii da prioritate automat pentru cererile catre /ws.
+  game-ws:
+    image: dan4kl/game-ws:latest
+    container_name: arcade-vesel-ws
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.game-ws.rule=Host(`game.casatd.org`) && PathPrefix(`/ws`)"
+      - "traefik.http.routers.game-ws.entrypoints=web"
+      - "traefik.http.services.game-ws.loadbalancer.server.port=8080"
+
 networks:
   proxy:
     external: true

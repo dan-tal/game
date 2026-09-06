@@ -41,7 +41,8 @@
     memory: window.MemoryGame,
     shapesduel: window.ShapesDuelGame,
     simon: window.SimonGame,
-    puzzle: window.PuzzleGame
+    puzzle: window.PuzzleGame,
+    mathduelonline: window.MathDuelOnlineGame
   };
 
   function speakMenu() {
@@ -170,7 +171,16 @@
 
   homeBtnEl.addEventListener('click', goToMenu);
 
-  if (ChildAge.isSet()) {
+  // un link primit de la celalalt jucator (?room=COD) sare peste tot —
+  // varsta, meniu, costul in steluțe — si intra direct in "Duel Online",
+  // ca cine a primit invitatia sa ajunga direct in joc, nu sa navigheze
+  // arcade-ul intreg ca sa gaseasca acelasi joc din meniu
+  var roomParam = (window.location.search.match(/[?&]room=([^&]+)/) || [])[1];
+  if (roomParam && window.MathDuelOnlineGame) {
+    currentGame = window.MathDuelOnlineGame;
+    homeBtnEl.classList.add('show');
+    window.MathDuelOnlineGame.activateAsJoiner(decodeURIComponent(roomParam));
+  } else if (ChildAge.isSet()) {
     refreshTileLocks();
     menuEl.classList.add('show');
     speakMenu();

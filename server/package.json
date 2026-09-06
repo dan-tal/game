@@ -1,0 +1,13 @@
+{
+  "name": "arcade-vesel-ws",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Server minimal de WebSocket pentru duelurile online din Arcade Vesel — nu are stare persistenta, doar leaga in memorie doi jucatori conectati la acelasi cod de camera.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
