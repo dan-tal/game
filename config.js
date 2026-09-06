@@ -59,6 +59,7 @@ var AppConfig = {
     memory: 10,
     car: 15,
     train: 15,
+    simon: 15,
     boat: 20,
     fishing: 20,
     letters: 25,

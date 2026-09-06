@@ -39,7 +39,8 @@
     math: window.MathGame,
     mathduel: window.MathDuelGame,
     memory: window.MemoryGame,
-    shapesduel: window.ShapesDuelGame
+    shapesduel: window.ShapesDuelGame,
+    simon: window.SimonGame
   };
 
   function speakMenu() {

@@ -52,9 +52,12 @@ canvas {
   top: 10px; left: 10px; right: 10px;
   /* #homeBtn (stanga) si #creditsBadge (dreapta) stau in acelasi colt de
      #stage ca #hearts/#score de mai jos — fara padding-ul asta, se suprapun
-     mereu cat timp se joaca un joc, nu doar ocazional */
+     mereu cat timp se joaca un joc, nu doar ocazional. 90px ajungea doar cat
+     #creditsBadge avea 1-2 cifre — cu 3+ cifre (copilul a strans multe
+     steluțe) badge-ul devine mai lat decat golul rezervat si se suprapune
+     peste #score oricum, de-asta 155px acum, cu rezerva pentru 4 cifre */
   padding-left: 58px;
-  padding-right: 90px;
+  padding-right: 155px;
   display: none;
   justify-content: space-between;
   align-items: flex-start;
@@ -557,6 +560,30 @@ canvas {
 .memoryCard:active { transform: translateY(2px); box-shadow: none; }
 .memoryCardFlipped { background: #fff; color: #333; box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
 .memoryCardMatched { background: #c8e6c9; opacity: 0.85; cursor: default; }
+
+/* ---------- Repetă Șirul: 4 pastile colorate, 2x2 ---------- */
+.simonBoard {
+  position: absolute;
+  left: 0; right: 0;
+  top: clamp(72px, 13vh, 96px);
+  bottom: 14px;
+  display: none;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: clamp(10px, 2.4vw, 18px);
+  padding: 0 clamp(10px, 2.4vw, 18px);
+}
+#stage.playing .simonBoard { display: grid; }
+
+.simonPad {
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 5px 0 rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.simonPad[disabled] { cursor: default; }
+.simonPadLit { transform: scale(0.96); box-shadow: 0 2px 0 rgba(0,0,0,0.3), 0 0 24px 6px rgba(255,255,255,0.6); }
 
 #debugToggle {
   position: fixed;

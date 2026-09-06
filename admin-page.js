@@ -38,7 +38,8 @@
     math: 'Calcule Mari 🧮',
     mathduel: 'Duel de Calcule ⚔️',
     memory: 'Perechi Vesele 🧠',
-    shapesduel: 'Duel de Forme 🎨'
+    shapesduel: 'Duel de Forme 🎨',
+    simon: 'Repetă Șirul 🔁'
   };
 
   // setarile importante, cu cate un input numeric dedicat — restul cheilor
