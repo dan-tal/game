@@ -585,6 +585,79 @@ canvas {
 .simonPad[disabled] { cursor: default; }
 .simonPadLit { transform: scale(0.96); box-shadow: 0 2px 0 rgba(0,0,0,0.3), 0 0 24px 6px rgba(255,255,255,0.6); }
 
+/* ---------- Puzzle Vesel: rama cu casete goale sus, tava cu piese jos ---------- */
+.puzzleWrap {
+  position: absolute;
+  left: 0; right: 0;
+  top: clamp(72px, 12vh, 92px);
+  bottom: 14px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+}
+#stage.playing .puzzleWrap { display: flex; }
+
+.puzzleFrameWrap { position: relative; }
+/* umbra slaba a pozei intregi, vazuta prin casetele goale — indiciu ce
+   dispare treptat pe masura ce piesele adevarate le acopera */
+.puzzleHint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(90px, 24vw, 150px);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.puzzleFrame, .puzzleTray {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: clamp(6px, 1.6vw, 10px);
+  /* dimensiune fixa, independenta de cate piese mai are tava — altfel
+     .puzzleTray se face 0x0 cand copilul ridica ultima piesa (grid gol, fara
+     continut care sa-i dea inaltime), iar .puzzleWrap (flex) muta imediat
+     .puzzleFrameWrap in alta pozitie chiar in mijlocul tragerii, exact cand
+     piesa ajunge deasupra casetei — o piesa care parea corect asezata rateaza
+     caseta pentru ca aceasta s-a mutat sub ea */
+  width: calc(2 * clamp(64px, 16vw, 100px) + clamp(6px, 1.6vw, 10px));
+  height: calc(2 * clamp(64px, 16vw, 100px) + clamp(6px, 1.6vw, 10px));
+}
+
+.puzzleSlot, .puzzlePiece {
+  width: clamp(64px, 16vw, 100px);
+  height: clamp(64px, 16vw, 100px);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+.puzzleSlot { border: 3px dashed rgba(255,255,255,0.55); background: rgba(255,255,255,0.1); }
+.puzzlePiece {
+  background: #fff;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+  cursor: grab;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.puzzlePiece.puzzlePieceDragging { cursor: grabbing; box-shadow: 0 8px 14px rgba(0,0,0,0.35); }
+.puzzlePiece.puzzlePiecePlaced { box-shadow: none; cursor: default; }
+
+.puzzlePieceArt {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(120px, 30vw, 190px);
+  pointer-events: none;
+}
+
 #debugToggle {
   position: fixed;
   top: 10px;

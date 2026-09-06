@@ -40,7 +40,8 @@
     mathduel: window.MathDuelGame,
     memory: window.MemoryGame,
     shapesduel: window.ShapesDuelGame,
-    simon: window.SimonGame
+    simon: window.SimonGame,
+    puzzle: window.PuzzleGame
   };
 
   function speakMenu() {

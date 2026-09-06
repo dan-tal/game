@@ -62,6 +62,7 @@ var AppConfig = {
     simon: 15,
     boat: 20,
     fishing: 20,
+    puzzle: 20,
     letters: 25,
     maze: 200,
     math: 250,

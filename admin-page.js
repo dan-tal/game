@@ -39,7 +39,8 @@
     mathduel: 'Duel de Calcule ⚔️',
     memory: 'Perechi Vesele 🧠',
     shapesduel: 'Duel de Forme 🎨',
-    simon: 'Repetă Șirul 🔁'
+    simon: 'Repetă Șirul 🔁',
+    puzzle: 'Puzzle Vesel 🧩'
   };
 
   // setarile importante, cu cate un input numeric dedicat — restul cheilor
