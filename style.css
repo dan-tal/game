@@ -613,24 +613,30 @@ canvas {
 }
 
 .puzzleFrame, .puzzleTray {
+  /* numarul de piese pe latura — setat din JS (buildPuzzle) odata cu
+     nivelul curent, vezi PuzzleGameConfig.LEVELS; 2 e doar valoarea
+     initiala, inainte sa porneasca primul puzzle */
+  --grid: 2;
+  --puzzlePieceSize: clamp(64px, 16vw, 100px);
+  --puzzleGap: clamp(6px, 1.6vw, 10px);
   position: relative;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: clamp(6px, 1.6vw, 10px);
+  grid-template-columns: repeat(var(--grid), 1fr);
+  grid-template-rows: repeat(var(--grid), 1fr);
+  gap: var(--puzzleGap);
   /* dimensiune fixa, independenta de cate piese mai are tava — altfel
      .puzzleTray se face 0x0 cand copilul ridica ultima piesa (grid gol, fara
      continut care sa-i dea inaltime), iar .puzzleWrap (flex) muta imediat
      .puzzleFrameWrap in alta pozitie chiar in mijlocul tragerii, exact cand
      piesa ajunge deasupra casetei — o piesa care parea corect asezata rateaza
      caseta pentru ca aceasta s-a mutat sub ea */
-  width: calc(2 * clamp(64px, 16vw, 100px) + clamp(6px, 1.6vw, 10px));
-  height: calc(2 * clamp(64px, 16vw, 100px) + clamp(6px, 1.6vw, 10px));
+  width: calc(var(--grid) * var(--puzzlePieceSize) + (var(--grid) - 1) * var(--puzzleGap));
+  height: calc(var(--grid) * var(--puzzlePieceSize) + (var(--grid) - 1) * var(--puzzleGap));
 }
 
 .puzzleSlot, .puzzlePiece {
-  width: clamp(64px, 16vw, 100px);
-  height: clamp(64px, 16vw, 100px);
+  width: var(--puzzlePieceSize);
+  height: var(--puzzlePieceSize);
   border-radius: 10px;
   overflow: hidden;
   position: relative;

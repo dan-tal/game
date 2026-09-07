@@ -1,14 +1,16 @@
 // games/puzzle-game.js
 //
-// "Puzzle Vesel" — o "poza" (un singur emoji mare) taiata in GRID x GRID
-// bucati amestecate intr-o tava jos; copilul le trage cu degetul in caseta
+// "Puzzle Vesel" — o "poza" (un singur emoji mare) taiata in N x N bucati
+// amestecate intr-o tava jos; copilul le trage cu degetul in caseta
 // potrivita din rama de sus. O umbra slaba a pozei intregi se vede prin
 // casetele goale, ca indiciu — dispare pe masura ce piesele adevarate le
 // acopera. Nu exista "raspuns gresit": o piesa lasata in alta parte decat
 // caseta ei se intoarce pur si simplu in tava, fara sa scada o viata (la
 // fel ca "Calcule Mari" si "Perechi Vesele" — vezi acele fisiere). Cand
-// toate piesele sunt la locul lor, apare o poza noua. Punctul de intrare
-// public e window.PuzzleGame.activate().
+// toate piesele sunt la locul lor, apare o poza noua, cu mai multe piese
+// decat cea dinainte — nivelul creste in cadrul rundei curente, la fel ca
+// in Labirintul Magic (vezi PuzzleGameConfig.LEVELS si maze-game.js).
+// Punctul de intrare public e window.PuzzleGame.activate().
 (function () {
   'use strict';
 
@@ -20,8 +22,13 @@
   var heartsEl = document.getElementById('hearts');
   var scoreEl = document.getElementById('score');
 
-  var GRID = PuzzleGameConfig.GRID;
-  var PIECE_COUNT = GRID * GRID;
+  // nivelul curent (in cadrul rundei) determina cate piese are poza — vezi
+  // PuzzleGameConfig.LEVELS si afterPuzzleComplete() mai jos
+  var levelIndex = 0;
+  var GRID, PIECE_COUNT;
+  function currentLevelCfg() {
+    return PuzzleGameConfig.LEVELS[Math.min(levelIndex, PuzzleGameConfig.LEVELS.length - 1)];
+  }
 
   var wrapEl = document.createElement('div');
   wrapEl.className = 'puzzleWrap';
@@ -42,6 +49,8 @@
   wrapEl.appendChild(frameWrapEl);
   wrapEl.appendChild(trayEl);
   stageEl.appendChild(wrapEl);
+
+  function sfxLevelUp() { Exercises.beep(660, 0.12, 'triangle'); setTimeout(function () { Exercises.beep(880, 0.12, 'triangle'); }, 100); setTimeout(function () { Exercises.beep(1100, 0.18, 'triangle'); }, 200); }
 
   function shuffle(arr) {
     for (var i = arr.length - 1; i > 0; i--) {
@@ -64,16 +73,29 @@
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
-  function makePieceArt(icon, row, col) {
+  function makePieceArt(icon, row, col, grid) {
     var art = document.createElement('div');
     art.className = 'puzzlePieceArt';
     art.textContent = icon;
+    // poza intreaga e desenata la grid*100% din marimea unei piese, apoi
+    // decalata cu cate un latime/inaltime de piesa per rand/coloana, ca sa
+    // se vada doar bucatica ei prin overflow:hidden al piesei (vezi CSS) —
+    // formula ramane valabila la orice marime de grid, doar dimensiunea
+    // artei se schimba odata cu el
+    art.style.width = (grid * 100) + '%';
+    art.style.height = (grid * 100) + '%';
     art.style.left = (-col * 100) + '%';
     art.style.top = (-row * 100) + '%';
     return art;
   }
 
   function buildPuzzle() {
+    var lvl = currentLevelCfg();
+    GRID = lvl.grid;
+    PIECE_COUNT = GRID * GRID;
+    frameEl.style.setProperty('--grid', GRID);
+    trayEl.style.setProperty('--grid', GRID);
+
     var icon = PuzzleGameConfig.ICONS[Math.floor(Math.random() * PuzzleGameConfig.ICONS.length)];
     hintEl.textContent = icon;
     frameEl.innerHTML = '';
@@ -95,7 +117,7 @@
       var piece = document.createElement('div');
       piece.className = 'puzzlePiece';
       piece.dataset.index = i;
-      piece.appendChild(makePieceArt(icon, row, col));
+      piece.appendChild(makePieceArt(icon, row, col, GRID));
       attachDrag(piece);
       trayEl.appendChild(piece);
     });
@@ -178,6 +200,10 @@
 
   function afterPuzzleComplete() {
     if (!state.running) return; // s-a apasat "acasa" cat timp astepta
+    if (levelIndex < PuzzleGameConfig.LEVELS.length - 1) {
+      levelIndex++;
+      sfxLevelUp();
+    }
     if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) triggerLearningBreak();
     else buildPuzzle();
   }
@@ -187,6 +213,7 @@
     state.maxLives = AppConfig.NORMAL_MAX_LIVES;
     state.lives = state.maxLives;
     state.running = true;
+    levelIndex = 0;
 
     buildPuzzle();
     stageEl.classList.add('playing');
@@ -219,6 +246,7 @@
     return [
       'GAME STATE (puzzle-game):',
       '  screen: ' + screenName,
+      '  nivel: ' + (levelIndex + 1) + '/' + PuzzleGameConfig.LEVELS.length + '   grid: ' + GRID + 'x' + GRID,
       '  piese la loc: ' + state.filledCount + '/' + PIECE_COUNT,
       '  score: ' + state.score,
       ''
