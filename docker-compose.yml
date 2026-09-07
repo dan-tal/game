@@ -6,8 +6,9 @@ services:
     networks:
       - proxy
     labels:
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
-      - "traefik.http.routers.game.rule=Host(`game.casatd.org`)"
+      - "traefik.http.routers.game.rule=Host(`jocuri.casatd.org`)"
       - "traefik.http.routers.game.entrypoints=web"
       - "traefik.http.services.game.loadbalancer.server.port=80"
 
@@ -22,8 +23,9 @@ services:
     networks:
       - proxy
     labels:
+      - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
-      - "traefik.http.routers.game-ws.rule=Host(`game.casatd.org`) && PathPrefix(`/ws`)"
+      - "traefik.http.routers.game-ws.rule=Host(`jocuri.casatd.org`) && PathPrefix(`/ws`)"
       - "traefik.http.routers.game-ws.entrypoints=web"
       - "traefik.http.services.game-ws.loadbalancer.server.port=8080"
 
