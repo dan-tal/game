@@ -662,7 +662,7 @@
     var cell = CFG.MINIMAP_CELL_PX;
     var margin = CFG.MINIMAP_MARGIN;
     var mw = maze.w * cell, mh = maze.h * cell;
-    var ox = margin, oy = H - margin - mh;
+    var ox = margin, oy = CFG.MINIMAP_TOP;
     ctx.save();
     ctx.globalAlpha = CFG.MINIMAP_ALPHA;
     ctx.fillStyle = 'rgba(0,0,0,0.4)';

@@ -52,12 +52,16 @@ canvas {
   top: 10px; left: 10px; right: 10px;
   /* #homeBtn (stanga) si #creditsBadge (dreapta) stau in acelasi colt de
      #stage ca #hearts/#score de mai jos — fara padding-ul asta, se suprapun
-     mereu cat timp se joaca un joc, nu doar ocazional. 90px ajungea doar cat
-     #creditsBadge avea 1-2 cifre — cu 3+ cifre (copilul a strans multe
-     steluțe) badge-ul devine mai lat decat golul rezervat si se suprapune
-     peste #score oricum, de-asta 155px acum, cu rezerva pentru 4 cifre */
-  padding-left: 58px;
-  padding-right: 155px;
+     mereu cat timp se joaca un joc, nu doar ocazional. #creditsBadge se
+     poate lati pana la 4 cifre, dar fontul lui (clamp(18px,2.8vw,26px), ca
+     la #homeBtn) creste doar pe ecrane late — pe telefon ramane mereu la
+     minimul de 18px, deci un rezerva fixa dimensionata pentru fontul maxim
+     (155px) ramane prea lata exact pe ecranele inguste unde spatiul pentru
+     #hearts/#score e deja putin, impingandu-le sa se ingramadeasca/rupa pe
+     mai multe randuri. clamp() aici copiaza aceleasi praguri ca fontul
+     badge-ului, ca rezerva sa creasca doar cand chiar creste si badge-ul */
+  padding-left: 46px;
+  padding-right: clamp(107px, 17.5vw, 155px);
   display: none;
   justify-content: space-between;
   align-items: flex-start;
@@ -140,7 +144,7 @@ canvas {
   color: #444;
   border: none;
   border-radius: 14px;
-  padding: 4px 12px;
+  padding: 4px 9px;
   font-size: clamp(18px, 2.8vw, 26px);
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -155,21 +159,31 @@ canvas {
   background: rgba(255,255,255,0.85);
   color: #444;
   border-radius: 14px;
-  padding: 4px 14px;
+  padding: 4px 10px;
   font-size: clamp(18px, 2.8vw, 26px);
   font-weight: bold;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   z-index: 5;
 }
-#hearts { font-size: clamp(26px, 4.5vw, 40px); letter-spacing: 2px; }
+/* fara white-space:nowrap, pe telefoane inguste #hud (vezi mai sus) nu mai
+   are loc pe orizontala pentru cele 3 inimioare + steluțe pe un rand, iar
+   flexbox le comprima pana cand textul se rupe pe mai multe randuri — #hud
+   devine de 2x mai inalt decat ar trebui si impinge/suprapune tot ce e
+   pozitionat sub el (tinta jocului, intrebarile etc, in mai multe jocuri) */
+/* flex-shrink:0 pe langa white-space:nowrap: fara el, flexbox tot ingusteaza
+   cutia sub latimea continutului cand nu incape, iar textul (nowrap) iese
+   pur si simplu peste marginea dreapta a cutiei, exact sub #creditsBadge */
+#hearts { font-size: clamp(22px, 4.5vw, 40px); letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
 #score {
   background: rgba(255,255,255,0.85);
   color: #444;
   border-radius: 14px;
-  padding: 4px 14px;
-  font-size: clamp(20px, 3.2vw, 30px);
+  padding: 4px 10px;
+  font-size: clamp(18px, 3.2vw, 30px);
   text-shadow: none;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 /* ---------- Generic full-cover "screen" card, used by every menu/game/exercise ---------- */
 .screen {

@@ -51,5 +51,12 @@ var MazeGameConfig = {
   // ---------- Minihartă ----------
   MINIMAP_CELL_PX: 8,
   MINIMAP_MARGIN: 10,
+  // sus, nu jos: colțul stânga-jos e ocupat de sageata de viraj stânga
+  // (.mazeTouchControls, vezi style.css) — o miniharta jos se suprapune cu
+  // ea, mai ales la nivelele mari (labirint mai mare = miniharta mai inalta,
+  // vezi CFG.LEVELS). 150px logic (din 700 inaltimea canvasului) e destul
+  // cat sa treaca sub intrebarea de sus (#hud + .gameTarget, elemente DOM)
+  // pe orice marime de ecran
+  MINIMAP_TOP: 150,
   MINIMAP_ALPHA: 0.82
 };
