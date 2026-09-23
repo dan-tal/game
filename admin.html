@@ -1,56 +1,58 @@
 <!DOCTYPE html>
-<html lang="ro" class="adminBody">
+<html lang="ro">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — Arcade Vesel ⚙️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Panou părinți — Arcade Vesel ⚙️</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="favicon.svg">
-<meta name="theme-color" content="#0a0f0a">
-<link rel="stylesheet" href="style.css">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#ffb300">
+<link rel="stylesheet" href="admin.css">
 </head>
-<body class="adminBody">
-<div id="adminPanel" class="adminPage">
-  <h2>⚙️ Admin Arcade Vesel</h2>
-  <p><a href="/">← înapoi la joc</a></p>
+<body>
+<main class="adm">
+  <header class="admHead">
+    <a class="admBack" href="/">← Înapoi la joc</a>
+    <h1>⚙️ Panou părinți</h1>
+    <p class="admNote">Setările se salvează singure, <b>pe acest telefon/browser</b>. Deschide pagina pe dispozitivul pe care joacă copilul.</p>
+  </header>
 
-  <h3>Setări principale</h3>
-  <div id="adminMainFields" class="adminFieldGrid"></div>
+  <section class="admCard" id="cardChild"></section>
+  <section class="admCard" id="cardProgress"></section>
+  <section class="admCard" id="cardTime"></section>
+  <section class="admCard" id="cardLevel"></section>
+  <section class="admCard" id="cardGames"></section>
 
-  <h3>Steluțe necesare ca să se deblocheze fiecare joc</h3>
-  <div id="adminUnlockFields" class="adminFieldGrid"></div>
-
-  <div id="adminBtnRow">
-    <button id="adminSaveMainBtn">💾 Salvează și reîncarcă</button>
-  </div>
-
-  <div id="adminMsg"></div>
-
-  <hr>
-  <div id="adminBtnRow">
-    <button id="adminResetCreditsBtn">🔄 Resetează steluțele copilului</button>
-    <button id="adminResetPlaytimeBtn">⏳ Resetează timpul de joc</button>
-    <button id="adminResetAgeBtn">🎂 Resetează vârsta</button>
-  </div>
-  <p id="adminAgeInfo"></p>
-
-  <hr>
-  <details id="adminAdvanced">
-    <summary>Avansat: editare AppConfig complet, ca JSON</summary>
-    <p>Pentru celelalte setări (culori, gamepad etc), care nu au un input dedicat mai sus.</p>
+  <details class="admCard admAdvanced" id="cardAdvanced">
+    <summary>🔧 Setări avansate</summary>
+    <div id="advancedFields"></div>
+    <h3>Toate setările, ca JSON</h3>
+    <p class="admHint">Pentru orice altceva (culori, gamepad etc). Se salvează doar la apăsarea butonului.</p>
     <textarea id="adminConfigText" spellcheck="false"></textarea>
-    <div id="adminBtnRow">
-      <button id="adminSaveJsonBtn">💾 Salvează JSON și reîncarcă</button>
-      <button id="adminResetBtn">↩️ Resetează tot la valorile implicite</button>
+    <div class="admRow">
+      <button type="button" class="admBtn" id="adminSaveJsonBtn">💾 Salvează JSON</button>
+      <button type="button" class="admBtn admBtnWarn" id="adminResetConfigBtn">↩️ Setări implicite</button>
     </div>
   </details>
-</div>
+
+  <section class="admCard admDanger">
+    <h2>🧹 Începe de la zero</h2>
+    <p class="admHint">Șterge vârsta, steluțele, progresul și pauzele — util când folosește alt copil dispozitivul. Setările de mai sus rămân.</p>
+    <button type="button" class="admBtn admBtnDanger" id="adminResetAllBtn">Șterge tot progresul copilului</button>
+  </section>
+
+  <p class="admVersion" id="admVersion"></p>
+</main>
+<div class="admToast" id="admToast" role="status" aria-live="polite"></div>
 
 <script src="config.js"></script>
 <script src="admin.js"></script>
 <script src="age.js"></script>
+<script src="progress.js"></script>
 <script src="credits.js"></script>
 <script>Credits.init();</script>
+<script src="games-catalog.js"></script>
+<script src="version.js"></script>
 <script src="admin-page.js"></script>
 </body>
 </html>
