@@ -9,16 +9,32 @@ server {
         try_files /admin.html =404;
     }
 
+    # nginx nu cunoaste extensia .webmanifest si il serveste ca
+    # application/octet-stream — browserele preferă tipul corect
+    location = /site.webmanifest {
+        default_type application/manifest+json;
+        add_header Cache-Control "no-cache" always;
+        add_header X-App-Version "__VERSION__" always;
+    }
+
+    # comprimare: fara ea, ~300KB de JS/CSS se descarcau necomprimat pe fiecare
+    # deschidere — pe date mobile conteaza
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 512;
+    gzip_types text/css application/javascript text/javascript application/json application/manifest+json image/svg+xml text/plain;
+
     # TOATE fisierele (index.html, version.js, dar si games/*.js, style.css,
-    # config.js, exercises.js...) trebuie sa fie mereu proaspete. Inainte doar
-    # index.html/version.js aveau asta — restul (mai ales games/*.js) puteau
-    # ramane cache-uite vechi in telefon dupa un deploy chiar daca index.html
-    # era deja nou, asa ca un fisier nou (ex: car-game.js, care acum apeleaza
-    # GameShared.bindHoldButton) putea rula alaturi de un game-shared.js VECHI
-    # din cache, fara acea functie — joc stricat/butoane lipsa, fara nicio
-    # eroare vizibila pentru copil, doar pentru cine deschide consola.
+    # config.js, exercises.js...) trebuie sa fie mereu proaspete: "no-cache"
+    # inseamna "verifica la server inainte de folosire" (nginx trimite ETag,
+    # deci daca nu s-a schimbat raspunsul e doar un 304 de cativa octeti, nu
+    # o noua descarcare). Inainte era "no-store", care fortat re-descarca tot
+    # de fiecare data, desi scopul (sa nu ramana un fisier vechi in telefon
+    # alaturi de unul nou — ex: car-game.js nou cu un game-shared.js VECHI din
+    # cache, fara functiile lui, adica joc stricat fara nicio eroare vizibila
+    # pentru copil) e acelasi si cu "no-cache".
     location / {
-        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header Cache-Control "no-cache" always;
         add_header X-App-Version "__VERSION__" always;
         try_files $uri $uri/ =404;
     }

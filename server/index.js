@@ -26,7 +26,7 @@ var MAX_LIVES = 3;
 var ROOM_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 var ROOM_CODE_LENGTH = 5;
 
-// tipurile de ecuatii — copiate din games/math-duel-game.config.js (KINDS),
+// tipurile de ecuatii — copiate din games/math-game.config.js (KINDS, tabelul pentru 10 ani),
 // nu referite direct, ca serverul sa nu depinda de fisierele clientului
 var KINDS = [
   { op: 'add', minA: 10, maxA: 99, minB: 10, maxB: 99 },
@@ -86,6 +86,9 @@ function closeRoom(code) {
 }
 
 function handleCreate(ws) {
+  // un client are cel mult o camera: fara asta, apasari repetate creau camere
+  // "orfane" (la inchidere se sterge doar ultima) care raman in memorie
+  if (ws.roomCode && rooms[ws.roomCode]) return;
   var code = makeRoomCode();
   var room = {
     code: code,
@@ -103,6 +106,7 @@ function handleCreate(ws) {
 }
 
 function handleJoin(ws, code) {
+  if (ws.roomCode) return; // e deja intr-o camera
   var room = rooms[code];
   if (!room) { send(ws, { type: 'error', message: 'Camera nu există. Verifică linkul.' }); return; }
   if (room.players[2]) { send(ws, { type: 'error', message: 'Camera e deja plină.' }); return; }
@@ -173,9 +177,28 @@ var server = http.createServer(function (req, res) {
   res.end('arcade-vesel-ws ok\n');
 });
 
-var wss = new WebSocket.Server({ server: server, path: '/ws' });
+// mesajele clientilor sunt minuscule ({"type":"answer","value":42}) — limita
+// mica opreste un client sa trimita megabytes (implicit ws accepta 100MB)
+var wss = new WebSocket.Server({ server: server, path: '/ws', maxPayload: 1024 });
+
+// telefoanele care pierd reteaua (lift, tunel) nu inchid curat conexiunea, iar
+// camera lor ramanea in memorie la nesfarsit, cu celalalt jucator asteptand.
+// Trimitem "ping" periodic; cine nu raspunde intre doua ping-uri e inchis, iar
+// handleClose anunta adversarul ("opponent_left") si sterge camera.
+var HEARTBEAT_MS = 30000;
+var heartbeat = setInterval(function () {
+  wss.clients.forEach(function (ws) {
+    if (ws.isAlive === false) { ws.terminate(); return; }
+    ws.isAlive = false;
+    try { ws.ping(); } catch (e) { /* conexiune deja moarta */ }
+  });
+}, HEARTBEAT_MS);
+wss.on('close', function () { clearInterval(heartbeat); });
 
 wss.on('connection', function (ws) {
+  ws.isAlive = true;
+  ws.on('pong', function () { ws.isAlive = true; });
+  ws.on('error', function () { /* erorile de retea duc oricum la 'close' */ });
   ws.on('message', function (raw) {
     var msg;
     try { msg = JSON.parse(raw); } catch (e) { return; }
