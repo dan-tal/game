@@ -16,7 +16,7 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
   var heartsEl = document.getElementById('hearts');
@@ -86,7 +86,7 @@
   }
 
   function startGame() {
-    state.maxLives = AppConfig.NORMAL_MAX_LIVES;
+    state.maxLives = GameShared.maxLives();
     state.lives = state.maxLives;
     state.score = 0;
     state.running = true;
@@ -96,10 +96,9 @@
     updateHUD();
   }
 
+  // jocul nu scade vieti (o litera gresita doar mai cere o incercare) — nu afisam inimi
   function updateHUD() {
-    var h = '';
-    for (var i = 0; i < state.maxLives; i++) h += '❤️';
-    heartsEl.textContent = h;
+    heartsEl.textContent = '';
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -216,6 +215,7 @@
   // ---------- Main loop ----------
   var fps = 0;
   var lastTime = null;
+  var lastDraw = 0;
   function loop(ts) {
     if (lastTime === null) lastTime = ts;
     var dt = ts - lastTime;
@@ -223,7 +223,9 @@
     if (dt > 60) dt = 60;
     if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
 
-    draw();
+    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
+    // ajung, si scutesc bateria telefonului de 60
+    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
     if (Debug.isOn()) renderDebugPanel();
 
     rafId = requestAnimationFrame(loop);
@@ -242,7 +244,7 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {

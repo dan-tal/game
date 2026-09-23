@@ -12,7 +12,7 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
   var heartsEl = document.getElementById('hearts');
@@ -54,7 +54,7 @@
 
   startBtnEl.addEventListener('click', function () {
     screenFarmSelectEl.classList.remove('show');
-    Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+    Exercises.askIntro(startGame);
   });
 
   // ---------- Animals ----------
@@ -62,7 +62,7 @@
   var TARGET_DURATION = FarmGameConfig.TARGET_DURATION;
 
   // ---------- Game state ----------
-  var basket = { x: W / 2, y: H - 90, w: 90, h: 50, speed: FarmGameConfig.BASKET_SPEED };
+  var basket = { x: W / 2, y: H - 112, w: 90, h: 50, speed: FarmGameConfig.BASKET_SPEED };
 
   var state = {
     running: false,
@@ -93,7 +93,7 @@
 
   function startGame() {
     basket.x = W / 2;
-    state.maxLives = Debug.isOn() ? AppConfig.DEBUG_MAX_LIVES : AppConfig.NORMAL_MAX_LIVES;
+    state.maxLives = GameShared.maxLives();
     state.score = 0;
     state.lives = state.maxLives;
     state.invuln = 1200;

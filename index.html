@@ -2,18 +2,24 @@
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Arcade Vesel 🎮</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="favicon.svg">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#6ec6f1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arcade Vesel">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<noscript><p style="padding:24px;font:20px sans-serif;text-align:center">Arcade Vesel are nevoie de JavaScript ca să meargă. 🎮</p></noscript>
 <button id="debugToggle">🐞 debug</button>
 <div id="debugPanel"></div>
 <div id="appFooter"></div>
+<div id="rotateHint">📱 Întoarce telefonul pe verticală ca să joci mai mare</div>
 <div id="wrap">
   <div id="stage">
     <canvas id="game" width="420" height="700"></canvas>
@@ -30,31 +36,11 @@
     </div>
 
     <div id="screenMenu" class="screen menuScreen">
+      <button id="muteBtn" type="button" title="Sunet">🔊</button>
       <h1>Ce joc vrei să joci? 🎮</h1>
-      <div class="menuTileRow" id="menuTileRow">
-        <button class="typeBtn" data-game="car"><span class="emoji">🚗</span>Mașina Veselă</button>
-        <button class="typeBtn" data-game="farm"><span class="emoji">🐄</span>Ferma Veselă</button>
-        <button class="typeBtn" data-game="balloons"><span class="emoji">🎈</span>Baloane Vesele</button>
-        <button class="typeBtn" data-game="numbers"><span class="emoji">🔢</span>Numere Curajoase</button>
-        <button class="typeBtn" data-game="fruit"><span class="emoji">🍓</span>Grădina Fructelor</button>
-        <button class="typeBtn" data-game="count"><span class="emoji">🐉</span>Dragon Vesel</button>
-        <button class="typeBtn" data-game="fishing"><span class="emoji">🐠</span>Pescarul Vesel</button>
-        <button class="typeBtn" data-game="shapes"><span class="emoji">🔺</span>Formele Zburătoare</button>
-        <button class="typeBtn" data-game="zoo"><span class="emoji">🦁</span>Zoo Zburător</button>
-        <button class="typeBtn" data-game="pawpatrol"><span class="emoji">🐕‍🦺</span>Patrula Cățelușilor</button>
-        <button class="typeBtn" data-game="train"><span class="emoji">🚂</span>Trenul Vesel</button>
-        <button class="typeBtn" data-game="boat"><span class="emoji">⛵</span>Vaporul Curajos</button>
-        <button class="typeBtn" data-game="letters"><span class="emoji">🔤</span>Litere Vesele</button>
-        <button class="typeBtn" data-game="maze"><span class="emoji">🌀</span>Labirintul Magic</button>
-        <button class="typeBtn" data-game="math"><span class="emoji">🧮</span>Calcule Mari</button>
-        <button class="typeBtn" data-game="mathduel"><span class="emoji">⚔️</span>Duel de Calcule</button>
-        <button class="typeBtn" data-game="memory"><span class="emoji">🧠</span>Perechi Vesele</button>
-        <button class="typeBtn" data-game="shapesduel"><span class="emoji">🎨</span>Duel de Forme</button>
-        <button class="typeBtn" data-game="simon"><span class="emoji">🔁</span>Repetă Șirul</button>
-        <button class="typeBtn" data-game="puzzle"><span class="emoji">🧩</span>Puzzle Vesel</button>
-        <button class="typeBtn" data-game="mathduelonline"><span class="emoji">🌐</span>Duel Online</button>
-        <button class="typeBtn" data-game="practice"><span class="emoji">⭐</span>Exerciții</button>
-      </div>
+      <div id="dailyGoal" class="dailyGoal"></div>
+      <!-- tile-urile se construiesc in shell.js din games-catalog.js, dupa varsta copilului -->
+      <div class="menuTileRow" id="menuTileRow"></div>
     </div>
 
     <div id="screenSelect" class="screen">
@@ -93,7 +79,9 @@
 <script src="age.js"></script>
 <script src="debug.js"></script>
 <script src="playtime.js"></script>
+<script src="progress.js"></script>
 <script src="credits.js"></script>
+<script src="games-catalog.js"></script>
 <script src="exercises.js"></script>
 <script src="games/game-shared.js"></script>
 <script src="games/car-game.config.js"></script>
@@ -125,6 +113,7 @@
 <script src="games/maze-game.config.js"></script>
 <script src="games/maze-game.js"></script>
 <script src="games/math-game.config.js"></script>
+<script src="games/math-equations.js"></script>
 <script src="games/math-game.js"></script>
 <script src="games/math-duel-game.config.js"></script>
 <script src="games/math-duel-game.js"></script>

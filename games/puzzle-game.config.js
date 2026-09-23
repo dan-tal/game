@@ -11,10 +11,12 @@ var PuzzleGameConfig = {
   // — vezi maze-game.config.js): fiecare puzzle terminat trece la
   // urmatorul nivel, cu mai multe piese, pana la ultimul, unde ramane.
   // Reincepe de la nivelul 0 la fiecare "startGame" (nu tine minte intre
-  // sesiuni — deblocarea jocului insusi e separata, vezi GAME_UNLOCK_STARS)
-  LEVELS: [
-    { grid: 2 }, // 2x2 = 4 piese
-    { grid: 3 }, // 3x3 = 9 piese
-    { grid: 4 }  // 4x4 = 16 piese
-  ]
+  // sesiuni — deblocarea jocului insusi e separata, vezi games-catalog.js)
+  // Pe trepte de varsta (vezi ChildAge.tier): cei mici raman la 2x2 si 2x3...
+  // (aici doar patrate: 2x2 = 4 piese, 3x3 = 9, 4x4 = 16), scolarii incep de la 3x3.
+  LEVELS_BY_TIER: {
+    toddler:   [{ grid: 2 }, { grid: 2 }, { grid: 3 }],
+    preschool: [{ grid: 2 }, { grid: 3 }, { grid: 4 }],
+    school:    [{ grid: 3 }, { grid: 4 }]
+  }
 };

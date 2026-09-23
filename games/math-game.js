@@ -2,7 +2,7 @@
 //
 // "Calcule Mari" — al 15-lea joc din arcade, gandit pentru copiii cei mai
 // mari (10 ani+, de-asta e si cel mai scump la deblocare — vezi
-// AppConfig.GAME_UNLOCK_STARS.math): adunari si inmultiri cu numere de doua
+// GamesCatalog, cheia math): adunari si inmultiri cu numere de doua
 // cifre, inclusiv inmultirea a doua numere de doua cifre (ex: 23 x 17 —
 // tema de la clasa a IV-a). La fel ca "Dragon Vesel", nu se bazeaza pe
 // reflexe: nimic nu cade sau zboara, ecuatia sta afisata cat e nevoie, iar
@@ -18,9 +18,12 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
+  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
+  var timers = GameShared.createTimers();
+
   var heartsEl = document.getElementById('hearts');
   var scoreEl = document.getElementById('score');
 
@@ -34,54 +37,21 @@
   optionsWrapEl.style.display = 'none';
   stageEl.appendChild(optionsWrapEl);
 
-  var KINDS = MathGameConfig.KINDS;
   var OPTION_COUNT = MathGameConfig.OPTION_COUNT;
 
   function sfxGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
   function sfxBad() { Exercises.beep(260, 0.15, 'sine'); }
-
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
-
-  // distractori aproape de raspunsul corect (procent din valoare, nu la
-  // intamplare in tot intervalul posibil) — altfel raspunsul se ghiceste
-  // dupa marime, nu dupa calcul propriu-zis
-  function pickNumericOptions(target, count) {
-    var opts = [target];
-    var maxOffset = Math.max(8, Math.round(target * 0.12));
-    var attempts = 0;
-    while (opts.length < count && attempts < 200) {
-      attempts++;
-      var offset = 1 + Math.floor(Math.random() * maxOffset);
-      var candidate = target + (Math.random() < 0.5 ? -offset : offset);
-      if (candidate > 0 && opts.indexOf(candidate) === -1) opts.push(candidate);
-    }
-    return shuffle(opts);
-  }
 
   var state = {
     running: false,
     score: 0,
     lives: AppConfig.NORMAL_MAX_LIVES,
     maxLives: AppConfig.NORMAL_MAX_LIVES,
-    a: 0, b: 0, op: 'add', answer: 0
+    eq: null, answer: 0
   };
 
-  function makeEquation() {
-    var kind = KINDS[Math.floor(Math.random() * KINDS.length)];
-    var a = kind.minA + Math.floor(Math.random() * (kind.maxA - kind.minA + 1));
-    var b = kind.minB + Math.floor(Math.random() * (kind.maxB - kind.minB + 1));
-    var answer = kind.op === 'add' ? a + b : a * b;
-    return { op: kind.op, a: a, b: b, answer: answer };
-  }
-
   function renderOptionButtons(answer) {
-    var options = pickNumericOptions(answer, OPTION_COUNT);
+    var options = MathEquations.options(answer, OPTION_COUNT);
     optionsWrapEl.innerHTML = '';
     options.forEach(function (value) {
       var btn = document.createElement('button');
@@ -95,22 +65,19 @@
   }
 
   function pickNewRound() {
-    var eq = makeEquation();
-    state.a = eq.a; state.b = eq.b; state.op = eq.op; state.answer = eq.answer;
+    var eq = MathEquations.make(ChildAge.effective());
+    state.eq = eq;
+    state.answer = eq.answer;
 
-    var symbol = eq.op === 'add' ? '+' : '×';
-    targetIndicatorEl.textContent = eq.a + ' ' + symbol + ' ' + eq.b + ' = ?';
+    targetIndicatorEl.textContent = MathEquations.text(eq);
     renderOptionButtons(eq.answer);
-
-    var spoken = eq.op === 'add'
-      ? 'Cât fac ' + eq.a + ' plus ' + eq.b + '?'
-      : 'Cât fac ' + eq.a + ' înmulțit cu ' + eq.b + '?';
-    Exercises.speak(spoken);
+    Exercises.speak(MathEquations.spoken(eq));
   }
 
   function startGame() {
+    timers.clearAll();
     state.score = 0;
-    state.maxLives = AppConfig.NORMAL_MAX_LIVES;
+    state.maxLives = GameShared.maxLives();
     state.lives = state.maxLives;
     state.running = true;
 
@@ -119,8 +86,9 @@
     updateHUD();
   }
 
+  // jocul nu scade vieti (o greseala doar mai cere o incercare) — nu afisam inimi
   function updateHUD() {
-    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
+    heartsEl.textContent = '';
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -136,9 +104,8 @@
     sfxGood();
     updateHUD();
     Array.prototype.forEach.call(optionsWrapEl.children, function (b) { b.disabled = true; });
-    var symbol = state.op === 'add' ? ' + ' : ' × ';
-    Exercises.speak('Bravo! ' + state.a + symbol + state.b + ' = ' + state.answer + '.');
-    setTimeout(afterCorrectDelay, 900);
+    Exercises.speak('Bravo! ' + MathEquations.solved(state.eq) + '.');
+    timers.set(afterCorrectDelay, 900);
   }
 
   function onWrong(btn) {
@@ -177,7 +144,7 @@
     return [
       'GAME STATE (math-game):',
       '  screen: ' + screenName,
-      '  equation: ' + state.a + (state.op === 'add' ? ' + ' : ' x ') + state.b + ' = ' + state.answer,
+      '  equation: ' + (state.eq ? MathEquations.solved(state.eq) : '-'),
       '  score: ' + state.score,
       ''
     ];
@@ -222,13 +189,16 @@
   // ---------- Main loop (fara reflexe — doar redeseneaza tabla) ----------
   var fps = 0;
   var lastTime = null;
+  var lastDraw = 0;
   function loop(ts) {
     if (lastTime === null) lastTime = ts;
     var dt = ts - lastTime;
     lastTime = ts;
     if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
 
-    draw();
+    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
+    // ajung, si scutesc bateria telefonului de 60
+    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
 
     rafId = requestAnimationFrame(loop);
   }
@@ -246,13 +216,14 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;
       }
+      timers.clearAll();
       state.running = false;
       stageEl.classList.remove('playing');
       targetIndicatorEl.style.display = 'none';

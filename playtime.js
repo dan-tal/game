@@ -12,6 +12,8 @@
 
   var skip = AppConfig.DEBUG_URL_REGEX.test(window.location.search + window.location.hash);
   if (skip) return;
+  // "fara limita" din admin: cu 0 minute nu pornim deloc verificarea
+  if (!(AppConfig.PLAY_MAX_MINUTES > 0)) return;
 
   var START_KEY = 'arcadeSessionStart';
   var LOCK_KEY = 'arcadeLockedUntil';
@@ -52,8 +54,12 @@
 
   function showOverlay(remainingMs) {
     if (!overlayEl) buildOverlay();
+    var wasLocked = document.body.classList.contains('playtime-locked');
     overlayEl.classList.add('show');
     document.body.classList.add('playtime-locked');
+    // jocul din spatele ecranului de pauza trebuie oprit de-adevaratelea (altfel
+    // isi pierde vietile si vorbeste in fundal) — shell.js asculta evenimentul
+    if (!wasLocked) window.dispatchEvent(new Event('arcade:pause'));
     countdownEl.textContent = fmt(remainingMs);
     // vorbit o singura data cand apare pauza, nu la fiecare secunda de
     // numaratoare inversa — playtime.js se incarca inaintea exercises.js,
@@ -107,8 +113,9 @@
       setNum(START_KEY, start);
     }
 
+    // 0 (sau mai putin) = fara limita de timp
     var maxMs = AppConfig.PLAY_MAX_MINUTES * 60000;
-    if (now - start >= maxMs) {
+    if (maxMs > 0 && now - start >= maxMs) {
       var newLockedUntil = now + AppConfig.PLAY_RESET_MINUTES * 60000;
       setNum(LOCK_KEY, newLockedUntil);
       showOverlay(newLockedUntil - now);

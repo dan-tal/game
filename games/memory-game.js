@@ -14,9 +14,12 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
+  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
+  var timers = GameShared.createTimers();
+
   var heartsEl = document.getElementById('hearts');
   var scoreEl = document.getElementById('score');
 
@@ -25,7 +28,12 @@
   boardEl.style.display = 'none';
   stageEl.appendChild(boardEl);
 
-  var PAIRS = MemoryGameConfig.PAIRS;
+  // tabla se adapteaza varstei: 3 perechi (2x3 carti mari) la 2-3 ani, 6
+  // perechi (4x3) la prescolari, 8 perechi (4x4) la scolari — vezi
+  // MemoryGameConfig.LAYOUTS. Recalculat la fiecare tabla noua.
+  function layout() {
+    return MemoryGameConfig.LAYOUTS[ChildAge.tier()] || MemoryGameConfig.LAYOUTS.preschool;
+  }
 
   function sfxGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
   function sfxBad() { Exercises.beep(260, 0.15, 'sine'); }
@@ -49,13 +57,16 @@
     score: 0,
     lives: AppConfig.NORMAL_MAX_LIVES,
     maxLives: AppConfig.NORMAL_MAX_LIVES,
+    pairs: 6,
+    sinceBreak: 0, // perechi gasite de la ultima pauza de exercitii
     cards: [],     // { icon, matched, flipped, el }
     flipped: [],   // indici (max 2) intorsi acum, in asteptarea verificarii
     lock: false    // cat timp se verifica o pereche, ignora alte atingeri
   };
 
+  // jocul nu scade vieti (o pereche gresita doar se intoarce la loc) — nu afisam inimi
   function updateHUD() {
-    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
+    heartsEl.textContent = '';
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -67,7 +78,11 @@
   }
 
   function buildBoard() {
-    var icons = pickIcons(PAIRS);
+    var lay = layout();
+    state.pairs = lay.pairs;
+    boardEl.style.setProperty('--cols', lay.cols);
+    boardEl.style.setProperty('--rows', Math.ceil(lay.pairs * 2 / lay.cols));
+    var icons = pickIcons(lay.pairs);
     var deck = shuffle(icons.concat(icons).map(function (icon) { return { icon: icon }; }));
 
     boardEl.innerHTML = '';
@@ -112,17 +127,18 @@
       sfxGood();
       updateHUD();
       Exercises.speak('Bravo! Ai găsit o pereche!');
+      state.sinceBreak += 1;
       state.flipped = [];
       state.lock = false;
 
       if (state.cards.every(function (c) { return c.matched; })) {
-        setTimeout(afterBoardComplete, MemoryGameConfig.MATCH_DELAY_MS);
+        timers.set(afterBoardComplete, MemoryGameConfig.MATCH_DELAY_MS);
       }
     } else {
       sfxBad();
       if (window.Credits) Credits.deduct(AppConfig.CREDIT_PENALTY_PER_MISTAKE);
       Exercises.speak('Mai încearcă!');
-      setTimeout(function () {
+      timers.set(function () {
         a.flipped = false; b.flipped = false;
         renderCardFace(a);
         renderCardFace(b);
@@ -134,13 +150,21 @@
 
   function afterBoardComplete() {
     if (!state.running) return; // s-a apasat "acasa" cat timp astepta
-    if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) triggerLearningBreak();
-    else buildBoard();
+    // pauza de exercitii la fiecare EXERCISE_EVERY_SCORE perechi gasite (cu 6
+    // perechi pe tabla, scorul cadea rar exact pe un multiplu de 5)
+    if (state.sinceBreak >= AppConfig.EXERCISE_EVERY_SCORE) {
+      state.sinceBreak = 0;
+      triggerLearningBreak();
+    } else {
+      buildBoard();
+    }
   }
 
   function startGame() {
+    timers.clearAll();
+    state.sinceBreak = 0;
     state.score = 0;
-    state.maxLives = AppConfig.NORMAL_MAX_LIVES;
+    state.maxLives = GameShared.maxLives();
     state.lives = state.maxLives;
     state.running = true;
 
@@ -176,7 +200,7 @@
     return [
       'GAME STATE (memory-game):',
       '  screen: ' + screenName,
-      '  perechi gasite: ' + matched + '/' + PAIRS,
+      '  perechi gasite: ' + matched + '/' + state.pairs,
       '  score: ' + state.score,
       ''
     ];
@@ -211,13 +235,16 @@
   var fps = 0;
   var lastTime = null;
   var rafId = null;
+  var lastDraw = 0;
   function loop(ts) {
     if (lastTime === null) lastTime = ts;
     var dt = ts - lastTime;
     lastTime = ts;
     if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
 
-    draw();
+    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
+    // ajung, si scutesc bateria telefonului de 60
+    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
 
     rafId = requestAnimationFrame(loop);
   }
@@ -233,13 +260,14 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;
       }
+      timers.clearAll();
       state.running = false;
       stageEl.classList.remove('playing');
       boardEl.style.display = 'none';

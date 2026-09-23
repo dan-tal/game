@@ -15,9 +15,12 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
+  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
+  var timers = GameShared.createTimers();
+
   var heartsEl = document.getElementById('hearts');
   var scoreEl = document.getElementById('score');
 
@@ -73,10 +76,9 @@
     firstRoundEver: true
   };
 
+  // jocul nu scade vieti (o greseala doar mai cere o incercare) — nu afisam inimi
   function updateHUD() {
-    var h = '';
-    for (var i = 0; i < AppConfig.NORMAL_MAX_LIVES; i++) h += '❤️';
-    heartsEl.textContent = h;
+    heartsEl.textContent = '';
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -206,7 +208,7 @@
     if (window.Credits) Credits.add(AppConfig.CREDIT_PER_EXERCISE);
     targetIndicatorEl.textContent = '🎉';
     optionsWrapEl.innerHTML = '';
-    setTimeout(function () {
+    timers.set(function () {
       if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) {
         triggerLearningBreak(newEpisode);
       } else {
@@ -222,9 +224,9 @@
   function afterCorrect(next) {
     if (window.Credits) Credits.add(AppConfig.CREDIT_PER_GAME_MATCH);
     if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) {
-      setTimeout(function () { triggerLearningBreak(next); }, 600);
+      timers.set(function () { triggerLearningBreak(next); }, 600);
     } else {
-      setTimeout(next, 700);
+      timers.set(next, 700);
     }
   }
 
@@ -249,6 +251,7 @@
   }
 
   function startGame() {
+    timers.clearAll();
     state.score = 0;
     state.capped = {};
     state.running = true;
@@ -356,6 +359,7 @@
   // ---------- Main loop ----------
   var fps = 0;
   var lastTime = null;
+  var lastDraw = 0;
   function loop(ts) {
     if (lastTime === null) lastTime = ts;
     var dt = ts - lastTime;
@@ -363,7 +367,9 @@
     if (dt > 60) dt = 60;
     if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
 
-    draw();
+    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
+    // ajung, si scutesc bateria telefonului de 60
+    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
     if (Debug.isOn()) renderDebugPanel();
 
     rafId = requestAnimationFrame(loop);
@@ -382,13 +388,14 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;
       }
+      timers.clearAll();
       state.running = false;
       stageEl.classList.remove('playing');
       targetIndicatorEl.style.display = 'none';

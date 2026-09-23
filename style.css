@@ -10,6 +10,17 @@ html, body {
   font-family: 'Comic Sans MS', 'Segoe UI', Verdana, sans-serif;
   overflow: hidden;
   touch-action: none;
+  /* pe telefon: fara "trage in jos ca sa reincarci" (ar reporni jocul in
+     mijlocul unei runde), fara aprindere gri la atingere, fara selectarea
+     textului sau meniul de "copiaza" la apasare lunga pe un buton */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+@supports (height: 100dvh) {
+  html, body { height: 100dvh; }
 }
 #wrap {
   display: flex;
@@ -18,6 +29,8 @@ html, body {
   justify-content: center;
   height: 100%;
   width: 100%;
+  /* ecranele cu "notch"/bara de gesturi: nu lasa scena sub ele */
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   transition: margin-left 0.15s ease, width 0.15s ease;
 }
 body.debug-active #wrap {
@@ -26,10 +39,18 @@ body.debug-active #wrap {
   align-items: flex-end;
   padding-right: 24px;
 }
+/* scena e mereu portret (420x700). Inaltimea disponibila e cea DINAMICA a
+   ecranului (dvh), nu 100vh: pe telefon 100vh include bara de adrese a
+   browserului, asa ca partea de jos a scenei (butoane, sageti) ramanea
+   ascunsa sub ea pana se ascundea bara. */
 #stage {
+  --avail-h: 100vh;
   position: relative;
-  width: min(96vw, calc(94vh * 420 / 700));
+  width: min(98vw, calc((var(--avail-h) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) * 0.97 * 420 / 700));
   aspect-ratio: 420 / 700;
+}
+@supports (height: 100dvh) {
+  #stage { --avail-h: 100dvh; }
 }
 canvas {
   width: 100%;
@@ -38,7 +59,6 @@ canvas {
   border-radius: 18px;
   box-shadow: 0 6px 0 #2e7d32, 0 10px 18px rgba(0,0,0,0.25);
   background: #7bc96f;
-  image-rendering: -webkit-optimize-contrast;
   /* fara astea, safari pe iphone trateaza tragerea cu degetul pe canvas ca pe
      "ridica si muta imaginea" (loupe alb + meniu contextual), exact peste
      swipe-ul de control al jocurilor cu masina/vaporul/etc. */
@@ -60,7 +80,7 @@ canvas {
      #hearts/#score e deja putin, impingandu-le sa se ingramadeasca/rupa pe
      mai multe randuri. clamp() aici copiaza aceleasi praguri ca fontul
      badge-ului, ca rezerva sa creasca doar cand chiar creste si badge-ul */
-  padding-left: 46px;
+  padding-left: 56px;
   padding-right: clamp(107px, 17.5vw, 155px);
   display: none;
   justify-content: space-between;
@@ -115,6 +135,10 @@ canvas {
   gap: 10px;
   z-index: 7;
 }
+/* containerele acopera tot latul jos — fara asta, o tragere cu degetul care
+   incepe in golul dintre sageti nu mai ajunge la canvas (swipe-ul nu porneste) */
+.carTouchControls, .mazeTouchControls, .hDpadControls, .vDpadControls { pointer-events: none; }
+.dpadBtn { pointer-events: auto; }
 .dpadGroup { display: flex; gap: 10px; }
 .dpadGroupMove { flex-direction: column; }
 .dpadBtn {
@@ -145,12 +169,28 @@ canvas {
   border: none;
   border-radius: 14px;
   padding: 4px 9px;
-  font-size: clamp(18px, 2.8vw, 26px);
+  min-width: 44px; min-height: 44px; /* tinta de atingere minima pe telefon */
+  font-size: clamp(20px, 2.8vw, 26px);
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   z-index: 6;
 }
 #homeBtn.show { display: block; }
+
+/* buton de sunet — doar in meniu, in acelasi colt ca 🏠 din jocuri */
+#muteBtn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  min-width: 44px; min-height: 44px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.85);
+  font-size: 22px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 6;
+}
+#muteBtn:active { transform: scale(0.94); }
 
 #creditsBadge {
   position: absolute;
@@ -174,6 +214,7 @@ canvas {
    cutia sub latimea continutului cand nu incape, iar textul (nowrap) iese
    pur si simplu peste marginea dreapta a cutiei, exact sub #creditsBadge */
 #hearts { font-size: clamp(22px, 4.5vw, 40px); letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
+#hearts.manyHearts { font-size: clamp(16px, 3.4vw, 30px); letter-spacing: 0; }
 #score {
   background: rgba(255,255,255,0.85);
   color: #444;
@@ -215,25 +256,60 @@ canvas {
    sus ar iesi din view fara sa poata fi derulata pana la ea (scrollTop nu
    poate fi negativ). Ancorat sus, continutul creste doar in jos, unde
    scroll-ul chiar functioneaza (vezi touch-action de mai sus) */
-#exerciseSlot.screen { justify-content: flex-start; padding-top: clamp(16px, 4vh, 32px); }
+/* padding-top: 🏠 (stanga) si steluțele (dreapta) stau in colturile de sus,
+   deasupra ecranului de exercitiu — fara asta acopereau titlul. Continutul
+   sta intr-un .exInner cu margini auto: centrat cand incape, dar cand e prea
+   inalt, marginile devin 0 si ecranul se poate derula de la primul rand. */
+#exerciseSlot.screen { justify-content: flex-start; padding-top: clamp(58px, 9vh, 72px); }
+.exInner { margin: auto 0; width: 100%; display: flex; flex-direction: column; align-items: center; }
 
-/* ---------- Main menu (game picker), tiles pinned to the bottom ---------- */
-.menuScreen { justify-content: flex-start; padding-top: clamp(24px, 8vh, 60px); }
-/* grid pe 4 coloane fixe (nu flex-wrap ca restul rândurilor de mai jos) —
-   asa raman mereu 4 pe rand, indiferent cate tile-uri sunt deblocate */
+/* ---------- Main menu (game picker) ---------- */
+.menuScreen { justify-content: flex-start; padding-top: clamp(56px, 9vh, 64px); }
+.menuScreen h1 { margin-bottom: 6px; }
+
+/* misiunea zilei: text + bara de progres */
+.dailyGoal {
+  width: 100%;
+  max-width: 340px;
+  margin: 2px auto 10px auto;
+}
+.dailyGoalText { font-size: clamp(13px, 3.4vw, 16px); font-weight: bold; color: #5d4037; }
+.dailyGoalBar { height: 10px; border-radius: 6px; background: rgba(0,0,0,0.12); margin-top: 4px; overflow: hidden; }
+.dailyGoalFill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #ffb300, #ff6f00); transition: width 0.4s ease; }
+
+/* 3 tile-uri pe rand pe telefon (nu 4 — la 4 textul cobora la 10px si numele
+   lungi se rupeau pe 3 randuri); 2 pentru cei mici, cu tile-uri foarte mari */
 .menuTileRow {
-  margin-top: auto;
+  width: 100%;
   padding-bottom: clamp(10px, 3vh, 26px);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: clamp(6px, 1.5vw, 12px);
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(8px, 2vw, 14px);
+}
+.menuTileRow.cols2 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 720px) and (min-height: 760px) {
+  .menuTileRow:not(.cols2) { grid-template-columns: repeat(4, 1fr); }
 }
 .menuTileRow .typeBtn {
   width: 100%;
-  min-height: clamp(72px, 20vw, 104px);
-  font-size: clamp(10px, 1.7vw, 14px);
+  min-height: clamp(96px, 26vw, 128px);
+  /* emoji-urile stau pe aceeasi linie in toate tile-urile, chiar daca un nume
+     are un rand si altul doua */
+  justify-content: flex-start;
+  padding: clamp(8px, 2.4vw, 12px) 4px 6px;
+  font-size: clamp(12px, 3.4vw, 16px);
 }
-.menuTileRow .typeBtn .emoji { font-size: clamp(24px, 5vw, 40px); }
+.menuTileRow.cols2 .typeBtn { min-height: clamp(120px, 34vw, 170px); font-size: clamp(14px, 4vw, 19px); justify-content: center; }
+.menuTileRow .typeBtn .emoji { font-size: clamp(34px, 9vw, 52px); }
+.menuTileRow.cols2 .typeBtn .emoji { font-size: clamp(48px, 13vw, 72px); }
+.menuTileRow .typeBtn .tileName { display: block; line-height: 1.2; }
+.menuTileRow .practiceTile { background: #fff8e1; border-color: #ffb300; }
+.menuTileRow .tileSub { display: block; font-size: 0.72em; font-weight: normal; color: #e65100; margin-top: 2px; }
+.typeBtn.hint, .practiceTile.hint { animation: pulseHint 0.8s ease-in-out 3; }
+@keyframes pulseHint {
+  0%, 100% { transform: scale(1); box-shadow: 0 3px 0 rgba(0,0,0,0.15); }
+  50% { transform: scale(1.07); box-shadow: 0 0 0 4px #ffb300, 0 3px 0 rgba(0,0,0,0.15); }
+}
 
 .colorRow, .typeRow, .exOptionsRow {
   display: flex;
@@ -280,6 +356,7 @@ canvas {
 .typeBtn:disabled:active { transform: none; }
 .typeBtn small { font-size: 0.75em; font-weight: normal; }
 .typeBtn.locked { filter: grayscale(70%); opacity: 0.7; cursor: not-allowed; }
+.typeBtn.shake { animation: shakeBtn 0.4s; }
 .typeBtn.locked:active { transform: none; }
 .typeBtn .lockNote {
   display: block;
@@ -314,25 +391,25 @@ canvas {
 
 /* ---------- Shared exercises component (see exercises.js) ---------- */
 .exTargetBox {
-  width: clamp(78px, 15vw, 130px); height: clamp(78px, 15vw, 130px);
+  width: clamp(96px, 26vw, 150px); height: clamp(96px, 26vw, 150px);
   background: #fff;
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(42px, 8vw, 68px);
+  font-size: clamp(54px, 14vw, 88px);
   font-weight: bold;
   color: #1e88e5;
   box-shadow: 0 3px 0 rgba(0,0,0,0.15);
   margin: 10px auto 4px auto;
   transition: background 0.15s ease;
 }
-.exTargetBox.mode-stars { font-size: clamp(16px, 3.4vw, 26px); letter-spacing: 1px; }
+.exTargetBox.mode-stars { font-size: clamp(22px, 6vw, 34px); letter-spacing: 1px; }
 .exTargetBox.mode-audio { color: #90a4ae; }
 .exTargetBox.mode-puzzle {
   width: auto; max-width: 92vw; height: auto;
-  min-width: clamp(78px, 15vw, 130px); min-height: clamp(78px, 15vw, 130px);
-  font-size: clamp(24px, 4.6vw, 38px);
+  min-width: clamp(96px, 26vw, 150px); min-height: clamp(96px, 26vw, 150px);
+  font-size: clamp(28px, 7.4vw, 44px);
   padding: 8px 14px;
 }
 
@@ -354,8 +431,8 @@ canvas {
 .exRepeatBtn:active { transform: translateY(2px); box-shadow: none; }
 
 .exOptionBtn {
-  width: clamp(64px, 12vw, 100px); height: clamp(64px, 12vw, 100px);
-  font-size: clamp(26px, 5vw, 42px);
+  width: clamp(72px, 20vw, 108px); height: clamp(72px, 20vw, 108px);
+  font-size: clamp(32px, 9vw, 50px);
   font-weight: bold;
   border: none;
   border-radius: 14px;
@@ -365,8 +442,29 @@ canvas {
   cursor: pointer;
 }
 .exOptionBtn:active { transform: translateY(3px); box-shadow: none; }
+/* raspunsuri cu mai multe caractere (24, 100, 10:30) sau grupuri de emoji */
+.exOptionBtn.exOptionWide {
+  width: auto;
+  min-width: clamp(72px, 20vw, 108px);
+  padding: 0 clamp(10px, 2.4vw, 18px);
+}
+.exOptionBtn.exOptionGroup {
+  width: auto;
+  height: auto;
+  min-width: clamp(80px, 20vw, 120px);
+  max-width: 44%;
+  padding: 8px 10px;
+  font-size: clamp(22px, 5.4vw, 32px);
+  line-height: 1.2;
+  word-break: break-all;
+}
+.exOptionsRow .colorSwatch { width: clamp(58px, 16vw, 88px); height: clamp(58px, 16vw, 88px); }
+/* dupa greseli: raspunsul corect clipeste, ca cel mic sa nu se chinuie */
+.exOptionBtn.hint, .colorSwatch.hint { animation: pulseHint 0.8s ease-in-out infinite; }
+.exOptionBtn.correct, .colorSwatch.correct { box-shadow: 0 0 0 4px #4caf50; }
 .exOptionBtn.shake, .colorSwatch.shake { animation: shakeBtn 0.4s; }
 .exOptionBtn[disabled], .colorSwatch[disabled] { opacity: 0.5; cursor: default; }
+.exOptionBtn.correct[disabled], .colorSwatch.correct[disabled] { opacity: 1; }
 @keyframes shakeBtn {
   0%, 100% { transform: translateX(0); }
   20%, 60% { transform: translateX(-8px); }
@@ -551,8 +649,11 @@ canvas {
   top: clamp(72px, 13vh, 96px);
   bottom: 14px;
   display: none;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  /* cate coloane/randuri — setate din JS dupa varsta (vezi memory-game.js) */
+  --cols: 4;
+  --rows: 3;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-rows: repeat(var(--rows), 1fr);
   gap: clamp(6px, 1.6vw, 12px);
   padding: 0 clamp(10px, 2.4vw, 18px);
 }
@@ -631,7 +732,7 @@ canvas {
      nivelul curent, vezi PuzzleGameConfig.LEVELS; 2 e doar valoarea
      initiala, inainte sa porneasca primul puzzle */
   --grid: 2;
-  --puzzlePieceSize: clamp(64px, 16vw, 100px);
+  --puzzlePieceSize: 64px; /* rescris din JS (buildPuzzle) ca 2 x grid piese sa incapa pe scena */
   --puzzleGap: clamp(6px, 1.6vw, 10px);
   position: relative;
   display: grid;
@@ -787,81 +888,6 @@ canvas {
 }
 #debugPanel.show { display: block; }
 
-/* ---------- admin.html — pagina separata de configurare pentru parinte ----------
-   html si body au nevoie amandoua de overflow:auto (nu doar body), altfel
-   regula globala "html, body { overflow: hidden }" de mai sus (facuta pentru
-   shell-ul jocului) blocheaza scroll-ul si pe telefon pagina devine
-   neutilizabila sub prima "pagina" de continut. */
-html.adminBody, body.adminBody { background: #0a0f0a; margin: 0; height: auto; overflow: auto; touch-action: auto; }
-.adminPage {
-  max-width: 520px;
-  margin: 0 auto;
-  min-height: 100vh;
-  background: rgba(10, 15, 10, 0.94);
-  color: #fff;
-  font-family: Consolas, 'Courier New', monospace;
-  padding: 14px;
-  box-sizing: border-box;
-}
-.adminPage h2 { margin: 0 0 4px 0; font-size: 17px; font-family: 'Comic Sans MS', 'Segoe UI', Verdana, sans-serif; }
-.adminPage h3 { margin: 14px 0 6px 0; font-size: 13px; color: #7CFC7C; }
-.adminPage p { margin: 0 0 8px 0; font-size: 11px; color: #ccc; }
-.adminPage a { color: #7CFC7C; }
-.adminFieldGrid { display: grid; gap: 6px; }
-.adminField {
-  display: grid;
-  grid-template-columns: 1fr 52px;
-  align-items: center;
-  gap: 2px 8px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 6px;
-  padding: 5px 8px;
-}
-.adminField label { font-size: 12px; }
-.adminField .adminHint { grid-column: 1; font-size: 10px; color: #999; }
-.adminField input {
-  grid-row: 1;
-  grid-column: 2;
-  width: 52px;
-  font-size: 13px;
-  text-align: center;
-  padding: 4px 2px;
-  border: 1px solid #444;
-  border-radius: 6px;
-  background: #111;
-  color: #7CFC7C;
-  font-family: inherit;
-}
-#adminAdvanced { margin-top: 6px; }
-#adminAdvanced summary { cursor: pointer; color: #7CFC7C; font-size: 12px; }
-#adminConfigText {
-  width: 100%;
-  height: 40vh;
-  resize: vertical;
-  background: #111;
-  color: #7CFC7C;
-  font-family: Consolas, 'Courier New', monospace;
-  font-size: 12px;
-  padding: 8px;
-  box-sizing: border-box;
-  border: 1px solid #444;
-  border-radius: 6px;
-  margin-top: 6px;
-}
-#adminBtnRow { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-#adminBtnRow button {
-  font-size: 12px;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-#adminSaveMainBtn, #adminSaveJsonBtn { background: #4caf50; color: #fff; }
-#adminResetBtn { background: #e53935; color: #fff; }
-#adminResetCreditsBtn { background: #fb8c00; color: #fff; }
-.adminPage hr { border: none; border-top: 1px solid #444; margin: 12px 0; width: 100%; }
-#adminMsg { margin-top: 6px; color: #ff8a80; font-size: 11px; min-height: 14px; }
-
 #playtimeOverlay {
   position: fixed;
   inset: 0;
@@ -890,4 +916,27 @@ html.adminBody, body.adminBody { background: #0a0f0a; margin: 0; height: auto; o
   color: #e65100;
   margin-top: 10px;
   font-family: Consolas, 'Courier New', monospace;
+}
+
+/* telefon tinut pe orizontala: scena ramane portret (mica), deci ii spunem
+   copilului/parintelui sa il intoarca — nu blocam jocul */
+#rotateHint {
+  display: none;
+  position: fixed;
+  left: 12px; right: 12px; top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: rgba(0,0,0,0.55);
+  pointer-events: none;
+  z-index: 0;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #rotateHint { display: block; max-width: calc(50vw - 0.3 * 100vh - 24px); }
+  #wrap { position: relative; z-index: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shake, .hint, .practiceTile.hint { animation: none !important; }
 }

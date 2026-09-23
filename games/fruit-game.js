@@ -12,7 +12,7 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
   var heartsEl = document.getElementById('hearts');
@@ -29,7 +29,7 @@
   function sfxCatchGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
   function sfxCatchBad() { Exercises.beep(140, 0.25, 'sawtooth'); }
 
-  var basket = { x: W / 2, y: H - 90, w: 90, h: 50, speed: FruitGameConfig.BASKET_SPEED };
+  var basket = { x: W / 2, y: H - 112, w: 90, h: 50, speed: FruitGameConfig.BASKET_SPEED };
 
   var state = {
     running: false,
@@ -60,7 +60,7 @@
 
   function startGame() {
     basket.x = W / 2;
-    state.maxLives = Debug.isOn() ? AppConfig.DEBUG_MAX_LIVES : AppConfig.NORMAL_MAX_LIVES;
+    state.maxLives = GameShared.maxLives();
     state.score = 0;
     state.lives = state.maxLives;
     state.invuln = 1200;
@@ -252,7 +252,7 @@
   function update(dt) {
     if (!state.running) return;
 
-    var fallSpeed = state.speed * (dt / 16.6667);
+    var fallSpeed = state.speed * GameShared.ageSpeed() * (dt / 16.6667);
 
     var dir = 0;
     if (keyLeft) dir -= 1;
@@ -429,7 +429,7 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {

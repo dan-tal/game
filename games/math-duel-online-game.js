@@ -24,7 +24,7 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
   var heartsEl = document.getElementById('hearts');
@@ -337,12 +337,15 @@
       Debug.render(['SYSTEM:', '  fps: ' + fps.toFixed(1), ''].concat(getGameDebugLines()));
     }
   }
+  var lastDraw = 0;
   function loop(ts) {
     if (lastTime === null) lastTime = ts;
     var dt = ts - lastTime;
     lastTime = ts;
     if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
-    draw();
+    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
+    // ajung, si scutesc bateria telefonului de 60
+    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
     rafId = requestAnimationFrame(loop);
   }
 

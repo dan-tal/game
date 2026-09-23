@@ -2,7 +2,9 @@
 //
 // Valori reglabile doar pentru "Calcule Mari" — vezi math-game.js.
 //
-// KINDS: tipurile de ecuatii posibile, alese la intamplare in fiecare runda.
+// KINDS: tipurile de ecuatii pentru varsta cea mai mare (10 ani), alese la
+// intamplare in fiecare runda. Pentru copiii mai mici, ecuatiile (mai usoare)
+// vin din math-equations.js (MathEquations.kindsForAge).
 //   - 'add': adunarea a doua numere de doua cifre (10..99 + 10..99)
 //   - 'mul': tabla inmultirii, ambii factori intre 2 si 10
 var MathGameConfig = {

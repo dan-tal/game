@@ -11,7 +11,7 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
   var heartsEl = document.getElementById('hearts');
@@ -59,7 +59,7 @@
   }
 
   function startGame() {
-    state.maxLives = Debug.isOn() ? AppConfig.DEBUG_MAX_LIVES : AppConfig.NORMAL_MAX_LIVES;
+    state.maxLives = GameShared.maxLives();
     state.score = 0;
     state.lives = state.maxLives;
     state.entities = [];
@@ -129,8 +129,10 @@
   // sparge balonul cel mai sus (cel mai aproape sa iasa de pe ecran)
   window.addEventListener('keydown', function (e) {
     if (e.code !== 'Space' && e.key !== ' ') return;
+    // doar cat se joaca: altfel Space ar fi blocat peste tot (butoane, campuri de text)
+    if (!state.running) return;
     e.preventDefault();
-    if (!state.running || !state.entities.length) return;
+    if (!state.entities.length) return;
     var bestIdx = 0, bestY = state.entities[0].y;
     for (var i = 1; i < state.entities.length; i++) {
       if (state.entities[i].y < bestY) { bestY = state.entities[i].y; bestIdx = i; }
@@ -292,7 +294,7 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {

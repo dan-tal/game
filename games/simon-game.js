@@ -12,9 +12,12 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
+  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
+  var timers = GameShared.createTimers();
+
   var heartsEl = document.getElementById('hearts');
   var scoreEl = document.getElementById('score');
 
@@ -56,12 +59,17 @@
     });
   }
 
+  // cat dureaza fiecare pastila aprinsa: mai lent pentru cei mici (0.7x
+  // viteza), mai vioi pentru scolari — vezi AppConfig.AGE_PROFILES
+  function stepMs() { return Math.round(SimonGameConfig.STEP_SHOW_MS / GameShared.ageSpeed()); }
+
   function litPad(pad, ms) {
     var entry = state.pads.filter(function (p) { return p.pad.key === pad.key; })[0];
+    if (!entry) return;
     entry.el.style.background = pad.litColor;
     entry.el.classList.add('simonPadLit');
     Exercises.beep(pad.freq, ms / 1000, 'triangle');
-    setTimeout(function () {
+    timers.set(function () {
       entry.el.style.background = pad.color;
       entry.el.classList.remove('simonPadLit');
     }, ms);
@@ -78,11 +86,11 @@
         setPadsEnabled(true);
         return;
       }
-      litPad(state.sequence[i], SimonGameConfig.STEP_SHOW_MS);
+      litPad(state.sequence[i], stepMs());
       i++;
-      setTimeout(step, SimonGameConfig.STEP_SHOW_MS + SimonGameConfig.STEP_GAP_MS);
+      timers.set(step, stepMs() + SimonGameConfig.STEP_GAP_MS);
     }
-    setTimeout(step, SimonGameConfig.STEP_GAP_MS);
+    timers.set(step, SimonGameConfig.STEP_GAP_MS);
   }
 
   function setPadsEnabled(enabled) {
@@ -109,7 +117,7 @@
         sfxGood();
         updateHUD();
         Exercises.speak('Bravo!');
-        setTimeout(afterRoundDelay, 900);
+        timers.set(afterRoundDelay, 900);
       }
     } else {
       state.mode = 'idle';
@@ -120,14 +128,14 @@
       updateHUD();
       Exercises.speak('Mai încearcă!');
       if (state.lives <= 0) {
-        setTimeout(function () {
+        timers.set(function () {
           state.lives = state.maxLives;
           state.sequence = [];
           updateHUD();
           nextRound();
         }, SimonGameConfig.RETRY_DELAY_MS);
       } else {
-        setTimeout(playSequence, SimonGameConfig.RETRY_DELAY_MS);
+        timers.set(playSequence, SimonGameConfig.RETRY_DELAY_MS);
       }
     }
   }
@@ -139,8 +147,9 @@
   }
 
   function startGame() {
+    timers.clearAll();
     state.score = 0;
-    state.maxLives = AppConfig.NORMAL_MAX_LIVES;
+    state.maxLives = GameShared.maxLives();
     state.lives = state.maxLives;
     state.sequence = [];
     state.running = true;
@@ -212,13 +221,16 @@
   var fps = 0;
   var lastTime = null;
   var rafId = null;
+  var lastDraw = 0;
   function loop(ts) {
     if (lastTime === null) lastTime = ts;
     var dt = ts - lastTime;
     lastTime = ts;
     if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
 
-    draw();
+    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
+    // ajung, si scutesc bateria telefonului de 60
+    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
 
     rafId = requestAnimationFrame(loop);
   }
@@ -234,13 +246,14 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;
       }
+      timers.clearAll();
       state.running = false;
       state.mode = 'idle';
       stageEl.classList.remove('playing');

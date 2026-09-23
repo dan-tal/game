@@ -18,41 +18,18 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
+  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
+  var timers = GameShared.createTimers();
 
-  var KINDS = MathDuelGameConfig.KINDS;
+
   var OPTION_COUNT = MathDuelGameConfig.OPTION_COUNT;
   var MAX_LIVES = AppConfig.NORMAL_MAX_LIVES;
 
   function sfxGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
   function sfxBad() { Exercises.beep(260, 0.15, 'sine'); }
-
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
-
-  // distractori aproape de raspunsul corect — la fel ca la Calcule Mari,
-  // altfel raspunsul se ghiceste dupa marime, nu dupa calcul propriu-zis.
-  // Generati separat pentru fiecare jucator, ca cei doi sa nu vada exact
-  // acelasi rand de butoane (fiecare trebuie sa calculeze singur).
-  function pickNumericOptions(target, count) {
-    var opts = [target];
-    var maxOffset = Math.max(8, Math.round(target * 0.12));
-    var attempts = 0;
-    while (opts.length < count && attempts < 200) {
-      attempts++;
-      var offset = 1 + Math.floor(Math.random() * maxOffset);
-      var candidate = target + (Math.random() < 0.5 ? -offset : offset);
-      if (candidate > 0 && opts.indexOf(candidate) === -1) opts.push(candidate);
-    }
-    return shuffle(opts);
-  }
 
   // ---------- Construieste DOM-ul pentru o jumatate de ecran (un jucator) ----------
   function buildZone(rotated) {
@@ -88,20 +65,12 @@
   var state = {
     running: false,
     roundOver: false,
-    a: 0, b: 0, op: 'add', answer: 0,
+    eq: null, answer: 0,
     players: [
       { label: 'Jucătorul 1', score: 0, lives: MAX_LIVES, maxLives: MAX_LIVES, ui: zoneP1 },
       { label: 'Jucătorul 2', score: 0, lives: MAX_LIVES, maxLives: MAX_LIVES, ui: zoneP2 }
     ]
   };
-
-  function makeEquation() {
-    var kind = KINDS[Math.floor(Math.random() * KINDS.length)];
-    var a = kind.minA + Math.floor(Math.random() * (kind.maxA - kind.minA + 1));
-    var b = kind.minB + Math.floor(Math.random() * (kind.maxB - kind.minB + 1));
-    var answer = kind.op === 'add' ? a + b : a * b;
-    return { op: kind.op, a: a, b: b, answer: answer };
-  }
 
   function updateHUD(player) {
     GameShared.renderHearts(player.ui.heartsEl, player.maxLives, player.lives);
@@ -115,7 +84,7 @@
   }
 
   function renderOptionButtons(player) {
-    var options = pickNumericOptions(state.answer, OPTION_COUNT);
+    var options = MathEquations.options(state.answer, OPTION_COUNT);
     player.ui.optionsEl.innerHTML = '';
     options.forEach(function (value) {
       var btn = document.createElement('button');
@@ -130,26 +99,25 @@
   }
 
   function pickNewRound() {
-    var eq = makeEquation();
-    state.a = eq.a; state.b = eq.b; state.op = eq.op; state.answer = eq.answer;
+    var eq = MathEquations.make(ChildAge.effective());
+    state.eq = eq;
+    state.answer = eq.answer;
     state.roundOver = false;
 
-    var symbol = eq.op === 'add' ? '+' : '×';
-    var text = eq.a + ' ' + symbol + ' ' + eq.b + ' = ?';
+    var text = MathEquations.text(eq);
     state.players.forEach(function (p) {
       p.ui.questionEl.textContent = text;
       renderOptionButtons(p);
     });
-
-    var spoken = eq.op === 'add'
-      ? 'Cât fac ' + eq.a + ' plus ' + eq.b + '?'
-      : 'Cât fac ' + eq.a + ' înmulțit cu ' + eq.b + '?';
-    Exercises.speak(spoken);
+    Exercises.speak(MathEquations.spoken(eq));
   }
 
   function startGame() {
+    timers.clearAll();
+    var maxLives = GameShared.maxLives();
     state.players.forEach(function (p) {
       p.score = 0;
+      p.maxLives = maxLives;
       p.lives = p.maxLives;
       updateHUD(p);
     });
@@ -174,9 +142,8 @@
     sfxGood();
     updateHUD(player);
     disableAllButtons();
-    var symbol = state.op === 'add' ? ' + ' : ' × ';
-    Exercises.speak('Bravo, ' + player.label + '! ' + state.a + symbol + state.b + ' = ' + state.answer + '.');
-    setTimeout(afterRoundDelay, 1100);
+    Exercises.speak('Bravo, ' + player.label + '! ' + MathEquations.solved(state.eq) + '.');
+    timers.set(afterRoundDelay, 1100);
   }
 
   function afterRoundDelay() {
@@ -208,7 +175,7 @@
     winner.ui.questionEl.textContent = '🏆 ' + winner.label + ' câștigă!';
     loser.ui.questionEl.textContent = '💔 Meci nou curând...';
     Exercises.speak(winner.label + ' câștigă meciul! Un meci nou începe imediat.');
-    setTimeout(function () { triggerLearningBreak(true); }, 1700);
+    timers.set(function () { triggerLearningBreak(true); }, 1700);
   }
 
   function resetMatch() {
@@ -258,7 +225,7 @@
     return [
       'GAME STATE (math-duel-game):',
       '  screen: ' + screenName,
-      '  equation: ' + state.a + (state.op === 'add' ? ' + ' : ' x ') + state.b + ' = ' + state.answer,
+      '  equation: ' + (state.eq ? MathEquations.solved(state.eq) : '-'),
       '  p1 score/lives: ' + state.players[0].score + '/' + state.players[0].lives,
       '  p2 score/lives: ' + state.players[1].score + '/' + state.players[1].lives,
       ''
@@ -305,13 +272,16 @@
   var fps = 0;
   var lastTime = null;
   var rafId = null;
+  var lastDraw = 0;
   function loop(ts) {
     if (lastTime === null) lastTime = ts;
     var dt = ts - lastTime;
     lastTime = ts;
     if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
 
-    draw();
+    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
+    // ajung, si scutesc bateria telefonului de 60
+    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
 
     rafId = requestAnimationFrame(loop);
   }
@@ -329,13 +299,14 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;
       }
+      timers.clearAll();
       state.running = false;
       hideZones();
     }

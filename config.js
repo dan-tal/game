@@ -41,34 +41,36 @@ var AppConfig = {
 
   // fiecare joc se deblocheaza permanent cand copilul a castigat in total
   // (de-a lungul timpului, nu doar cat are acum in cont) macar atatea
-  // steluțe. Ordinea de mai jos merge de la cel mai simplu si mai vizual
-  // (culori/forme, doar apas ce vad) spre cel mai complex (condus + evitat,
-  // apoi coordonare noua tip plasa-sus-jos, si la final litere +
-  // tastatura — cea mai abstracta abilitate, potrivita ultima pentru un
-  // copil de 4 ani).
-  GAME_UNLOCK_STARS: {
-    balloons: 0,
-    numbers: 0,
-    shapes: 5,
-    zoo: 5,
-    pawpatrol: 5,
-    shapesduel: 5,
-    farm: 10,
-    fruit: 10,
-    count: 10,
-    memory: 10,
-    car: 15,
-    train: 15,
-    simon: 15,
-    boat: 20,
-    fishing: 20,
-    puzzle: 20,
-    letters: 25,
-    maze: 200,
-    math: 250,
-    mathduel: 250,
-    mathduelonline: 250
+  // steluțe. Valorile implicite (si ordinea, de la cel mai simplu spre cel mai
+  // complex) traiesc acum in games-catalog.js, langa numele/varsta fiecarui
+  // joc — aici raman doar suprascrierile parintelui, ex: { car: 5 } (vezi
+  // GamesCatalog.unlockStars). Se aplica peste ele si un factor dupa varsta
+  // (ChildAge.unlockFactor): un copil de 9 ani nu are de ce sa "castige" 250 de
+  // steluțe ca sa poata juca Calcule Mari.
+  GAME_UNLOCK_STARS: {},
+
+  // jocuri ascunse de parinte din meniu (chei din games-catalog.js)
+  HIDDEN_GAMES: [],
+  // true = meniul arata TOATE jocurile, nu doar pe cele potrivite varstei
+  SHOW_ALL_GAMES: false,
+
+  // profil de dificultate dupa treapta de varsta (vezi ChildAge.tier):
+  //   speed          — multiplicator pentru viteza jocurilor cu reflexe
+  //   extraLives     — vieti in plus fata de NORMAL_MAX_LIVES
+  //   costFactor     — cat din GAME_COST_CREDITS costa pornirea unui joc
+  //   penaltyFactor  — cat din penalizarea pentru greseala se aplica (0 = deloc)
+  //   introExercises — maxim de exercitii inainte de un joc (null = ca in config)
+  AGE_PROFILES: {
+    toddler:   { speed: 0.7, extraLives: 2, costFactor: 0.3, penaltyFactor: 0, introExercises: 1 },
+    preschool: { speed: 1,   extraLives: 0, costFactor: 1,   penaltyFactor: 1, introExercises: null },
+    school:    { speed: 1.2, extraLives: 0, costFactor: 1,   penaltyFactor: 1, introExercises: null }
   },
+
+  // "misiunea zilei": cate exercitii corecte pe zi, si bonusul cand o termina
+  DAILY_GOAL_EXERCISES: 5,
+  DAILY_GOAL_BONUS_STARS: 5,
+  // cate exercitii face copilul la un apas pe "Exerciții"
+  PRACTICE_SERIES: 5,
 
   // timp maxim continuu de joc (minute) inainte sa apara ecranul de pauza,
   // si cat asteapta (minute) inainte sa poata rejuca
@@ -86,15 +88,12 @@ var AppConfig = {
   TEMPO_PERCENT_PER_STAR: 0.02, // +2% viteza per steluta castigata in runda curenta
   TEMPO_MAX_MULTIPLIER: 1.6,    // plafon, ca sa nu devina imposibil de jucat la scoruri mari
 
-  // "Ce cifra vine dupa N?" cere sa cunosti ordinea numerelor - dezactivat
-  // acum pentru ca cel care joaca inca nu stie numaratoarea. Codul ramane
-  // in exercises.js (makeNextNumberRound), doar il scoatem din rotatie aici.
-  EXERCISE_NEXT_NUMBER_ENABLED: false,
-
-  // "Care numar e cel mai mare?" cere comparatie intre cifre - dezactivat
-  // acum. Codul ramane in exercises.js (makeBiggestRound), doar il scoatem
-  // din rotatie aici.
-  EXERCISE_BIGGEST_ENABLED: false,
+  // "Ce cifra vine dupa N?" si "Care numar e cel mai mare?" cer sa stii
+  // ordinea numerelor. Erau oprite global; acum exercitiile se aleg dupa
+  // varsta (vezi GENERATORS in exercises.js) si aceste doua apar doar la
+  // 7+ ani, deci pot ramane pornite — parintele le poate opri de aici.
+  EXERCISE_NEXT_NUMBER_ENABLED: true,
+  EXERCISE_BIGGEST_ENABLED: true,
 
   // exercitii de adunat/scazut cu cosuri de mere (makeAdditionRound /
   // makeSubtractionRound in exercises.js) - active implicit, de la 4 ani in

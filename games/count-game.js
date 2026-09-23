@@ -18,9 +18,12 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
+  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
+  var timers = GameShared.createTimers();
+
   var heartsEl = document.getElementById('hearts');
   var scoreEl = document.getElementById('score');
 
@@ -57,14 +60,18 @@
     return shuffle(opts);
   }
 
-  // pozele sunt incarcate o singura data, la incarcarea scriptului — pana
-  // se termina de incarcat, draw() pur si simplu nu deseneaza nimic (canvas
-  // ignora un Image neincarcat), fara erori
-  SCENES.forEach(function (scene) {
-    var img = new Image();
-    img.src = scene.file;
-    scene.img = img;
-  });
+  // pozele (5 x ~80KB) se incarca abia cand copilul alege jocul, nu la
+  // deschiderea aplicatiei — pe date mobile, cine nu joaca niciodata Dragon
+  // Vesel nu le mai descarca. Pana se termina de incarcat, draw() nu deseneaza
+  // nimic (canvas ignora un Image neincarcat), fara erori.
+  function ensureSceneImages() {
+    SCENES.forEach(function (scene) {
+      if (scene.img) return;
+      var img = new Image();
+      img.src = scene.file;
+      scene.img = img;
+    });
+  }
 
   var state = {
     running: false,
@@ -72,6 +79,7 @@
     lives: AppConfig.NORMAL_MAX_LIVES,
     maxLives: AppConfig.NORMAL_MAX_LIVES,
     scene: SCENES[0],
+    rounds: 0,
     targetKey: null,
     targetCount: 0
   };
@@ -112,12 +120,19 @@
     var creature = CREATURES[targetKey];
     targetIndicatorEl.innerHTML = '🔍 <img class="gameTargetIcon" src="' + creature.icon + '" alt="' + creature.name + '">';
     renderOptionButtons(state.targetCount);
-    Exercises.speak('Câți ' + creature.plural + ' găsești ascunși în imagine? Caută cu atenție prin iarbă!');
+    // explicatia intreaga doar la prima runda; dupa aceea doar intrebarea,
+    // altfel copilul o asculta de zeci de ori
+    state.rounds += 1;
+    Exercises.speak(state.rounds === 1
+      ? 'Câți ' + creature.plural + ' găsești ascunși în imagine? Caută cu atenție prin iarbă!'
+      : 'Câți ' + creature.plural + '?');
   }
 
   function startGame() {
+    timers.clearAll();
+    state.rounds = 0;
     state.score = 0;
-    state.maxLives = AppConfig.NORMAL_MAX_LIVES;
+    state.maxLives = GameShared.maxLives();
     state.lives = state.maxLives;
     state.running = true;
 
@@ -126,8 +141,9 @@
     updateHUD();
   }
 
+  // jocul nu scade vieti (un raspuns gresit doar mai cere o numarare) — nu afisam inimi
   function updateHUD() {
-    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
+    heartsEl.textContent = '';
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
@@ -144,7 +160,7 @@
     updateHUD();
     Array.prototype.forEach.call(optionsWrapEl.children, function (b) { b.disabled = true; });
     Exercises.speak('Bravo! Erau ' + state.targetCount + ' ' + CREATURES[state.targetKey].plural + '.');
-    setTimeout(afterCorrectDelay, 900);
+    timers.set(afterCorrectDelay, 900);
   }
 
   function onWrong(btn) {
@@ -184,7 +200,7 @@
     var lines = [];
     lines.push('GAME STATE (count-game):');
     lines.push('  screen: ' + screenName);
-    lines.push('  scene: ' + state.scene.file + '   loaded: ' + (state.scene.img && state.scene.img.complete));
+    lines.push('  scene: ' + state.scene.file + '   loaded: ' + !!(state.scene.img && state.scene.img.complete));
     lines.push('  target: ' + state.targetKey + '   targetCount: ' + state.targetCount);
     lines.push('  score: ' + state.score);
     lines.push('');
@@ -209,7 +225,7 @@
   function draw() {
     ctx.fillStyle = '#bfe3ff';
     ctx.fillRect(0, 0, W, H);
-    if (state.scene.img.complete && state.scene.img.naturalWidth > 0) {
+    if (state.scene.img && state.scene.img.complete && state.scene.img.naturalWidth > 0) {
       ctx.drawImage(state.scene.img, 0, 0, W, H);
     }
     if (Debug.isOn()) renderDebugPanel();
@@ -218,13 +234,16 @@
   // ---------- Main loop (fara reflexe — doar redeseneaza poza fixa) ----------
   var fps = 0;
   var lastTime = null;
+  var lastDraw = 0;
   function loop(ts) {
     if (lastTime === null) lastTime = ts;
     var dt = ts - lastTime;
     lastTime = ts;
     if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
 
-    draw();
+    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
+    // ajung, si scutesc bateria telefonului de 60
+    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
 
     rafId = requestAnimationFrame(loop);
   }
@@ -235,6 +254,7 @@
   var rafId = null;
   window.CountGame = {
     activate: function () {
+      ensureSceneImages();
       targetIndicatorEl.style.display = '';
       optionsWrapEl.style.display = '';
       Exercises.speak('Hai să căutăm și să numărăm!');
@@ -242,13 +262,14 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;
       }
+      timers.clearAll();
       state.running = false;
       stageEl.classList.remove('playing');
       targetIndicatorEl.style.display = 'none';

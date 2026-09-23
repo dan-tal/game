@@ -11,11 +11,70 @@
 var GameShared = (function () {
   'use strict';
 
+  // dimensiunea LOGICA a scenei — toate jocurile deseneaza si isi calculeaza
+  // pozitiile in 420x700, indiferent cat de mare e ecranul telefonului
+  var W = 420, H = 700;
+
+  // canvasul are in HTML width/height = 420x700 si e scalat de CSS la ecran.
+  // Pe un telefon cu ecran dens (2-3x) asta iese blurat (emoji-uri, litere,
+  // margini). Aici ii marim rezolutia REALA (pana la 2x, ca sa nu fortam
+  // telefoanele slabe) si scalam contextul, deci jocurile continua sa
+  // deseneze in 420x700 fara sa stie de asta. Se apeleaza o singura data, la
+  // incarcarea acestui fisier — redimensionarea canvasului reseteaza contextul.
+  function setupCanvas(canvas) {
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  var mainCanvas = document.getElementById('game');
+  if (mainCanvas) setupCanvas(mainCanvas);
+
+  // cat de repede merg jocurile cu reflexe pentru varsta curenta (0.7 la
+  // 2-3 ani, 1 la 4-6, 1.2 la 7+ — vezi AppConfig.AGE_PROFILES)
+  function ageSpeed() {
+    return window.ChildAge ? ChildAge.profile().speed : 1;
+  }
+
+  // cate vieti are copilul intr-un joc: valoarea din config + bonusul de
+  // varsta (cei mici primesc mai multe), sau valoarea mare din modul debug
+  function maxLives() {
+    if (window.Debug && Debug.isOn()) return AppConfig.DEBUG_MAX_LIVES;
+    var extra = window.ChildAge ? ChildAge.profile().extraLives : 0;
+    return AppConfig.NORMAL_MAX_LIVES + (extra || 0);
+  }
+
   // cu cat scorul din runda curenta e mai mare, cu atat jocul devine mai
   // rapid (vezi AppConfig.TEMPO_PERCENT_PER_STAR), plafonat la
-  // AppConfig.TEMPO_MAX_MULTIPLIER ca sa nu devina imposibil de jucat
+  // AppConfig.TEMPO_MAX_MULTIPLIER ca sa nu devina imposibil de jucat. Peste
+  // asta se aplica factorul de varsta (ageSpeed).
   function tempoMultiplier(score) {
-    return Math.min(AppConfig.TEMPO_MAX_MULTIPLIER, 1 + score * AppConfig.TEMPO_PERCENT_PER_STAR);
+    return Math.min(AppConfig.TEMPO_MAX_MULTIPLIER, 1 + score * AppConfig.TEMPO_PERCENT_PER_STAR) * ageSpeed();
+  }
+
+  // timere care se pot anula toate deodata. Jocurile au multe "peste 900ms
+  // treci mai departe" (dupa un raspuns corect, dupa o pereche etc.); daca
+  // copilul apasa 🏠 in acest interval, timerul rula mai departe pe jocul
+  // ascuns — vorbea peste meniu, sau chiar deschidea un exercitiu deasupra
+  // lui. Fiecare joc isi face un set si il goleste in deactivate()/startGame().
+  function createTimers() {
+    var ids = [];
+    return {
+      set: function (fn, ms) {
+        var id = setTimeout(function () {
+          var i = ids.indexOf(id);
+          if (i !== -1) ids.splice(i, 1);
+          fn();
+        }, ms);
+        ids.push(id);
+        return id;
+      },
+      clearAll: function () {
+        ids.forEach(function (id) { clearTimeout(id); });
+        ids.length = 0;
+      }
+    };
   }
 
   // creste treptat viteza lumii si scade intervalul dintre aparitii, pana la
@@ -46,6 +105,9 @@ var GameShared = (function () {
       var h = '';
       for (var i = 0; i < maxLives; i++) h += i < lives ? '❤️' : '🤍';
       heartsEl.textContent = h;
+      // 5 inimi (cei mici au vieti in plus) nu incap pe un telefon ingust la
+      // marimea normala, langa scor — le micsoram putin
+      heartsEl.classList.toggle('manyHearts', maxLives > 3);
     }
   }
 
@@ -96,6 +158,12 @@ var GameShared = (function () {
   }
 
   return {
+    W: W,
+    H: H,
+    setupCanvas: setupCanvas,
+    ageSpeed: ageSpeed,
+    maxLives: maxLives,
+    createTimers: createTimers,
     tempoMultiplier: tempoMultiplier,
     rampDifficulty: rampDifficulty,
     tickSpawn: tickSpawn,

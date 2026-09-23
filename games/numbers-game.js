@@ -12,7 +12,7 @@
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
   var heartsEl = document.getElementById('hearts');
@@ -24,7 +24,16 @@
   targetIndicatorEl.style.display = 'none';
   stageEl.appendChild(targetIndicatorEl);
 
+  // cifrele care pot cadea depind de varsta: 1-5 la cei mici, 1-9 la prescolari,
+  // pana la 20 la scolari (recalculat la fiecare joc nou, vezi startGame)
   var DIGITS = NumbersGameConfig.DIGITS;
+  function digitsForAge() {
+    var tier = ChildAge.tier();
+    var max = tier === 'toddler' ? 5 : tier === 'preschool' ? 9 : 20;
+    var list = [];
+    for (var d = 1; d <= max; d++) list.push(d);
+    return list;
+  }
   var TARGET_DURATION = NumbersGameConfig.TARGET_DURATION;
 
   // ---------- Sounds (reuse the shared AudioContext from the Exercises module) ----------
@@ -32,7 +41,7 @@
   function sfxCatchBad() { Exercises.beep(140, 0.25, 'sawtooth'); }
 
   // ---------- Game state ----------
-  var basket = { x: W / 2, y: H - 90, w: 90, h: 50, speed: NumbersGameConfig.BASKET_SPEED };
+  var basket = { x: W / 2, y: H - 112, w: 90, h: 50, speed: NumbersGameConfig.BASKET_SPEED };
 
   var state = {
     running: false,
@@ -62,8 +71,10 @@
   }
 
   function startGame() {
+    DIGITS = digitsForAge();
+    state.target = DIGITS[0];
     basket.x = W / 2;
-    state.maxLives = Debug.isOn() ? AppConfig.DEBUG_MAX_LIVES : AppConfig.NORMAL_MAX_LIVES;
+    state.maxLives = GameShared.maxLives();
     state.score = 0;
     state.lives = state.maxLives;
     state.invuln = 1200;
@@ -255,7 +266,7 @@
   function update(dt) {
     if (!state.running) return;
 
-    var fallSpeed = state.speed * (dt / 16.6667);
+    var fallSpeed = state.speed * GameShared.ageSpeed() * (dt / 16.6667);
 
     var dir = 0;
     if (keyLeft) dir -= 1;
@@ -421,7 +432,7 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {

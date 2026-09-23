@@ -9,25 +9,46 @@
 // fel ca "Calcule Mari" si "Perechi Vesele" — vezi acele fisiere). Cand
 // toate piesele sunt la locul lor, apare o poza noua, cu mai multe piese
 // decat cea dinainte — nivelul creste in cadrul rundei curente, la fel ca
-// in Labirintul Magic (vezi PuzzleGameConfig.LEVELS si maze-game.js).
+// in Labirintul Magic (vezi PuzzleGameConfig.LEVELS_BY_TIER si maze-game.js).
 // Punctul de intrare public e window.PuzzleGame.activate().
 (function () {
   'use strict';
 
   var canvas = document.getElementById('game');
   var ctx = canvas.getContext('2d');
-  var W = canvas.width, H = canvas.height;
+  var W = GameShared.W, H = GameShared.H;
 
   var stageEl = document.getElementById('stage');
+  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
+  var timers = GameShared.createTimers();
+
   var heartsEl = document.getElementById('hearts');
   var scoreEl = document.getElementById('score');
 
   // nivelul curent (in cadrul rundei) determina cate piese are poza — vezi
-  // PuzzleGameConfig.LEVELS si afterPuzzleComplete() mai jos
+  // PuzzleGameConfig.LEVELS_BY_TIER si afterPuzzleComplete() mai jos
   var levelIndex = 0;
   var GRID, PIECE_COUNT;
+  // nivelele depind de varsta (cei mici raman la puzzle-uri cu putine piese) —
+  // vezi PuzzleGameConfig.LEVELS_BY_TIER
+  function levels() {
+    return PuzzleGameConfig.LEVELS_BY_TIER[ChildAge.tier()] || PuzzleGameConfig.LEVELS_BY_TIER.preschool;
+  }
   function currentLevelCfg() {
-    return PuzzleGameConfig.LEVELS[Math.min(levelIndex, PuzzleGameConfig.LEVELS.length - 1)];
+    var list = levels();
+    return list[Math.min(levelIndex, list.length - 1)];
+  }
+
+  // cat de mare poate fi o piesa (px) ca RAMA + TAVA, una sub alta, sa incapa
+  // pe scena — inainte marimea era fixa, iar la 4x4 pe un telefon mic tava
+  // ajungea sub marginea de jos a ecranului
+  var PIECE_GAP = 8;
+  function fitPieceSize(grid) {
+    var availH = wrapEl.clientHeight || 420;
+    var availW = stageEl.clientWidth || 340;
+    var byHeight = ((availH - 24) / 2 - (grid - 1) * PIECE_GAP) / grid;
+    var byWidth = (availW - 24 - (grid - 1) * PIECE_GAP) / grid;
+    return Math.max(40, Math.floor(Math.min(100, byHeight, byWidth)));
   }
 
   var wrapEl = document.createElement('div');
@@ -68,15 +89,18 @@
     filledCount: 0
   };
 
+  // jocul nu scade vieti (o piesa pusa gresit se intoarce in tava) — nu afisam inimi
   function updateHUD() {
-    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
+    heartsEl.textContent = '';
     scoreEl.textContent = '⭐ ' + state.score;
   }
 
-  function makePieceArt(icon, row, col, grid) {
+  function makePieceArt(icon, row, col, grid, size) {
     var art = document.createElement('div');
     art.className = 'puzzlePieceArt';
     art.textContent = icon;
+    // emoji-ul umple poza intreaga (grid x marimea unei piese), oricat de mare e grila
+    art.style.fontSize = Math.round(grid * size * 0.78) + 'px';
     // poza intreaga e desenata la grid*100% din marimea unei piese, apoi
     // decalata cu cate un latime/inaltime de piesa per rand/coloana, ca sa
     // se vada doar bucatica ei prin overflow:hidden al piesei (vezi CSS) —
@@ -93,11 +117,16 @@
     var lvl = currentLevelCfg();
     GRID = lvl.grid;
     PIECE_COUNT = GRID * GRID;
-    frameEl.style.setProperty('--grid', GRID);
-    trayEl.style.setProperty('--grid', GRID);
+    var size = fitPieceSize(GRID);
+    [frameEl, trayEl].forEach(function (el) {
+      el.style.setProperty('--grid', GRID);
+      el.style.setProperty('--puzzlePieceSize', size + 'px');
+      el.style.setProperty('--puzzleGap', PIECE_GAP + 'px');
+    });
 
     var icon = PuzzleGameConfig.ICONS[Math.floor(Math.random() * PuzzleGameConfig.ICONS.length)];
     hintEl.textContent = icon;
+    hintEl.style.fontSize = Math.round(GRID * size * 0.78) + 'px';
     frameEl.innerHTML = '';
     trayEl.innerHTML = '';
     state.filledCount = 0;
@@ -117,7 +146,7 @@
       var piece = document.createElement('div');
       piece.className = 'puzzlePiece';
       piece.dataset.index = i;
-      piece.appendChild(makePieceArt(icon, row, col, GRID));
+      piece.appendChild(makePieceArt(icon, row, col, GRID, size));
       attachDrag(piece);
       trayEl.appendChild(piece);
     });
@@ -188,7 +217,7 @@
           GameShared.awardMatch();
           updateHUD();
           Exercises.speak('Bravo! Ai terminat puzzle-ul!');
-          setTimeout(afterPuzzleComplete, 1200);
+          timers.set(afterPuzzleComplete, 1200);
         }
       } else {
         trayEl.appendChild(piece);
@@ -200,7 +229,7 @@
 
   function afterPuzzleComplete() {
     if (!state.running) return; // s-a apasat "acasa" cat timp astepta
-    if (levelIndex < PuzzleGameConfig.LEVELS.length - 1) {
+    if (levelIndex < levels().length - 1) {
       levelIndex++;
       sfxLevelUp();
     }
@@ -209,8 +238,9 @@
   }
 
   function startGame() {
+    timers.clearAll();
     state.score = 0;
-    state.maxLives = AppConfig.NORMAL_MAX_LIVES;
+    state.maxLives = GameShared.maxLives();
     state.lives = state.maxLives;
     state.running = true;
     levelIndex = 0;
@@ -246,7 +276,7 @@
     return [
       'GAME STATE (puzzle-game):',
       '  screen: ' + screenName,
-      '  nivel: ' + (levelIndex + 1) + '/' + PuzzleGameConfig.LEVELS.length + '   grid: ' + GRID + 'x' + GRID,
+      '  nivel: ' + (levelIndex + 1) + '/' + levels().length + '   grid: ' + GRID + 'x' + GRID,
       '  piese la loc: ' + state.filledCount + '/' + PIECE_COUNT,
       '  score: ' + state.score,
       ''
@@ -279,13 +309,16 @@
   var fps = 0;
   var lastTime = null;
   var rafId = null;
+  var lastDraw = 0;
   function loop(ts) {
     if (lastTime === null) lastTime = ts;
     var dt = ts - lastTime;
     lastTime = ts;
     if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
 
-    draw();
+    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
+    // ajung, si scutesc bateria telefonului de 60
+    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
 
     rafId = requestAnimationFrame(loop);
   }
@@ -301,13 +334,14 @@
         lastTime = null;
         rafId = requestAnimationFrame(loop);
       }
-      Exercises.askSeries('visual', AppConfig.EXERCISES_BEFORE_START, 'Hai să facem exerciții! 🌟', 'Privește și alege la fel:', startGame);
+      Exercises.askIntro(startGame);
     },
     deactivate: function () {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;
       }
+      timers.clearAll();
       state.running = false;
       stageEl.classList.remove('playing');
       wrapEl.style.display = 'none';
