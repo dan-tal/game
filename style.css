@@ -191,6 +191,19 @@ canvas {
   z-index: 6;
 }
 #muteBtn:active { transform: scale(0.94); }
+#tvLink {
+  position: absolute;
+  top: 62px;
+  left: 10px;
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.85);
+  font-size: 22px;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 6;
+}
 
 #creditsBadge {
   position: absolute;

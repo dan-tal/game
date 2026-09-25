@@ -15,7 +15,7 @@ var NETWORK_TIMEOUT_MS = 4000;
 // poze folosite de jocuri, nereferentiate direct in HTML — salvate "pe cat se
 // poate" (o poza care nu se descarca nu strica instalarea)
 var EXTRA = [
-  'games/assets/count/scene1.png', 'games/assets/count/scene2.png', 'games/assets/count/scene3.png',
+  'tv.html', 'tv.css', 'tv.js', 'games/assets/count/scene1.png', 'games/assets/count/scene2.png', 'games/assets/count/scene3.png',
   'games/assets/count/scene4.png', 'games/assets/count/scene5.png',
   'games/assets/count/icon-dragon.svg', 'games/assets/count/icon-cat.svg', 'games/assets/count/icon-owl.svg',
   'games/assets/pawpatrol/chase.webp', 'games/assets/pawpatrol/marshall.webp', 'games/assets/pawpatrol/skye.webp',
