@@ -9,6 +9,11 @@ server {
         try_files /admin.html =404;
     }
 
+    # pagina pentru televizor (2 copii, tastatura)
+    location = /tv {
+        try_files /tv.html =404;
+    }
+
     # nginx nu cunoaste extensia .webmanifest si il serveste ca
     # application/octet-stream — browserele preferă tipul corect
     location = /site.webmanifest {

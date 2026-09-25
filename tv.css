@@ -1,0 +1,63 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --p1: #2f80ff; --p2: #ff4f9a; --gold: #ffc21a; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Trebuchet MS', 'Comic Sans MS', system-ui, sans-serif;
+  background: linear-gradient(#7fd3ff, #d8f3ff 60%, #8ee08a 60%, #5bc45a);
+  color: #23305a; user-select: none;
+}
+#app { height: 100vh; display: flex; flex-direction: column; padding: 2vh 3vw; gap: 2vh; }
+
+#top { display: flex; align-items: center; justify-content: space-between; font-size: 4vh; }
+#title { font-size: 5vh; font-weight: 900; color: #ff8a00; text-shadow: 0 0.4vh 0 #fff; }
+.pl { display: flex; align-items: center; gap: 1.2vw; font-size: 4.6vh; font-weight: 900; padding: 0.6vh 1.6vw; border-radius: 5vh; background: #fff; }
+.pl1 { border: 0.6vh solid var(--p1); color: var(--p1); }
+.pl2 { border: 0.6vh solid var(--p2); color: var(--p2); }
+.pl span:first-child, .pl span:last-child { font-size: 6vh; }
+.trophies { font-size: 4vh !important; min-width: 3vw; }
+
+#stage { flex: 1; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 0; }
+.big { font-size: 9vh; font-weight: 900; text-shadow: 0 0.5vh 0 #fff; }
+.mid { font-size: 5.5vh; font-weight: 800; margin-top: 2vh; }
+.choices { display: flex; gap: 4vw; margin-top: 5vh; }
+.choice { background: #fff; border-radius: 4vh; padding: 3vh 3vw; font-size: 5vh; font-weight: 900; box-shadow: 0 1vh 0 rgba(0,0,0,.15); }
+.choice em { display: block; font-style: normal; font-size: 9vh; }
+.choice kbd, .hint kbd { display: inline-block; background: var(--gold); border-radius: 1.5vh; padding: 0 1.5vw; }
+.hint { font-size: 3.6vh; margin-top: 4vh; opacity: .85; }
+.pulse { animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.08); } }
+
+/* Cursa */
+.track { width: 100%; display: flex; flex-direction: column; gap: 4vh; }
+.lane { position: relative; height: 19vh; background: rgba(255,255,255,.55); border-radius: 10vh; border: 0.6vh dashed #fff; }
+.lane .finish { position: absolute; right: 1vw; top: 50%; transform: translateY(-50%); font-size: 12vh; }
+.lane .runner { position: absolute; top: 50%; left: 0; font-size: 13vh; transform: translate(0, -50%); transition: left .08s linear; }
+.lane .runner.hop { animation: hop .15s; }
+@keyframes hop { 50% { margin-top: -3vh; } }
+.lane .bar { position: absolute; left: 0; bottom: -2.4vh; height: 1.6vh; border-radius: 1vh; }
+.lane1 .bar { background: var(--p1); } .lane2 .bar { background: var(--p2); }
+
+/* Stelele */
+.spots { display: flex; gap: 4vw; justify-content: center; }
+.spot { width: 20vw; height: 30vh; background: rgba(255,255,255,.6); border-radius: 5vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1vh; font-size: 5vh; font-weight: 900; }
+.spot .star { font-size: 16vh; visibility: hidden; }
+.spot.on { background: #fff8c9; box-shadow: 0 0 6vh var(--gold); }
+.spot.on .star { visibility: visible; animation: pulse .5s infinite; }
+.spot .l1 { color: var(--p1); } .spot .l2 { color: var(--p2); }
+.score { display: flex; justify-content: space-between; width: 100%; font-size: 7vh; margin-top: 4vh; min-height: 9vh; }
+.score .s1 { color: var(--p1); } .score .s2 { color: var(--p2); }
+
+/* Castigator */
+.win { font-size: 14vh; }
+
+#keys { display: flex; justify-content: space-between; font-size: 4vh; font-weight: 900; }
+.keyset { display: flex; align-items: center; gap: 1vw; }
+kbd { font-family: inherit; min-width: 9vh; text-align: center; font-size: 6vh; font-weight: 900; color: #fff; padding: 1vh 1vw; border-radius: 2vh; box-shadow: 0 0.8vh 0 rgba(0,0,0,.25); }
+.k1 kbd { background: var(--p1); } .k1 .who { color: var(--p1); }
+.k2 kbd { background: var(--p2); } .k2 .who { color: var(--p2); }
+.who { margin: 0 1vw; }
+kbd.press { transform: translateY(0.6vh); box-shadow: 0 0.2vh 0 rgba(0,0,0,.25); }
+
+#confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+#confetti i { position: absolute; top: -10vh; font-style: normal; font-size: 6vh; animation: fall 3s linear forwards; }
+@keyframes fall { to { transform: translateY(115vh) rotate(540deg); } }
