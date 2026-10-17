@@ -26,7 +26,7 @@
   var FRUITS = FruitGameConfig.FRUITS;
   var TARGET_DURATION = FruitGameConfig.TARGET_DURATION;
 
-  function sfxCatchGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
+  var sfxCatchGood = GameShared.sfxGood;
   function sfxCatchBad() { Exercises.beep(140, 0.25, 'sawtooth'); }
 
   var basket = { x: W / 2, y: H - 112, w: 90, h: 50, speed: FruitGameConfig.BASKET_SPEED };

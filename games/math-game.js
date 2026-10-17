@@ -39,8 +39,8 @@
 
   var OPTION_COUNT = MathGameConfig.OPTION_COUNT;
 
-  function sfxGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
-  function sfxBad() { Exercises.beep(260, 0.15, 'sine'); }
+  var sfxGood = GameShared.sfxGood;
+  var sfxBad = GameShared.sfxBad;
 
   var state = {
     running: false,
@@ -129,16 +129,6 @@
     });
   }
 
-  function getSystemDebugLines() {
-    var rect = stageEl.getBoundingClientRect();
-    return [
-      'SYSTEM:',
-      '  fps: ' + fps.toFixed(1),
-      '  stage (CSS px): ' + Math.round(rect.width) + 'x' + Math.round(rect.height),
-      '  canvas (logic px): ' + W + 'x' + H,
-      ''
-    ];
-  }
   function getGameDebugLines() {
     var screenName = state.running ? 'playing' : Exercises.isShowing() ? 'exercise' : 'menu';
     return [
@@ -149,16 +139,8 @@
       ''
     ];
   }
-  function getVoiceDebugLines() {
-    var info = Exercises.getDebugInfo();
-    return [
-      'VOICE:',
-      '  voce romana folosita: ' + (info.romanianVoice ? (info.romanianVoice.name + '  [' + info.romanianVoice.lang + ']') : 'NICIUNA — se foloseste vocea implicita'),
-      ''
-    ];
-  }
   function renderDebugPanel() {
-    Debug.render(getSystemDebugLines().concat(getGameDebugLines()).concat(getVoiceDebugLines()));
+    Debug.render(GameShared.debugLines(getGameDebugLines(), fps));
   }
 
   // ---------- Draw: tabla de scoala, decor simplu, fara elemente interactive ----------

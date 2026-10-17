@@ -37,7 +37,7 @@
   var TARGET_DURATION = NumbersGameConfig.TARGET_DURATION;
 
   // ---------- Sounds (reuse the shared AudioContext from the Exercises module) ----------
-  function sfxCatchGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
+  var sfxCatchGood = GameShared.sfxGood;
   function sfxCatchBad() { Exercises.beep(140, 0.25, 'sawtooth'); }
 
   // ---------- Game state ----------

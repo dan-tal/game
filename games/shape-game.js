@@ -26,7 +26,7 @@
   var SHAPES = ShapeGameConfig.SHAPES;
   var TARGET_DURATION = ShapeGameConfig.TARGET_DURATION;
 
-  function sfxGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
+  var sfxGood = GameShared.sfxGood;
   function sfxBad() { Exercises.beep(140, 0.25, 'sawtooth'); }
 
   var state = {

@@ -1,13 +1,15 @@
 // games/game-shared.js
 //
-// Cod comun celor 6 jocuri cu "viteza de lume" care creste treptat pana la
-// un plafon (Mașina, Ferma, Baloanele, Vaporul, Trenul, Pescarul — vezi
-// state.speed in fiecare): ramp-ul de dificultate, tempoul legat de
-// steluțele castigate in runda curenta, temporizatorul de aparitii noi si
-// afisarea inimilor de viata erau identice, copiate in fiecare fisier.
-// Extrase aici ca sa fie un singur loc de intretinut; fiecare joc isi
-// pastreaza propriul state si config, doar apeleaza functiile de mai jos.
-// Incarcat inaintea jocurilor (vezi index.html), dupa config.js.
+// Cutia de scule comuna a jocurilor. Aici traieste tot ce NU tine de regulile
+// unui joc anume, ca un joc nou sa fie doar logica lui:
+//   - aleatoriu:   rand, pick, shuffle
+//   - sunet:       sfxGood, sfxBad (aceleasi sunete in tot arcade-ul)
+//   - bucla:       createLoop (rAF cu dt + fps, pornit/oprit curat)
+//   - debug:       debugLines (SYSTEM + VOICE, gata de pus langa liniile jocului)
+//   - dificultate: ramp-ul vitezei, tempoul legat de steluțe, aparitiile (jocurile cu reflexe)
+//   - UI:          inimi, timere anulabile, butoane tinute, tragere cu degetul
+// Fiecare joc isi pastreaza propriul state si config, doar apeleaza functiile
+// de mai jos. Incarcat inaintea jocurilor (vezi index.html), dupa config.js.
 var GameShared = (function () {
   'use strict';
 
@@ -30,6 +32,72 @@ var GameShared = (function () {
   }
   var mainCanvas = document.getElementById('game');
   if (mainCanvas) setupCanvas(mainCanvas);
+
+  // ---------- aleatoriu ----------
+  function rand(n) { return Math.floor(Math.random() * n); }
+  function pick(list) { return list[rand(list.length)]; }
+  // amesteca pe loc (Fisher-Yates) si intoarce aceeasi lista
+  function shuffle(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = rand(i + 1);
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  // ---------- sunete (WebAudio, prin modulul Exercises: respecta mut/pauza) ----------
+  function sfxGood() {
+    Exercises.beep(880, 0.15, 'triangle');
+    setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90);
+  }
+  function sfxBad() { Exercises.beep(260, 0.15, 'sine'); }
+
+  // ---------- bucla de joc ----------
+  // requestAnimationFrame cu dt (ms, plafonat ca sa nu "teleporteze" lumea
+  // dupa ce tab-ul a stat in fundal) si fps mediu pentru panoul de debug.
+  //   update(dt)  — optional, la fiecare cadru
+  //   draw()      — desenarea; cu opts.interval (ms) se apeleaza mai rar —
+  //                 pentru scenele statice (jocurile se joaca prin butoane HTML)
+  //                 10 desene/secunda ajung si scutesc bateria telefonului
+  // start() e idempotent; stop() opreste curat (apelat din deactivate()).
+  function createLoop(opts) {
+    var rafId = null, last = null, lastDraw = 0, fps = 0;
+    var interval = opts.interval || 0;
+    var maxDt = opts.maxDt || 100;
+    function frame(ts) {
+      if (last === null) last = ts;
+      var dt = ts - last;
+      last = ts;
+      if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
+      if (opts.update) opts.update(Math.min(dt, maxDt));
+      if (!interval || ts - lastDraw >= interval) { lastDraw = ts; if (opts.draw) opts.draw(); }
+      rafId = requestAnimationFrame(frame);
+    }
+    return {
+      start: function () { if (rafId === null) { last = null; rafId = requestAnimationFrame(frame); } },
+      stop: function () { if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; } },
+      isRunning: function () { return rafId !== null; },
+      fps: function () { return fps; }
+    };
+  }
+
+  // ---------- debug ----------
+  // liniile comune din panoul de debug (sistem + voce); jocul isi adauga ale lui
+  function debugLines(gameLines, fps) {
+    var rect = document.getElementById('stage').getBoundingClientRect();
+    var info = Exercises.getDebugInfo();
+    return [
+      'SYSTEM:',
+      '  fps: ' + (fps || 0).toFixed(1),
+      '  stage (CSS px): ' + Math.round(rect.width) + 'x' + Math.round(rect.height),
+      '  canvas (logic px): ' + W + 'x' + H,
+      ''
+    ].concat(gameLines || []).concat([
+      'VOICE:',
+      '  voce romana folosita: ' + (info.romanianVoice ? (info.romanianVoice.name + '  [' + info.romanianVoice.lang + ']') : 'NICIUNA — se foloseste vocea implicita'),
+      ''
+    ]);
+  }
 
   // cat de repede merg jocurile cu reflexe pentru varsta curenta (0.7 la
   // 2-3 ani, 1 la 4-6, 1.2 la 7+ — vezi AppConfig.AGE_PROFILES)
@@ -160,6 +228,13 @@ var GameShared = (function () {
   return {
     W: W,
     H: H,
+    rand: rand,
+    pick: pick,
+    shuffle: shuffle,
+    sfxGood: sfxGood,
+    sfxBad: sfxBad,
+    createLoop: createLoop,
+    debugLines: debugLines,
     setupCanvas: setupCanvas,
     ageSpeed: ageSpeed,
     maxLives: maxLives,

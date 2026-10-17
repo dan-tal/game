@@ -29,7 +29,7 @@
 
   var PLAY_TOP = 120, PLAY_BOTTOM = H - 60;
 
-  function sfxCatchGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
+  var sfxCatchGood = GameShared.sfxGood;
   function sfxCatchBad() { Exercises.beep(140, 0.25, 'sawtooth'); }
 
   var net = { x: W * FishingGameConfig.NET_X, y: (PLAY_TOP + PLAY_BOTTOM) / 2, speed: FishingGameConfig.NET_SPEED };

@@ -71,13 +71,7 @@
     while (a < -Math.PI) a += Math.PI * 2;
     return a;
   }
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
+  var shuffle = GameShared.shuffle;
   function hexToRgb(hex) {
     var n = parseInt(hex.slice(1), 16);
     return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };

@@ -293,6 +293,7 @@
     det.appendChild(el('p', { class: 'admHint', text: 'De la câte steluțe câștigate în total se deschide fiecare joc (valori pentru 4-5 ani; la copiii mai mari scad automat).' }));
     var overrides = AppConfig.GAME_UNLOCK_STARS || {};
     GamesCatalog.LIST.forEach(function (g) {
+      if (g.free) return; // jocurile gratuite nu au prag de deblocare
       var input = el('input', { type: 'number', inputmode: 'numeric', min: '0', max: '5000', step: '1', 'aria-label': 'Steluțe pentru ' + g.name });
       input.value = typeof overrides[g.key] === 'number' ? overrides[g.key] : g.stars;
       input.addEventListener('change', function () {

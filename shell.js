@@ -113,7 +113,7 @@
   function starsMissingFor(key) {
     var need = GamesCatalog.unlockStars(key);
     if (Credits.getTotalEarned() < need) return need - Credits.getTotalEarned();
-    return Credits.gameCost() - Credits.get();
+    return GamesCatalog.costOf(key) - Credits.get();
   }
 
   // ---------- Meniul ----------
@@ -130,6 +130,13 @@
     name.textContent = entry.name;
     btn.appendChild(emoji);
     btn.appendChild(name);
+    var subText = GamesCatalog.subOf(entry);
+    if (subText) {
+      var sub = document.createElement('span');
+      sub.className = 'tileSub';
+      sub.textContent = subText;
+      btn.appendChild(sub);
+    }
     btn.addEventListener('click', function () { onTileClick(entry, btn); });
     return btn;
   }
@@ -242,7 +249,7 @@
       return;
     }
 
-    Credits.spend(Credits.gameCost());
+    Credits.spend(GamesCatalog.costOf(entry.key));
     menuEl.classList.remove('show');
     stopCurrentGame();
     currentGame = game;
@@ -264,19 +271,23 @@
     else if (currentGame || Exercises.isShowing()) acquireWake();
   });
 
-  // un link primit de la celalalt jucator (?room=COD) sare peste tot —
-  // varsta, meniu, costul in steluțe — si intra direct in "Duel Online",
-  // ca cine a primit invitatia sa ajunga direct in joc, nu sa navigheze
-  // arcade-ul intreg ca sa gaseasca acelasi joc din meniu. Codul e citit
-  // doar daca arata ca un cod de camera (litere/cifre), ca un URL stricat sa
-  // nu opreasca tot arcade-ul din a porni.
-  var roomMatch = window.location.search.match(/[?&]room=([A-Za-z0-9]{3,8})(?:&|$)/);
+  // un link primit de la celalalt jucator (?room=COD&game=<roomGame>) sare peste
+  // tot — varsta, meniu, costul in steluțe — si intra direct in jocul online
+  // respectiv (fara `game`: Duel Online, ca la linkurile mai vechi), ca cine a
+  // primit invitatia sa ajunga direct in joc, nu sa navigheze arcade-ul intreg.
+  // Codul e citit doar daca arata ca un cod de camera (litere/cifre), ca un
+  // URL stricat sa nu opreasca tot arcade-ul din a porni.
+  var query = window.location.search;
+  var roomMatch = query.match(/[?&]room=([A-Za-z0-9]{3,8})(?:&|$)/);
+  var gameMatch = query.match(/[?&]game=([A-Za-z0-9_-]{1,32})(?:&|$)/);
   var roomParam = roomMatch ? roomMatch[1].toUpperCase() : null;
-  if (roomParam && window.MathDuelOnlineGame) {
-    currentGame = window.MathDuelOnlineGame;
+  var inviteEntry = roomParam ? GamesCatalog.onlineByRoomGame(gameMatch ? gameMatch[1] : null) : null;
+  var inviteGame = inviteEntry ? window[inviteEntry.global] : null;
+  if (roomParam && inviteGame && inviteGame.activateAsJoiner) {
+    currentGame = inviteGame;
     homeBtnEl.classList.add('show');
     acquireWake();
-    window.MathDuelOnlineGame.activateAsJoiner(roomParam);
+    inviteGame.activateAsJoiner(roomParam);
   } else if (ChildAge.isSet()) {
     buildMenu();
     menuEl.classList.add('show');

@@ -73,13 +73,7 @@
 
   function sfxLevelUp() { Exercises.beep(660, 0.12, 'triangle'); setTimeout(function () { Exercises.beep(880, 0.12, 'triangle'); }, 100); setTimeout(function () { Exercises.beep(1100, 0.18, 'triangle'); }, 200); }
 
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
+  var shuffle = GameShared.shuffle;
 
   var state = {
     running: false,
@@ -261,16 +255,6 @@
     });
   }
 
-  function getSystemDebugLines() {
-    var rect = stageEl.getBoundingClientRect();
-    return [
-      'SYSTEM:',
-      '  fps: ' + fps.toFixed(1),
-      '  stage (CSS px): ' + Math.round(rect.width) + 'x' + Math.round(rect.height),
-      '  canvas (logic px): ' + W + 'x' + H,
-      ''
-    ];
-  }
   function getGameDebugLines() {
     var screenName = state.running ? 'playing' : Exercises.isShowing() ? 'exercise' : 'menu';
     return [
@@ -282,16 +266,8 @@
       ''
     ];
   }
-  function getVoiceDebugLines() {
-    var info = Exercises.getDebugInfo();
-    return [
-      'VOICE:',
-      '  voce romana folosita: ' + (info.romanianVoice ? (info.romanianVoice.name + '  [' + info.romanianVoice.lang + ']') : 'NICIUNA — se foloseste vocea implicita'),
-      ''
-    ];
-  }
   function renderDebugPanel() {
-    Debug.render(getSystemDebugLines().concat(getGameDebugLines()).concat(getVoiceDebugLines()));
+    Debug.render(GameShared.debugLines(getGameDebugLines(), gameLoop.fps()));
   }
 
   // ---------- Draw: fundal simplu, fara elemente interactive ----------
@@ -306,22 +282,7 @@
   }
 
   // ---------- Main loop (fara reflexe — doar redeseneaza fundalul) ----------
-  var fps = 0;
-  var lastTime = null;
-  var rafId = null;
-  var lastDraw = 0;
-  function loop(ts) {
-    if (lastTime === null) lastTime = ts;
-    var dt = ts - lastTime;
-    lastTime = ts;
-    if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
-
-    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
-    // ajung, si scutesc bateria telefonului de 60
-    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
-
-    rafId = requestAnimationFrame(loop);
-  }
+  var gameLoop = GameShared.createLoop({ draw: draw, interval: 100 }); // scena e statica: 10 desene/s scutesc bateria
 
   updateHUD();
 
@@ -330,17 +291,11 @@
     activate: function () {
       wrapEl.style.display = '';
       Exercises.speak('Hai să facem un puzzle!');
-      if (rafId === null) {
-        lastTime = null;
-        rafId = requestAnimationFrame(loop);
-      }
+      gameLoop.start();
       Exercises.askIntro(startGame);
     },
     deactivate: function () {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
+      gameLoop.stop();
       timers.clearAll();
       state.running = false;
       stageEl.classList.remove('playing');

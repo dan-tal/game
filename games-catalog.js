@@ -14,10 +14,19 @@
 //   stars     — steluțe castigate in total ca sa se deblocheze (pentru ~5 ani;
 //               ChildAge.unlockFactor il scade pentru copiii mai mari)
 //   skill     — ce exerseaza, aratat parintelui in admin
+//   free      — gratuit si mereu deblocat (nu costa si nu cere steluțe); jocul
+//               isi regleaza singur greutatea (ex: Academia, dupa nivel)
+//   sub       — text mic sub nume in meniu (string sau functie)
+//   online    — jocul foloseste serverul de camere (OnlineRoom); `roomGame` e
+//               cheia lui in server/games/ si in linkurile ?room=COD&game=<roomGame>.
+//               Jocul trebuie sa aiba si activateAsJoiner(cod).
+//   noVoice   — fara voce si fara exercitii (informativ, aratat parintelui)
 var GamesCatalog = (function () {
   'use strict';
 
   var LIST = [
+    { key: 'academy',        global: 'AcademyGame',        emoji: '🎓', name: 'Academia Vesela',      skill: 'Învățare, nivel automat', minAge: 2, maxAge: 10, stars: 0, free: true,
+      sub: function () { var lv = Levels.info(); return lv.emoji + ' Nivel ' + lv.number; } },
     { key: 'balloons',       global: 'BalloonGame',        emoji: '🎈', name: 'Baloane Vesele',       skill: 'Culori',              minAge: 2,  maxAge: 6,  stars: 0 },
     { key: 'numbers',        global: 'NumbersGame',        emoji: '🔢', name: 'Numere Curajoase',     skill: 'Cifre',               minAge: 3,  maxAge: 7,  stars: 0 },
     { key: 'shapes',         global: 'ShapeGame',          emoji: '🔺', name: 'Formele Zburătoare',   skill: 'Forme',               minAge: 3,  maxAge: 7,  stars: 5 },
@@ -30,6 +39,8 @@ var GamesCatalog = (function () {
     { key: 'memory',         global: 'MemoryGame',         emoji: '🧠', name: 'Perechi Vesele',       skill: 'Memorie',             minAge: 3,  maxAge: 9,  stars: 10 },
     { key: 'car',            global: 'CarGame',            emoji: '🚗', name: 'Mașina Veselă',        skill: 'Coordonare',          minAge: 3,  maxAge: 9,  stars: 15 },
     { key: 'train',          global: 'TrainGame',          emoji: '🚂', name: 'Trenul Vesel',         skill: 'Coordonare',          minAge: 3,  maxAge: 8,  stars: 15 },
+    { key: 'snake',          global: 'SnakeGame',          emoji: '🐍', name: 'Șarpele Vesel',        skill: 'Coordonare',          minAge: 3,  maxAge: 10, stars: 10, noVoice: true },
+    { key: 'animalrace',     global: 'AnimalRaceOnlineGame', emoji: '🏁', name: 'Cursa Prietenilor',  skill: 'Animale, culori și forme, în doi', minAge: 4, maxAge: 7, stars: 10, online: true, roomGame: 'animalrace' },
     { key: 'simon',          global: 'SimonGame',          emoji: '🔁', name: 'Repetă Șirul',         skill: 'Memorie',             minAge: 4,  maxAge: 9,  stars: 15 },
     { key: 'boat',           global: 'BoatGame',           emoji: '⛵', name: 'Vaporul Curajos',      skill: 'Coordonare',          minAge: 4,  maxAge: 9,  stars: 20 },
     { key: 'fishing',        global: 'FishingGame',        emoji: '🐠', name: 'Pescarul Vesel',       skill: 'Coordonare și culori', minAge: 3, maxAge: 9,  stars: 20 },
@@ -38,7 +49,7 @@ var GamesCatalog = (function () {
     { key: 'maze',           global: 'MazeGame',           emoji: '🌀', name: 'Labirintul Magic',     skill: 'Orientare și adunări', minAge: 6, maxAge: 10, stars: 200 },
     { key: 'math',           global: 'MathGame',           emoji: '🧮', name: 'Calcule Mari',         skill: 'Calcule',             minAge: 6,  maxAge: 10, stars: 250 },
     { key: 'mathduel',       global: 'MathDuelGame',       emoji: '⚔️', name: 'Duel de Calcule',      skill: 'Calcule, în doi',     minAge: 6,  maxAge: 10, stars: 250 },
-    { key: 'mathduelonline', global: 'MathDuelOnlineGame', emoji: '🌐', name: 'Duel Online',          skill: 'Calcule, prin internet', minAge: 7, maxAge: 10, stars: 250, online: true }
+    { key: 'mathduelonline', global: 'MathDuelOnlineGame', emoji: '🌐', name: 'Duel Online',          skill: 'Calcule, prin internet', minAge: 7, maxAge: 10, stars: 250, online: true, roomGame: 'mathduel' }
   ];
 
   // "Exerciții" nu e un joc din lista de mai sus: e gratuit, mereu deblocat
@@ -55,11 +66,31 @@ var GamesCatalog = (function () {
   // scazuta pentru copiii mai mari
   function unlockStars(key) {
     var g = byKey[key];
-    if (!g) return 0;
+    if (!g || g.free) return 0;
     var overrides = AppConfig.GAME_UNLOCK_STARS || {};
     var base = typeof overrides[key] === 'number' ? overrides[key] : g.stars;
     var factor = window.ChildAge ? ChildAge.unlockFactor() : 1;
     return Math.round(base * factor);
+  }
+
+  // cate steluțe costa pornirea jocului acum (0 la jocurile gratuite)
+  function costOf(key) {
+    var g = byKey[key];
+    return g && g.free ? 0 : Credits.gameCost();
+  }
+
+  // textul mic de sub numele jocului in meniu (sau null)
+  function subOf(g) {
+    if (!g.sub) return null;
+    return typeof g.sub === 'function' ? g.sub() : g.sub;
+  }
+
+  // jocul online care se deschide dintr-un link ?room=COD&game=<roomGame>;
+  // fara `game` (linkuri mai vechi) e Duelul Online
+  function onlineByRoomGame(roomGame) {
+    var wanted = roomGame || 'mathduel';
+    for (var i = 0; i < LIST.length; i++) if (LIST[i].online && LIST[i].roomGame === wanted) return LIST[i];
+    return null;
   }
 
   function isHidden(key) {
@@ -86,5 +117,5 @@ var GamesCatalog = (function () {
     return list.map(function (x) { return x.g; });
   }
 
-  return { LIST: LIST, PRACTICE: PRACTICE, get: get, unlockStars: unlockStars, isHidden: isHidden, visibleForAge: visibleForAge };
+  return { LIST: LIST, PRACTICE: PRACTICE, get: get, unlockStars: unlockStars, costOf: costOf, subOf: subOf, onlineByRoomGame: onlineByRoomGame, isHidden: isHidden, visibleForAge: visibleForAge };
 })();

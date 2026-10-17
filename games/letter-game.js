@@ -35,16 +35,10 @@
   var LETTERS = LetterGameConfig.LETTERS;
   var OPTION_COUNT = LetterGameConfig.OPTION_COUNT;
 
-  function sfxGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
+  var sfxGood = GameShared.sfxGood;
   function sfxTryAgain() { Exercises.beep(260, 0.15, 'sine'); }
 
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
+  var shuffle = GameShared.shuffle;
 
   var state = {
     running: false,

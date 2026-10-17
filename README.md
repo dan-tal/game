@@ -11,15 +11,37 @@ Live: `https://jocuri.casatd.org` · Panou părinți: `/admin`
 - **Jocurile** (`games/`) costă steluțe și se deblochează după steluțele câștigate în total. Lista lor — nume, emoji, vârste, prag de deblocare — e într-un singur loc: `games-catalog.js`.
 - **Misiunea zilei** (`progress.js`): N exerciții pe zi → bonus de steluțe și o serie de zile la rând.
 - **Panoul de părinți** (`admin.html`) salvează pe dispozitiv (localStorage): vârstă, timp de joc, dificultate (3 presetări), jocuri ascunse, statistici.
-- **Duel Online** folosește un server WebSocket separat (`server/`), la `/ws`.
+- **Jocuri online** (Duel Online, Cursa Prietenilor) folosesc un server WebSocket separat (`server/`), la `/ws`.
+- **Academia Vesela** e gratuită și își crește singură greutatea după steluțele câștigate; **Șarpele Vesel** e fără voce și fără exerciții.
 
 ## Cum adaug un joc nou
 
-1. `games/<nume>-game.js` (+ `.config.js`) cu `window.NumeJoc = { activate, deactivate }` — vezi un joc existent ca model. Folosește `GameShared` (`W`/`H` = 420×700, `maxLives()`, `tempoMultiplier()`, `createTimers()`) și `Exercises.askIntro(startGame)`.
-2. O intrare în `games-catalog.js` (cheie, `global`, emoji, nume, vârste, `stars`).
-3. Cele două `<script>` în `index.html`. Meniul, panoul de admin și modul offline se actualizează singure.
+```bash
+node tools/new-game.js bubbles "Bule Vesele" 🫧 3 7 10   # cheie, nume, emoji, minAge, maxAge, steluțe
+node tools/check.js && node tools/smoke.js bubbles
+```
+
+Scriptul creează `games/<cheie>-game.js` + `.config.js` (un joc complet funcțional, de modificat), îl trece în `games-catalog.js` și adaugă `<script>`-urile în `index.html`. Meniul, panoul de admin și modul offline se actualizează singure. Ce nu trebuie rescris: `GameShared` (`games/game-shared.js`) are tot ce e comun — `W`/`H` (420×700), `shuffle`/`pick`/`rand`, `sfxGood`/`sfxBad`, `createLoop`, `createTimers`, `maxLives`, `renderHearts`, `awardMatch`, `debugLines`, plus ramp-ul de viteză pentru jocurile cu reflexe. Exercițiile de pauză vin din `Exercises.askIntro(startGame)` / `Exercises.ask(...)`.
 
 Regulă importantă: orice `setTimeout` care trece jocul mai departe merge prin `GameShared.createTimers()` și se golește în `deactivate()` — altfel, dacă apeși 🏠 la timp nepotrivit, jocul „fantomă" vorbește sau deschide exerciții peste meniu.
+
+Câmpuri utile în catalog: `free: true` (gratuit și mereu deblocat, ex. Academia), `sub` (text mic sub nume), `noVoice` (informativ), `online: true` + `roomGame` (joc în doi pe telefoane diferite).
+
+### Jocuri online (2 telefoane)
+
+Serverul (`server/`) știe doar de camere (`rooms.js`); regulile fiecărui joc sunt un plugin în `server/games/<cheie>.js` (`start`, `message`, opțional `codeAlphabet`/`codeLength`) înregistrat în `server/index.js`. Clientul folosește `OnlineRoom.create({ game, title, digits, onMessage, onEnd })` (`games/online-room.js`): conexiunea, lobby-ul (cod din cifre cu tastatură mare sau link cu partajare) și plecarea adversarului sunt gata făcute; jocul scrie doar ecranul. Linkul de invitație e `?room=COD&game=<roomGame>`.
+
+### Academia Vesela (nivel automat)
+
+`levels.js` calculează nivelul din steluțele câștigate în total (`AppConfig.LEVELS`: prag, nume și `bump` = cu câți „ani" urcă dificultatea), iar `Exercises.setDifficultyAge()` face exercițiile mai grele odată cu nivelul. Jocul nu costă steluțe și nu se blochează (`free: true`).
+
+### Teste
+
+```bash
+node tools/check.js                 # verificări statice (scripturi, catalog, sintaxă, chei server↔client)
+node tools/test-server.js           # serverul WebSocket, cap-coadă, cu doi clienți
+npm i --no-save playwright-core && node tools/smoke.js   # pornește fiecare joc în Chromium + două telefoane online
+```
 
 ## Rulare locală
 

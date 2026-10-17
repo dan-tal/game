@@ -40,16 +40,10 @@
   var CREATURES = CountGameConfig.CREATURES;
   var SCENES = CountGameConfig.SCENES;
 
-  function sfxGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
-  function sfxBad() { Exercises.beep(260, 0.15, 'sine'); }
+  var sfxGood = GameShared.sfxGood;
+  var sfxBad = GameShared.sfxBad;
 
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
+  var shuffle = GameShared.shuffle;
 
   function pickOptions(target, min, max, count) {
     var opts = [target];

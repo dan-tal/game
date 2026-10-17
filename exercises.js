@@ -30,8 +30,26 @@ var Exercises = (function () {
   // fiecare exercitiu nou, in newRound(), pe baza lui ageTier()
   var OPTION_COUNT = 5;
 
-  function currentAge() { return window.ChildAge ? ChildAge.effective() : 5; }
-  function ageTier() { return window.ChildAge ? ChildAge.tier() : 'preschool'; }
+  // varsta dupa care se alege greutatea exercitiilor. De obicei e varsta
+  // copilului, dar un joc (Academia Vesela) o poate muta in sus cu
+  // setDifficultyAge() ca exercitiile sa se faca mai grele odata cu nivelul;
+  // jocul o reseteaza (null) in deactivate().
+  var difficultyAge = null;
+  function currentAge() {
+    if (difficultyAge !== null) return difficultyAge;
+    return window.ChildAge ? ChildAge.effective() : 5;
+  }
+  function ageTier() {
+    if (difficultyAge !== null) return difficultyAge <= 3 ? 'toddler' : (difficultyAge <= 6 ? 'preschool' : 'school');
+    return window.ChildAge ? ChildAge.tier() : 'preschool';
+  }
+  function setDifficultyAge(age) {
+    difficultyAge = (typeof age === 'number' && isFinite(age)) ? Math.max(2, Math.min(10, Math.round(age))) : null;
+  }
+
+  // rezultatul ultimului exercitiu rezolvat, citit de jocurile care il cer
+  // (ex: Academia numara greselile unei lectii): { category, wrong }
+  var lastResult = null;
 
   function optionCountForTier(tier) {
     if (tier === 'toddler') return 3;
@@ -782,6 +800,7 @@ var Exercises = (function () {
       speak('Bravo!');
       if (window.Credits) Credits.add(AppConfig.CREDIT_PER_EXERCISE);
 
+      lastResult = { category: currentRound.category, wrong: wrongCount };
       var goalReached = window.Progress ? Progress.record(currentRound.category, wrongCount === 0) : false;
       var delay = 1000;
       if (goalReached) {
@@ -946,6 +965,8 @@ var Exercises = (function () {
     unlockAudio: unlockAudio,
     isMuted: isMuted,
     setMuted: setMuted,
+    setDifficultyAge: setDifficultyAge,
+    lastResult: function () { return lastResult; },
     getDebugInfo: getDebugInfo
   };
 })();

@@ -66,6 +66,22 @@ var AppConfig = {
     school:    { speed: 1.2, extraLives: 0, costFactor: 1,   penaltyFactor: 1, introExercises: null }
   },
 
+  // nivelurile "Academiei Vesele" (vezi levels.js): nivelul se calculeaza SINGUR
+  // din steluțele castigate in total — fara alegeri, fara blocari. `bump` = cu
+  // cati "ani" e mutata dificultatea exercitiilor fata de varsta copilului
+  // (un copil de 5 ani la bump 2 primeste exercitii pentru 7 ani).
+  LEVELS: [
+    { stars: 0,   bump: 0, emoji: '🌱', name: 'Ucenic' },
+    { stars: 20,  bump: 1, emoji: '🔭', name: 'Explorator' },
+    { stars: 50,  bump: 1, emoji: '🔍', name: 'Cercetător' },
+    { stars: 100, bump: 2, emoji: '💡', name: 'Isteț' },
+    { stars: 170, bump: 2, emoji: '🧠', name: 'Savant' },
+    { stars: 260, bump: 3, emoji: '🎓', name: 'Profesor' },
+    { stars: 380, bump: 4, emoji: '🏆', name: 'Geniu' }
+  ],
+  // plafon pentru `bump`, pe trepte de varsta (un copil de 3 ani nu sare direct la calcule)
+  LEVEL_MAX_BUMP: { toddler: 2, preschool: 4, school: 3 },
+
   // "misiunea zilei": cate exercitii corecte pe zi, si bonusul cand o termina
   DAILY_GOAL_EXERCISES: 5,
   DAILY_GOAL_BONUS_STARS: 5,

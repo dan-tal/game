@@ -24,16 +24,10 @@
   var OPTION_COUNT = ShapesDuelGameConfig.OPTION_COUNT;
   var MAX_LIVES = AppConfig.NORMAL_MAX_LIVES;
 
-  function sfxGood() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
-  function sfxBad() { Exercises.beep(260, 0.15, 'sine'); }
+  var sfxGood = GameShared.sfxGood;
+  var sfxBad = GameShared.sfxBad;
 
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
+  var shuffle = GameShared.shuffle;
 
   // generati separat pentru fiecare jucator, ca cei doi sa nu vada exact
   // acelasi rand de butoane (fiecare trebuie sa caute singur raspunsul)
@@ -260,16 +254,6 @@
     });
   }
 
-  function getSystemDebugLines() {
-    var rect = stageEl.getBoundingClientRect();
-    return [
-      'SYSTEM:',
-      '  fps: ' + fps.toFixed(1),
-      '  stage (CSS px): ' + Math.round(rect.width) + 'x' + Math.round(rect.height),
-      '  canvas (logic px): ' + W + 'x' + H,
-      ''
-    ];
-  }
   function getGameDebugLines() {
     var screenName = state.running ? 'playing' : Exercises.isShowing() ? 'exercise' : 'menu';
     return [
@@ -282,16 +266,8 @@
       ''
     ];
   }
-  function getVoiceDebugLines() {
-    var info = Exercises.getDebugInfo();
-    return [
-      'VOICE:',
-      '  voce romana folosita: ' + (info.romanianVoice ? (info.romanianVoice.name + '  [' + info.romanianVoice.lang + ']') : 'NICIUNA — se foloseste vocea implicita'),
-      ''
-    ];
-  }
   function renderDebugPanel() {
-    Debug.render(getSystemDebugLines().concat(getGameDebugLines()).concat(getVoiceDebugLines()));
+    Debug.render(GameShared.debugLines(getGameDebugLines(), gameLoop.fps()));
   }
 
   // ---------- Draw: tabla impartita in doua, cu o linie despartitoare ----------
@@ -320,22 +296,7 @@
   }
 
   // ---------- Main loop (fara reflexe — doar redeseneaza tabla) ----------
-  var fps = 0;
-  var lastTime = null;
-  var rafId = null;
-  var lastDraw = 0;
-  function loop(ts) {
-    if (lastTime === null) lastTime = ts;
-    var dt = ts - lastTime;
-    lastTime = ts;
-    if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
-
-    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
-    // ajung, si scutesc bateria telefonului de 60
-    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
-
-    rafId = requestAnimationFrame(loop);
-  }
+  var gameLoop = GameShared.createLoop({ draw: draw, interval: 100 }); // scena e statica: 10 desene/s scutesc bateria
 
   state.players.forEach(updateHUD);
 
@@ -346,17 +307,11 @@
       // arata) — altfel ar sta deasupra ecranului de exercitiu si i-ar fura atingerile
       hideZones();
       Exercises.speak('Hai să facem un duel de forme, în doi!');
-      if (rafId === null) {
-        lastTime = null;
-        rafId = requestAnimationFrame(loop);
-      }
+      gameLoop.start();
       Exercises.askIntro(startGame);
     },
     deactivate: function () {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
+      gameLoop.stop();
       timers.clearAll();
       state.running = false;
       hideZones();
