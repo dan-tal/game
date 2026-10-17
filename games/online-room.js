@@ -11,7 +11,9 @@
 //     title: 'Cursa Prietenilor 🏁',
 //     digits: true,                  // cod de cifre => lobby cu tastatura mare
 //     onMessage: function (msg) {},  // mesajele jocului (round, wrong, ...)
-//     onEnd: function () {}          // adversarul a plecat / reteaua a cazut: ascunde ecranul de joc
+//     onEnd: function () {},         // adversarul a plecat / reteaua a cazut: ascunde ecranul de joc
+//     beforeCreate: function (go) {} // optional: gazda alege ceva inainte de creare; go({ ...camp }) trimite campurile serverului
+//     onInfo: function (msg) {}      // optional: created/joined (msg.info = alegerile gazdei)
 //   });
 //   room.activate();                 // jucatorul 1 (alege: joc nou sau intra cu cod, daca digits)
 //   room.activateAsJoiner(code);     // venit dintr-un link ?room=COD
@@ -149,10 +151,12 @@ var OnlineRoom = (function () {
     function onServerMessage(msg) {
       if (msg.type === 'created') {
         s.code = msg.room; s.playerNum = msg.playerNum;
+        if (opts.onInfo) opts.onInfo(msg);
         var url = location.origin + location.pathname + '?room=' + msg.room + '&game=' + opts.game;
         phase('waiting', { code: msg.room, link: url });
       } else if (msg.type === 'joined') {
         s.code = msg.room; s.playerNum = msg.playerNum;
+        if (opts.onInfo) opts.onInfo(msg);
       } else if (msg.type === 'opponent_joined') {
         phase('opponent-joined');
       } else if (msg.type === 'opponent_left') {
@@ -199,9 +203,9 @@ var OnlineRoom = (function () {
       s.playerNum = null; s.code = null; s.inGame = false;
     }
 
-    function createRoom() {
+    function createRoom(extra) {
       phase('creating');
-      connect(function () { send({ type: 'create', game: opts.game }); });
+      connect(function () { send(Object.assign({ type: 'create', game: opts.game }, extra || {})); });
     }
 
     function joinWith(code) {
@@ -210,7 +214,9 @@ var OnlineRoom = (function () {
       connect(function () { send({ type: 'join', room: code, game: opts.game }); });
     }
 
-    newBtn.addEventListener('click', createRoom);
+    newBtn.addEventListener('click', function () {
+      if (opts.beforeCreate) opts.beforeCreate(createRoom); else createRoom();
+    });
     joinBtn.addEventListener('click', function () { phase('enter-code'); });
 
     shareBtn.addEventListener('click', function () {
@@ -242,6 +248,7 @@ var OnlineRoom = (function () {
         lobbyEl.classList.remove('show');
       },
       send: send,
+      showChoice: function () { phase('choose'); },
       hideLobby: function () { lobbyEl.classList.remove('show'); },
       playerNum: function () { return s.playerNum; },
       code: function () { return s.code; },

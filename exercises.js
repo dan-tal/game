@@ -918,6 +918,8 @@ var Exercises = (function () {
   // AppConfig.AGE_PROFILES.introExercises). Toate jocurile o folosesc in loc
   // sa-si repete aceleasi texte si acelasi numar.
   function askIntro(onAllComplete) {
+    // in "Duel cu prietenul" amandoi trebuie sa porneasca imediat, fara pauza
+    if (window.DuelMode && DuelMode.isActive()) { if (onAllComplete) onAllComplete(); return; }
     var count = AppConfig.EXERCISES_BEFORE_START;
     var cap = window.ChildAge ? ChildAge.profile().introExercises : null;
     if (cap) count = Math.min(count, cap);

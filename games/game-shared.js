@@ -185,6 +185,8 @@ var GameShared = (function () {
   // timpul jocului propriu-zis, doar din pauzele de invatare periodice.
   function awardMatch() {
     if (window.Credits) Credits.add(AppConfig.CREDIT_PER_GAME_MATCH);
+    // "un punct" in joc — il aud modurile care numara puncte (Duel cu prietenul)
+    window.dispatchEvent(new CustomEvent('arcade:point'));
   }
 
   // leaga un buton de pe ecran (sageata, D-pad) de o pereche onDown/onUp,

@@ -19,7 +19,8 @@ var PORT = process.env.PORT || 8080;
 
 var PLUGINS = {
   mathduel: require('./games/mathduel'),
-  animalrace: require('./games/animalrace')
+  animalrace: require('./games/animalrace'),
+  scoreduel: require('./games/scoreduel')
 };
 
 function send(ws, msg) {
@@ -71,7 +72,7 @@ wss.on('connection', function (ws, req) {
     if (!msg || typeof msg.type !== 'string') return;
     if (limits.tooChatty(rate)) { ws.terminate(); return; }
 
-    if (msg.type === 'create') rooms.create(ws, typeof msg.game === 'string' ? msg.game : 'mathduel');
+    if (msg.type === 'create') rooms.create(ws, typeof msg.game === 'string' ? msg.game : 'mathduel', msg);
     else if (msg.type === 'join' && typeof msg.room === 'string') {
       // cine ghiceste coduri la intamplare e oprit dupa cateva incercari gresite
       if (limits.joinBlocked(ip)) { send(ws, { type: 'error', message: 'Prea multe încercări. Așteaptă un minut.' }); return; }

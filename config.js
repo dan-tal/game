@@ -82,6 +82,10 @@ var AppConfig = {
   // plafon pentru `bump`, pe trepte de varsta (un copil de 3 ani nu sare direct la calcule)
   LEVEL_MAX_BUMP: { toddler: 2, preschool: 4, school: 3 },
 
+  // "Duel cu prietenul": bonus de steluțe pentru cine castiga meciul (primul la
+  // 10 puncte — pragul e in server/games/scoreduel.js)
+  DUEL_WIN_BONUS_STARS: 3,
+
   // "misiunea zilei": cate exercitii corecte pe zi, si bonusul cand o termina
   DAILY_GOAL_EXERCISES: 5,
   DAILY_GOAL_BONUS_STARS: 5,

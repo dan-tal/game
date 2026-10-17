@@ -216,7 +216,7 @@
   }
 
   function afterCorrect(next) {
-    if (window.Credits) Credits.add(AppConfig.CREDIT_PER_GAME_MATCH);
+    GameShared.awardMatch();
     if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) {
       timers.set(function () { triggerLearningBreak(next); }, 600);
     } else {

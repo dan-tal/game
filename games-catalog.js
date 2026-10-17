@@ -20,6 +20,7 @@
 //   online    — jocul foloseste serverul de camere (OnlineRoom); `roomGame` e
 //               cheia lui in server/games/ si in linkurile ?room=COD&game=<roomGame>.
 //               Jocul trebuie sa aiba si activateAsJoiner(cod).
+//   players   — 2 = joc in doi pe ACELASI telefon (ecran impartit); online = in doi pe telefoane diferite
 //   noVoice   — fara voce si fara exercitii (informativ, aratat parintelui)
 var GamesCatalog = (function () {
   'use strict';
@@ -32,7 +33,7 @@ var GamesCatalog = (function () {
     { key: 'shapes',         global: 'ShapeGame',          emoji: '🔺', name: 'Formele Zburătoare',   skill: 'Forme',               minAge: 3,  maxAge: 7,  stars: 5 },
     { key: 'zoo',            global: 'ZooGame',            emoji: '🦁', name: 'Zoo Zburător',         skill: 'Animale',             minAge: 2,  maxAge: 6,  stars: 5 },
     { key: 'pawpatrol',      global: 'PawPatrolGame',      emoji: '🐕‍🦺', name: 'Patrula Cățelușilor',  skill: 'Nume și vehicule',    minAge: 3,  maxAge: 8,  stars: 5 },
-    { key: 'shapesduel',     global: 'ShapesDuelGame',     emoji: '🎨', name: 'Duel de Forme',        skill: 'Culori și forme, în doi', minAge: 4, maxAge: 8, stars: 5 },
+    { key: 'shapesduel',     global: 'ShapesDuelGame',     emoji: '🎨', name: 'Duel de Forme',        skill: 'Culori și forme, în doi', minAge: 4, maxAge: 8, stars: 5, players: 2 },
     { key: 'farm',           global: 'FarmGame',           emoji: '🐄', name: 'Ferma Veselă',         skill: 'Animale',             minAge: 2,  maxAge: 6,  stars: 10 },
     { key: 'fruit',          global: 'FruitGame',          emoji: '🍓', name: 'Grădina Fructelor',    skill: 'Fructe',              minAge: 2,  maxAge: 6,  stars: 10 },
     { key: 'count',          global: 'CountGame',          emoji: '🐉', name: 'Dragon Vesel',         skill: 'Numărat',             minAge: 4,  maxAge: 8,  stars: 10 },
@@ -48,13 +49,19 @@ var GamesCatalog = (function () {
     { key: 'letters',        global: 'LetterGame',         emoji: '🔤', name: 'Litere Vesele',        skill: 'Litere',              minAge: 5,  maxAge: 10, stars: 25 },
     { key: 'maze',           global: 'MazeGame',           emoji: '🌀', name: 'Labirintul Magic',     skill: 'Orientare și adunări', minAge: 6, maxAge: 10, stars: 200 },
     { key: 'math',           global: 'MathGame',           emoji: '🧮', name: 'Calcule Mari',         skill: 'Calcule',             minAge: 6,  maxAge: 10, stars: 250 },
-    { key: 'mathduel',       global: 'MathDuelGame',       emoji: '⚔️', name: 'Duel de Calcule',      skill: 'Calcule, în doi',     minAge: 6,  maxAge: 10, stars: 250 },
+    { key: 'mathduel',       global: 'MathDuelGame',       emoji: '⚔️', name: 'Duel de Calcule',      skill: 'Calcule, în doi',     minAge: 6,  maxAge: 10, stars: 250, players: 2 },
     { key: 'mathduelonline', global: 'MathDuelOnlineGame', emoji: '🌐', name: 'Duel Online',          skill: 'Calcule, prin internet', minAge: 7, maxAge: 10, stars: 250, online: true, roomGame: 'mathduel' }
   ];
 
   // "Exerciții" nu e un joc din lista de mai sus: e gratuit, mereu deblocat
   // si e felul principal prin care copilul castiga steluțe
   var PRACTICE = { key: 'practice', emoji: '⭐', name: 'Exerciții', special: true };
+
+  // "Duel cu prietenul": orice joc obisnuit, in doi pe telefoane diferite — se
+  // intrece cine strange primul 10 puncte, iar fiecare vede scorul celuilalt
+  // (vezi games/duel-mode.js). Nu e in LIST: nu e un joc, ci un mod care le
+  // invelește pe celelalte. `roomGame` il face deschis si din linkuri ?room=COD&game=scoreduel.
+  var DUEL = { key: 'duel', global: 'DuelMode', emoji: '🆚', name: 'Duel cu prietenul', special: true, online: true, roomGame: 'scoreduel', sub: 'orice joc, în doi' };
 
   var byKey = {};
   LIST.forEach(function (g) { byKey[g.key] = g; });
@@ -81,15 +88,25 @@ var GamesCatalog = (function () {
 
   // textul mic de sub numele jocului in meniu (sau null)
   function subOf(g) {
-    if (!g.sub) return null;
-    return typeof g.sub === 'function' ? g.sub() : g.sub;
+    if (g.sub) return typeof g.sub === 'function' ? g.sub() : g.sub;
+    // semnalam jocurile in doi, ca sa se vada direct din meniu
+    if (g.online) return '🌐 în doi, online';
+    if (g.players === 2) return '👥 în doi';
+    return null;
+  }
+
+  // jocurile care pot fi jucate in "Duel cu prietenul": cele obisnuite (nu cele
+  // deja in doi, nici cele fara puncte ca Academia), potrivite varstei
+  function duelable() {
+    return visibleForAge().filter(function (g) { return !g.online && !g.players && !g.free; });
   }
 
   // jocul online care se deschide dintr-un link ?room=COD&game=<roomGame>;
   // fara `game` (linkuri mai vechi) e Duelul Online
   function onlineByRoomGame(roomGame) {
     var wanted = roomGame || 'mathduel';
-    for (var i = 0; i < LIST.length; i++) if (LIST[i].online && LIST[i].roomGame === wanted) return LIST[i];
+    var all = LIST.concat([DUEL]);
+    for (var i = 0; i < all.length; i++) if (all[i].online && all[i].roomGame === wanted) return all[i];
     return null;
   }
 
@@ -117,5 +134,5 @@ var GamesCatalog = (function () {
     return list.map(function (x) { return x.g; });
   }
 
-  return { LIST: LIST, PRACTICE: PRACTICE, get: get, unlockStars: unlockStars, costOf: costOf, subOf: subOf, onlineByRoomGame: onlineByRoomGame, isHidden: isHidden, visibleForAge: visibleForAge };
+  return { LIST: LIST, PRACTICE: PRACTICE, DUEL: DUEL, duelable: duelable, get: get, unlockStars: unlockStars, costOf: costOf, subOf: subOf, onlineByRoomGame: onlineByRoomGame, isHidden: isHidden, visibleForAge: visibleForAge };
 })();

@@ -33,6 +33,10 @@ Serverul (`server/`) știe doar de camere (`rooms.js`); regulile fiecărui joc s
 
 Protecție anti-abuz (`server/limits.js`, `server/rooms.js`): max 6 conexiuni per IP, 8 coduri greșite pe minut per IP, 40 de mesaje la 5 secunde per conexiune, max 300 de camere, camerele în care nu intră nimeni expiră după 10 minute, iar containerul rulează ca utilizator `node`. IP-ul vine din ultimul `X-Forwarded-For` (cel pus de Traefik).
 
+### Duel cu prietenul (orice joc, în doi)
+
+Dala 🆚 din meniu face din ORICE joc obișnuit un duel pe două telefoane (`games/duel-mode.js`): gazda alege jocul, trimite codul/linkul, iar amândoi joacă același joc într-o cursă la 10 puncte, cu scorul amândurora afișat jos. Un punct = un apel `GameShared.awardMatch()` (emite `arcade:point`), deci un joc nou intră automat în duel dacă folosește `awardMatch`. Serverul (`server/games/scoreduel.js`) doar numără punctele. Jocurile deja „în doi" sunt etichetate în meniu: 👥 (același telefon) și 🌐 (online).
+
 ### Academia Vesela (nivel automat)
 
 `levels.js` calculează nivelul din steluțele câștigate în total (`AppConfig.LEVELS`: prag, nume și `bump` = cu câți „ani" urcă dificultatea), iar `Exercises.setDifficultyAge()` face exercițiile mai grele odată cu nivelul. Jocul nu costă steluțe și nu se blochează (`free: true`).

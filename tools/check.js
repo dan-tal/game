@@ -46,6 +46,10 @@ list.forEach(function (g) {
   }
 });
 
+// jocul-mod "Duel cu prietenul" (nu e in LIST, dar are plugin pe server)
+if (!fs.existsSync(path.join(ROOT, 'server/games/scoreduel.js'))) bad('lipseste server/games/scoreduel.js');
+if (allCode.indexOf('activateAsJoiner') === -1 || !/return \{[\s\S]*activateAsJoiner/.test(read('games/duel-mode.js'))) bad('DuelMode nu are activateAsJoiner');
+
 // ---- cheile serverului ⊆ configul clientului (Cursa Prietenilor)
 var race = require(path.join(ROOT, 'server/games/animalrace.js'));
 var clientCfg = {};

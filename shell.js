@@ -116,6 +116,13 @@
     return GamesCatalog.costOf(key) - Credits.get();
   }
 
+  // "Duel cu prietenul" alege un joc obisnuit si il cere de la shell: ii dam
+  // regulile de deblocare/cost, ca sa nu le duplice
+  DuelMode.init({
+    missing: starsMissingFor,
+    spend: function (key) { Credits.spend(GamesCatalog.costOf(key)); }
+  });
+
   // ---------- Meniul ----------
   function makeTile(entry) {
     var btn = document.createElement('button');
@@ -158,6 +165,11 @@
     sub.textContent = 'câștigă ⭐';
     practiceTile.appendChild(sub);
     tileRowEl.appendChild(practiceTile);
+
+    // duelul pe orice joc: mereu a doua dala, ca sa se vada ca exista
+    var duelTile = makeTile(GamesCatalog.DUEL);
+    duelTile.classList.add('duelTile');
+    tileRowEl.appendChild(duelTile);
 
     GamesCatalog.visibleForAge().forEach(function (entry) {
       var tile = makeTile(entry);
@@ -224,10 +236,22 @@
     });
   }
 
+  // duelul porneste fara cost: gazda plateste doar cand alege jocul (vezi duel-mode.js)
+  function startDuel() {
+    menuEl.classList.remove('show');
+    stopCurrentGame();
+    currentGame = DuelMode;
+    pushGameState();
+    acquireWake();
+    homeBtnEl.classList.add('show');
+    DuelMode.activate();
+  }
+
   function onTileClick(entry, tileEl) {
     // "Exerciții" e gratuit si nelimitat — asa castiga copilul steluțe
     // cand nu mai are destule ca sa porneasca un joc.
-    if (entry.special) { startPractice(); return; }
+    if (entry.key === GamesCatalog.PRACTICE.key) { startPractice(); return; }
+    if (entry.key === GamesCatalog.DUEL.key) { startDuel(); return; }
 
     var game = window[entry.global];
     if (!game) return;

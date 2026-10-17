@@ -9,6 +9,8 @@
 //   key            — cheia jocului (aceeasi cu cea din games-catalog.js)
 //   codeAlphabet   — din ce caractere e codul camerei (implicit litere fara 0/O/1/I/L)
 //   codeLength     — cate caractere are codul (implicit 5)
+//   init(room, msg) — optional, la creare: valideaza/retine alegerile gazdei in room.info
+//                     (returneaza false ca sa refuze); room.info e trimis in created/joined
 //   start(room, g) — ambii jucatori sunt prezenti, incepe jocul
 //   message(room, playerNum, msg, g) — un mesaj al unui jucator (in afara de create/join)
 // iar `g` (api-ul camerei) ofera: g.broadcast(msg), g.send(num, msg),
@@ -66,7 +68,7 @@ module.exports = function createRoomManager(plugins, transport, options) {
   }
 
   // la create/join: true daca a reusit
-  function create(ws, gameKey) {
+  function create(ws, gameKey, msg) {
     // un client are cel mult o camera: fara asta, apasari repetate creau camere
     // "orfane" (la inchidere se sterge doar ultima) care raman in memorie
     if (ws.roomCode && rooms[ws.roomCode]) return false;
@@ -78,12 +80,16 @@ module.exports = function createRoomManager(plugins, transport, options) {
     }
     var room = {
       code: makeCode(p), game: p.key, plugin: p,
-      players: { 1: ws, 2: null }, started: false, state: {}, timers: new Set()
+      players: { 1: ws, 2: null }, started: false, state: {}, info: null, timers: new Set()
     };
+    if (p.init && p.init(room, msg || {}) === false) {
+      transport.send(ws, { type: 'error', message: 'Cerere invalidă.' });
+      return false;
+    }
     rooms[room.code] = room;
     ws.roomCode = room.code;
     ws.playerNum = 1;
-    transport.send(ws, { type: 'created', room: room.code, playerNum: 1, game: p.key });
+    transport.send(ws, { type: 'created', room: room.code, playerNum: 1, game: p.key, info: room.info });
     // camera in care nu intra nimeni nu ramane in memorie la nesfarsit
     api(room).later(function () {
       if (!room.started) {
@@ -107,7 +113,7 @@ module.exports = function createRoomManager(plugins, transport, options) {
     room.players[2] = ws;
     ws.roomCode = code;
     ws.playerNum = 2;
-    transport.send(ws, { type: 'joined', room: code, playerNum: 2, game: room.game });
+    transport.send(ws, { type: 'joined', room: code, playerNum: 2, game: room.game, info: room.info });
     transport.send(room.players[1], { type: 'opponent_joined' });
     room.started = true;
     room.plugin.start(room, api(room));

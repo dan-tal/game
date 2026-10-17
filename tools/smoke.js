@@ -190,6 +190,31 @@ function findChrome() {
       await p2.close();
     });
 
+    await check('online: Duel cu prietenul pe orice joc (balloons)', async function (p1, errors) {
+      var p2 = await second(errors);
+      await p1.goto(base + '/index.html'); await p1.waitForSelector('#menuTileRow .typeBtn');
+      await p1.click('[data-game=duel]');
+      await p1.click(LOBBY + ':text("Pornesc un joc nou")');
+      await p1.click('.duelPicker.show [class*=typeBtn]:has-text("Baloane")');
+      await p1.waitForSelector(LOBBY + '.duelOnlineCodeBox', { state: 'visible' });
+      var code = (await p1.textContent(LOBBY + '.duelOnlineCodeBox')).replace(/\s/g, '');
+      await p2.goto(base + '/index.html?room=' + code + '&game=scoreduel');
+      await p1.waitForSelector('.duelBar.show', { timeout: 5000 });
+      await p2.waitForSelector('.duelBar.show', { timeout: 5000 });
+      // 3 puncte pe p1: p2 trebuie sa le vada la adversar
+      for (var i = 0; i < 3; i++) { await p1.evaluate(function () { window.dispatchEvent(new CustomEvent('arcade:point')); }); await p1.waitForTimeout(220); }
+      await p2.waitForFunction(function () { return document.querySelector('.duelBarOpp').textContent.indexOf('3') === 0; }, null, { timeout: 4000 });
+      var mine = await p1.textContent('.duelBarMine');
+      if (mine !== 'Tu 3') throw new Error('p1 vede: ' + mine);
+      // p1 termina meciul
+      for (var j = 0; j < 7; j++) { await p1.evaluate(function () { window.dispatchEvent(new CustomEvent('arcade:point')); }); await p1.waitForTimeout(220); }
+      await p1.waitForSelector('.duelResult.show', { timeout: 4000 });
+      await p2.waitForSelector('.duelResult.show', { timeout: 4000 });
+      var t2 = await p2.textContent('.duelResult.show h1');
+      if (t2.indexOf('Prietenul') === -1) throw new Error('p2 trebuia sa piarda: ' + t2);
+      await p2.close();
+    });
+
     await check('online: link vechi (?room fara game) => Duel Online', async function (p1) {
       await p1.goto(base + '/index.html?room=ZZZZZ');
       await p1.waitForSelector(LOBBY + '.duelOnlineError', { state: 'visible', timeout: 5000 });

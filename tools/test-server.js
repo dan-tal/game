@@ -94,6 +94,26 @@ async function pair(port, game) {
   var again = await p.a.next('round', 6000); assert.strictEqual(again.steps[1], 0);
   p.a.close(); p.b.close(); pass('animalrace: 6 pasi, greseala locala, meci nou');
 
+  // ---- scoreduel: orice joc, primul la 10 puncte
+  var d1 = client(port), d2 = client(port); await Promise.all([d1.open, d2.open]);
+  d1.send({ type: 'create', game: 'scoreduel' }); // fara pick => refuzat
+  await d1.next('error');
+  d1.send({ type: 'create', game: 'scoreduel', pick: 'balloons' });
+  var dc = await d1.next('created'); assert.strictEqual(dc.info.pick, 'balloons');
+  d2.send({ type: 'join', room: dc.room, game: 'scoreduel' });
+  var dj = await d2.next('joined'); assert.strictEqual(dj.info.pick, 'balloons');
+  var go = await d1.next('go'); assert.strictEqual(go.target, 10); await d2.next('go');
+  for (var pt = 1; pt <= 9; pt++) {
+    d1.send({ type: 'point' });
+    var sc = await d2.next('score'); assert.strictEqual(sc.points[1], pt);
+    await d1.next('score');
+    await new Promise(function (r) { setTimeout(r, 170); });
+  }
+  d2.send({ type: 'point' }); await d1.next('score'); await d2.next('score');
+  d1.send({ type: 'point' });
+  var end = await d2.next('match_end'); assert.strictEqual(end.winnerNum, 1); assert.strictEqual(end.points[1], 10); assert.strictEqual(end.points[2], 1);
+  d1.close(); d2.close(); pass('scoreduel: pick, puncte la ambii, match_end');
+
   // ---- erori
   var c = client(port); await c.open;
   c.send({ type: 'join', room: '0000' }); var e1 = await c.next('error'); assert.ok(e1.message);
