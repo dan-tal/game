@@ -109,6 +109,58 @@ async function pair(port, game) {
   await d.next('error'); // camera deja plina
   d.close(); p.a.close(); p.b.close(); pass('join cu joc gresit / camera plina');
 
+  // ---- protectii anti-abuz (server/limits.js, rooms.js)
+  // 1) cod ghicit: dupa 8 incercari gresite pe IP, intrarea e blocata chiar si pentru un cod bun
+  p = await pair(port, 'animalrace');
+  var g = client(port); await g.open;
+  for (var t = 0; t < 8; t++) { g.send({ type: 'join', room: '9' + t + '99' }); await g.next('error'); }
+  // (cateva esecuri s-au acumulat deja mai sus; oricum limita de 8 e depasita)
+  var blocker = client(port); await blocker.open;
+  var host = client(port); await host.open;
+  host.send({ type: 'create', game: 'animalrace' });
+  var hc = await host.next('created');
+  blocker.send({ type: 'join', room: hc.room, game: 'animalrace' });
+  var blocked = await blocker.next('error');
+  assert.ok(/Prea multe/.test(blocked.message), 'asteptam blocare, am primit: ' + blocked.message);
+  [g, blocker, host, p.a, p.b].forEach(function (c) { c.close(); });
+  pass('limita de incercari gresite de cod');
+
+  // 2) limita de conexiuni per IP
+  await new Promise(function (r) { setTimeout(r, 300); });
+  var many = [], closed = 0;
+  for (var k = 0; k < 9; k++) {
+    var c2 = client(port); many.push(c2);
+    c2.ws.on('close', function (code) { if (code === 1013) closed++; });
+    c2.ws.on('error', function () {});
+  }
+  await new Promise(function (r) { setTimeout(r, 500); });
+  assert.ok(closed >= 3, 'asteptam >=3 conexiuni refuzate (limita 6), refuzate: ' + closed);
+  many.forEach(function (c) { c.close(); });
+  pass('limita de conexiuni per IP');
+
+  // 2b) limita de mesaje: o conexiune care trimite 50 de mesaje intr-o clipa e inchisa
+  await new Promise(function (r) { setTimeout(r, 300); });
+  var spam = client(port); await spam.open;
+  var spamClosed = new Promise(function (r) { spam.ws.on('close', function () { r(true); }); });
+  for (var n = 0; n < 60; n++) spam.send({ type: 'answer', value: n });
+  assert.strictEqual(await spamClosed, true);
+  pass('limita de mesaje per conexiune');
+
+  // 3) numar maxim de camere + expirarea camerelor goale (manager izolat, praguri mici)
+  var createRoomManager = require('../server/rooms.js');
+  var sent = [];
+  var tr = { send: function (w, m) { sent.push(m); }, isOpen: function () { return true; } };
+  var mgr = createRoomManager({ animalrace: require('../server/games/animalrace.js') }, tr, { maxRooms: 2, waitMs: 80 });
+  var fake = function () { return { roomCode: null }; };
+  assert.strictEqual(mgr.create(fake(), 'animalrace'), true);
+  assert.strictEqual(mgr.create(fake(), 'animalrace'), true);
+  assert.strictEqual(mgr.create(fake(), 'animalrace'), false);
+  assert.ok(sent.some(function (m) { return m.type === 'error' && /ocupat/.test(m.message); }));
+  assert.strictEqual(mgr.count(), 2);
+  await new Promise(function (r) { setTimeout(r, 200); });
+  assert.strictEqual(mgr.count(), 0, 'camerele goale trebuie sa expire');
+  pass('camere maxime + expirare');
+
   console.log('\n' + ok + ' grupuri ok');
   app.wss.close(); app.server.close(); setTimeout(function () { process.exit(0); }, 100);
 })().catch(function (e) { console.error('FAIL', e); process.exit(1); });

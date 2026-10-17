@@ -20,7 +20,13 @@ var crypto = require('crypto');
 var DEFAULT_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 var DEFAULT_CODE_LENGTH = 5;
 
-module.exports = function createRoomManager(plugins, transport) {
+var DEFAULT_MAX_ROOMS = 300;               // camere simultane, in total
+var DEFAULT_WAIT_MS = 10 * 60 * 1000;      // o camera in care nu a intrat nimeni se inchide dupa 10 minute
+
+module.exports = function createRoomManager(plugins, transport, options) {
+  options = options || {};
+  var maxRooms = options.maxRooms || DEFAULT_MAX_ROOMS;
+  var waitMs = options.waitMs || DEFAULT_WAIT_MS;
   var rooms = Object.create(null); // cod -> camera
 
   function plugin(key) { return plugins[key] || null; }
@@ -59,12 +65,17 @@ module.exports = function createRoomManager(plugins, transport) {
     if (rooms[room.code] === room) delete rooms[room.code];
   }
 
+  // la create/join: true daca a reusit
   function create(ws, gameKey) {
     // un client are cel mult o camera: fara asta, apasari repetate creau camere
     // "orfane" (la inchidere se sterge doar ultima) care raman in memorie
-    if (ws.roomCode && rooms[ws.roomCode]) return;
+    if (ws.roomCode && rooms[ws.roomCode]) return false;
     var p = plugin(gameKey || 'mathduel');
-    if (!p) { transport.send(ws, { type: 'error', message: 'Jocul nu există.' }); return; }
+    if (!p) { transport.send(ws, { type: 'error', message: 'Jocul nu există.' }); return false; }
+    if (Object.keys(rooms).length >= maxRooms) {
+      transport.send(ws, { type: 'error', message: 'Serverul e ocupat acum. Încearcă din nou peste puțin timp.' });
+      return false;
+    }
     var room = {
       code: makeCode(p), game: p.key, plugin: p,
       players: { 1: ws, 2: null }, started: false, state: {}, timers: new Set()
@@ -73,17 +84,25 @@ module.exports = function createRoomManager(plugins, transport) {
     ws.roomCode = room.code;
     ws.playerNum = 1;
     transport.send(ws, { type: 'created', room: room.code, playerNum: 1, game: p.key });
+    // camera in care nu intra nimeni nu ramane in memorie la nesfarsit
+    api(room).later(function () {
+      if (!room.started) {
+        transport.send(room.players[1], { type: 'error', message: 'Camera a expirat. Creează una nouă.' });
+        close(room);
+      }
+    }, waitMs);
+    return true;
   }
 
   function join(ws, code, gameKey) {
-    if (ws.roomCode) return; // e deja intr-o camera
+    if (ws.roomCode) return false; // e deja intr-o camera
     var room = rooms[code];
     if (!room || (gameKey && gameKey !== room.game)) {
-      transport.send(ws, { type: 'error', message: 'Camera nu există. Verifică codul.' }); return;
+      transport.send(ws, { type: 'error', message: 'Camera nu există. Verifică codul.' }); return false;
     }
-    if (room.players[2]) { transport.send(ws, { type: 'error', message: 'Camera e deja plină.' }); return; }
+    if (room.players[2]) { transport.send(ws, { type: 'error', message: 'Camera e deja plină.' }); return false; }
     if (!transport.isOpen(room.players[1])) {
-      transport.send(ws, { type: 'error', message: 'Celălalt jucător nu mai e conectat.' }); return;
+      transport.send(ws, { type: 'error', message: 'Celălalt jucător nu mai e conectat.' }); return false;
     }
     room.players[2] = ws;
     ws.roomCode = code;
@@ -92,6 +111,7 @@ module.exports = function createRoomManager(plugins, transport) {
     transport.send(room.players[1], { type: 'opponent_joined' });
     room.started = true;
     room.plugin.start(room, api(room));
+    return true;
   }
 
   function message(ws, msg) {

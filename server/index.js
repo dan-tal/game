@@ -13,6 +13,7 @@
 var http = require('http');
 var WebSocket = require('ws');
 var createRoomManager = require('./rooms');
+var createLimits = require('./limits');
 
 var PORT = process.env.PORT || 8080;
 
@@ -29,6 +30,8 @@ var rooms = createRoomManager(PLUGINS, {
   send: send,
   isOpen: function (ws) { return !!ws && ws.readyState === WebSocket.OPEN; }
 });
+
+var limits = createLimits();
 
 var server = http.createServer(function (req, res) {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -51,9 +54,14 @@ var heartbeat = setInterval(function () {
     try { ws.ping(); } catch (e) { /* conexiune deja moarta */ }
   });
 }, HEARTBEAT_MS);
-wss.on('close', function () { clearInterval(heartbeat); });
+var sweeper = setInterval(limits.sweep, 60 * 1000);
+wss.on('close', function () { clearInterval(heartbeat); clearInterval(sweeper); });
 
-wss.on('connection', function (ws) {
+wss.on('connection', function (ws, req) {
+  // prea multe conexiuni de la aceeasi adresa: refuzam (1013 = "incearca mai tarziu")
+  var ip = limits.ipOf(req);
+  if (!limits.connect(ip)) { ws.close(1013, 'prea multe conexiuni'); return; }
+  var rate = {};
   ws.isAlive = true;
   ws.on('pong', function () { ws.isAlive = true; });
   ws.on('error', function () { /* erorile de retea duc oricum la 'close' */ });
@@ -61,17 +69,20 @@ wss.on('connection', function (ws) {
     var msg;
     try { msg = JSON.parse(raw); } catch (e) { return; }
     if (!msg || typeof msg.type !== 'string') return;
+    if (limits.tooChatty(rate)) { ws.terminate(); return; }
 
     if (msg.type === 'create') rooms.create(ws, typeof msg.game === 'string' ? msg.game : 'mathduel');
     else if (msg.type === 'join' && typeof msg.room === 'string') {
-      rooms.join(ws, msg.room.toUpperCase(), typeof msg.game === 'string' ? msg.game : null);
+      // cine ghiceste coduri la intamplare e oprit dupa cateva incercari gresite
+      if (limits.joinBlocked(ip)) { send(ws, { type: 'error', message: 'Prea multe încercări. Așteaptă un minut.' }); return; }
+      if (!rooms.join(ws, msg.room.toUpperCase(), typeof msg.game === 'string' ? msg.game : null) && !ws.roomCode) limits.joinFailed(ip);
     } else rooms.message(ws, msg);
   });
-  ws.on('close', function () { rooms.leave(ws); });
+  ws.on('close', function () { limits.disconnect(ip); rooms.leave(ws); });
 });
 
 server.listen(PORT, function () {
   console.log('arcade-vesel-ws listening on :' + PORT);
 });
 
-module.exports = { server: server, wss: wss };
+module.exports = { server: server, wss: wss, limits: limits };
