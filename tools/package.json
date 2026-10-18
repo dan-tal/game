@@ -1,0 +1,12 @@
+{
+  "name": "arcade-vesel-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Unelte de dezvoltare (build, teste); NU fac parte din imaginea Docker. `npm install` aici ca sa avem terser la build (minificare) si playwright-core la teste.",
+  "devDependencies": {
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0",
+    "playwright-core": "^1.50.0",
+    "terser": "^5.36.0"
+  }
+}

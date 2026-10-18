@@ -18,7 +18,7 @@ try { pw = require('playwright-core'); } catch (e) {
   }
 }
 
-var ROOT = path.resolve(__dirname, '..');
+var ROOT = process.env.DIR ? path.resolve(process.env.DIR) : path.resolve(__dirname, '..');
 var MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json', '.json': 'application/json' };
 
 // serverul de camere (server/index.js) porneste pe un port liber, iar cererile
@@ -67,9 +67,12 @@ function findChrome() {
 }
 
 (async function () {
-  var wsApp = await startWsServer();
-  var srv = await serve(wsApp.server.address().port);
-  var base = 'http://127.0.0.1:' + srv.address().port;
+  // BASE=http://host:port => testeaza un server deja pornit (ex: containerul nginx); jocurile online se sar
+  // (cer serverul de camere), restul merge la fel. DIR=dist => serveste pachetul de productie, nu sursele.
+  var external = !!process.env.BASE;
+  var wsApp = external ? null : await startWsServer();
+  var srv = external ? null : await serve(wsApp.server.address().port);
+  var base = external ? process.env.BASE : 'http://127.0.0.1:' + srv.address().port;
   var browser = await pw.chromium.launch({ executablePath: findChrome(), args: ['--no-sandbox'] });
   var ctx = await browser.newContext({ viewport: { width: 420, height: 800 } });
   await ctx.addInitScript(function () {
@@ -108,6 +111,7 @@ function findChrome() {
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
     if (only.length && only.indexOf(key) === -1) continue;
+    if (external && key === 'mathduelonline') continue; // se conecteaza direct la serverul de camere, care lipseste aici
     await check('joc ' + key, async function (page, errors) {
       await page.goto(base + '/index.html?dev');
       await page.waitForSelector('#menuTileRow .typeBtn');
@@ -130,8 +134,94 @@ function findChrome() {
     });
   }
 
+  // ---------- paginile secundare: panoul de parinti si pagina pentru televizor ----------
+  if (!only.length || only.indexOf('pages') !== -1) {
+    await check('pagina /admin.html (panou parinti)', async function (page) {
+      await page.goto(base + '/admin.html');
+      await page.waitForSelector('#cardGames .admSub');
+      var cards = await page.evaluate(function () {
+        return ['cardChild', 'cardProgress', 'cardTime', 'cardLevel', 'cardGames'].map(function (id) { return document.getElementById(id).children.length; });
+      });
+      if (cards.some(function (n) { return n === 0; })) throw new Error('un card din panou e gol: ' + cards.join(','));
+    });
+    await check('pagina /tv.html (2 copii, tastatura)', async function (page) {
+      await page.goto(base + '/tv.html');
+      await page.waitForSelector('#stage .choice');
+      await page.keyboard.press('1');                       // pornește Cursa: numaratoare, apoi alergare
+      await page.waitForSelector('#stage .big, #stage .win', { timeout: 5000 });
+    });
+  }
+
+  // ---------- Sarpele pe telefon: gesturi reale de atingere (CDP), de oriunde pe ecran ----------
+  if (!only.length || only.indexOf('snake') !== -1) {
+    var tctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
+    await tctx.addInitScript(function () {
+      localStorage.setItem('arcadeChildAge', '5');
+      localStorage.setItem('arcadeCredits', '999');
+      localStorage.setItem('arcadeCreditsTotalEarned', '999');
+      localStorage.setItem('arcadeMuted', '1');
+    });
+    var tpage = await tctx.newPage();
+    var terrors = [];
+    tpage.on('pageerror', function (e) { terrors.push(String(e.message)); });
+    await tpage.goto(base + '/index.html');
+    await tpage.waitForSelector('#menuTileRow .typeBtn');
+    var cdp = await tctx.newCDPSession(tpage);
+    var touch = function (type, x, y) { return cdp.send('Input.dispatchTouchEvent', { type: type, touchPoints: type === 'touchEnd' ? [] : [{ x: x, y: y, id: 1 }] }); };
+    var swipe = async function (x0, y0, x1, y1) {
+      await touch('touchStart', x0, y0);
+      for (var i = 1; i <= 6; i++) { await touch('touchMove', x0 + (x1 - x0) * i / 6, y0 + (y1 - y0) * i / 6); await tpage.waitForTimeout(12); }
+      await touch('touchEnd');
+    };
+    var tap = async function (x, y) { await touch('touchStart', x, y); await tpage.waitForTimeout(40); await touch('touchEnd'); };
+    var dirName = function () { return tpage.evaluate(function () { var s = SnakeGame.state, D = SnakeGame.DIRS; return s.dir === D.up ? 'up' : s.dir === D.down ? 'down' : s.dir === D.left ? 'left' : 'right'; }); };
+    var fresh = async function () { await tpage.evaluate(function () { SnakeGame.deactivate(); SnakeGame.activate(); }); await tpage.waitForTimeout(60); };
+    var headXY = function (rect) {
+      return tpage.evaluate(function (r) {
+        var h = SnakeGame.state.snake[0];
+        return [r[0] + (h.x * 30 + 15) * r[2] / 420, r[1] + (84 + h.y * 30 + 15) * r[3] / 700];
+      }, rect);
+    };
+
+    await check('sarpe: gesturi de atingere pe tot ecranul', async function (_p, errors) {
+      await tpage.evaluate(function () { document.querySelector('[data-game=snake]').click(); });
+      await tpage.waitForTimeout(250);
+      var rect = await tpage.evaluate(function () { var r = document.getElementById('game').getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; });
+      var cx = rect[0] + rect[2] / 2, cy = rect[1] + rect[3] * 0.45;
+      async function expectDir(label, want) {
+        await tpage.waitForTimeout(420);
+        var got = await dirName();
+        if (got !== want) errors.push(label + ': directia e ' + got + ', asteptat ' + want);
+      }
+      await fresh(); await swipe(cx, cy, cx, cy - 120); await expectDir('glisare sus pe tabla', 'up');
+      await fresh(); await swipe(cx, cy, cx, cy + 120); await expectDir('glisare jos pe tabla', 'down');
+      await fresh(); await swipe(200, 40, 200, 90); await expectDir('glisare jos pe marginea albastra de deasupra scenei', 'down');
+      await fresh(); await swipe(200, rect[1] + rect[3] + 25, 200, rect[1] + rect[3] + 80); await expectDir('glisare jos sub scena', 'down');
+      await fresh(); await swipe(120, rect[1] + 25, 120, rect[1] + 110); await expectDir('glisare jos pornita din zona inimilor', 'down');
+      await fresh(); var h1 = await headXY(rect); await tap(h1[0] + 40, h1[1] - 110); await expectDir('atingere deasupra capului', 'up');
+      await fresh(); var h2 = await headXY(rect); await tap(h2[0] + 40, h2[1] + 110); await expectDir('atingere sub cap', 'down');
+      await fresh(); var h3 = await headXY(rect); await tap(h3[0] + 100, h3[1] + 2); await expectDir('atingere in fata capului nu schimba directia', 'right');
+      // sagetile in T: sus/jos schimba directia; "inapoi" (stanga cat timp merge spre dreapta) e ignorat
+      await fresh();
+      var arrow = function (d) { return tpage.evaluate(function (d) { var r = document.querySelector('.snakeControls [data-dir=' + d + ']').getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width]; }, d); };
+      var up = await arrow('up'); await tap(up[0], up[1]); await expectDir('sageata sus', 'up');
+      if (up[2] < 50) errors.push('sagetile sunt prea mici: ' + Math.round(up[2]) + 'px');
+      var left = await arrow('left'); await tap(left[0], left[1]); await expectDir('sageata stanga dupa ce a mers in sus', 'left');
+      // un deget pe sageata nu trebuie sa declanseze si gestul de glisare
+      await fresh(); var down = await arrow('down'); await tap(down[0], down[1]); await expectDir('sageata jos', 'down');
+      // sagetile stau sub tabla, fara sa o acopere
+      var lay = await tpage.evaluate(function () {
+        var c = document.querySelector('.snakeControls').getBoundingClientRect(), g = document.getElementById('game').getBoundingClientRect();
+        return { controlsTop: c.top, boardEnd: g.top + g.height * (84 + 15 * 30) / 700 };
+      });
+      if (lay.controlsTop < lay.boardEnd) errors.push('sagetile acopera tabla: ' + Math.round(lay.controlsTop) + ' < ' + Math.round(lay.boardEnd));
+      if (terrors.length) errors.push.apply(errors, terrors);
+    });
+    await tctx.close();
+  }
+
   // ---------- jocuri online: doua telefoane (doua pagini) intr-o camera ----------
-  if (!only.length || only.indexOf('online') !== -1) {
+  if (!external && (!only.length || only.indexOf('online') !== -1)) {
     var LOBBY = '.screen.show.duelOnlineLobby ';
     async function second(errors) {
       var p = await ctx.newPage();
@@ -229,8 +319,8 @@ function findChrome() {
   }
 
   await browser.close();
-  wsApp.wss.close(); wsApp.server.close();
-  srv.close();
+  if (wsApp) { wsApp.wss.close(); wsApp.server.close(); }
+  if (srv) srv.close();
   console.log(failures ? '\n' + failures + ' esec(uri)' : '\ntoate ok');
   process.exit(failures ? 1 : 0);
 })();

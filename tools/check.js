@@ -27,6 +27,24 @@ fs.readdirSync(path.join(ROOT, 'games')).filter(function (f) { return /\.js$/.te
   if (scripts.indexOf('games/' + f) === -1) bad('games/' + f + ' nu e inclus in index.html');
 });
 
+// ---- ordinea scripturilor: motoarele de joc se folosesc la incarcare (la crearea jocului), deci trebuie sa vina inaintea jocurilor
+var ENGINES = ['Util', 'GameShared', 'GameDraw', 'GameInput', 'ReflexGame', 'BoardGame', 'QuizGame', 'SplitDuel', 'OnlineRoom'];
+var definedAt = {};
+scripts.forEach(function (src, idx) {
+  if (!fs.existsSync(path.join(ROOT, src))) return;
+  ENGINES.forEach(function (name) { if (new RegExp('^var ' + name + ' =', 'm').test(read(src))) definedAt[name] = idx; });
+});
+ENGINES.forEach(function (name) { if (definedAt[name] === undefined) bad('motorul ' + name + ' nu e definit in niciun script din index.html'); });
+scripts.forEach(function (src, idx) {
+  if (!fs.existsSync(path.join(ROOT, src))) return;
+  var code = read(src).replace(/\/\/.*$/gm, ''); // fara comentarii
+  ENGINES.forEach(function (name) {
+    if (definedAt[name] !== undefined && definedAt[name] !== idx && new RegExp('\\b' + name + '\\.').test(code) && definedAt[name] > idx) {
+      bad(src + ' foloseste ' + name + ' dar acesta se incarca mai tarziu in index.html');
+    }
+  });
+});
+
 // ---- catalogul
 var sandbox = { window: {}, AppConfig: {}, Credits: {}, Levels: {} };
 vm.createContext(sandbox);
@@ -72,7 +90,7 @@ for (var i = 1; i < lv.length; i++) if (lv[i].stars <= lv[i - 1].stars) bad('con
 var files = [];
 (function walk(dir) {
   fs.readdirSync(dir).forEach(function (f) {
-    if (f === 'node_modules' || f === '.git') return;
+    if (f === 'node_modules' || f === '.git' || f === 'dist') return;
     var p = path.join(dir, f);
     if (fs.statSync(p).isDirectory()) walk(p); else if (/\.js$/.test(f)) files.push(p);
   });
@@ -81,6 +99,18 @@ files.forEach(function (f) {
   try { cp.execFileSync(process.execPath, ['--check', f], { stdio: 'pipe' }); }
   catch (e) { bad('sintaxa ' + path.relative(ROOT, f) + ': ' + String(e.stderr).split('\n').slice(0, 3).join(' ')); }
 });
+
+// ---- pachetul de productie: build-ul (fara minificare, rapid) si toate referintele din dist/ exista
+try {
+  cp.execFileSync(process.execPath, [path.join(ROOT, 'tools/build.js'), '--no-min'], { stdio: 'pipe' });
+  ['index.html', 'admin.html', 'tv.html'].forEach(function (page) {
+    var html = fs.readFileSync(path.join(ROOT, 'dist', page), 'utf8');
+    html.replace(/(?:src|href)="([^":#?]+\.(?:js|css|svg|png|webp|webmanifest))"/g, function (_, f) {
+      if (!fs.existsSync(path.join(ROOT, 'dist', f))) bad('dist/' + page + ' trimite la ' + f + ', care lipseste din dist/');
+    });
+    if (/<script src="(?!version\.js)[^"]*\.js"><\/script>/.test(html) && page === 'index.html' && !/<script src="index\.[0-9a-f]{10}\.js">/.test(html)) bad('dist/index.html nu are pachetul de scripturi');
+  });
+} catch (e) { bad('build: ' + String(e.stderr || e.message).split('\n').slice(0, 3).join(' ')); }
 
 if (problems.length) { console.log('PROBLEME:\n - ' + problems.join('\n - ')); process.exit(1); }
 console.log('check ok: ' + scripts.length + ' scripturi, ' + list.length + ' jocuri, ' + files.length + ' fisiere JS');

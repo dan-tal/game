@@ -5,8 +5,11 @@
 // salvata. Duelul Online (WebSocket, /ws) nu trece pe aici — cere internet.
 //
 // Lista fisierelor de salvat NU se tine de mana: la instalare citim
-// index.html si admin.html si salvam tot ce referentiaza (scripturi, stiluri,
-// iconite), deci un joc nou adaugat in index.html e salvat automat.
+// index.html, admin.html si tv.html si salvam tot ce referentiaza (scripturi, stiluri,
+// iconite), deci un joc nou adaugat in index.html e salvat automat. In productie
+// (vezi tools/build.js) scripturile sunt impachetate in fisiere cu hash in nume
+// (index.<hash>.js): ele nu se schimba niciodata sub acelasi nume, deci se iau
+// direct din cache, fara cerere la retea.
 importScripts('version.js');
 
 var CACHE = 'arcade-vesel-' + (self.APP_VERSION || 'dev');
@@ -15,7 +18,7 @@ var NETWORK_TIMEOUT_MS = 4000;
 // poze folosite de jocuri, nereferentiate direct in HTML — salvate "pe cat se
 // poate" (o poza care nu se descarca nu strica instalarea)
 var EXTRA = [
-  'tv.html', 'tv.css', 'tv.js', 'games/assets/count/scene1.png', 'games/assets/count/scene2.png', 'games/assets/count/scene3.png',
+  'games/assets/count/scene1.png', 'games/assets/count/scene2.png', 'games/assets/count/scene3.png',
   'games/assets/count/scene4.png', 'games/assets/count/scene5.png',
   'games/assets/count/icon-dragon.svg', 'games/assets/count/icon-cat.svg', 'games/assets/count/icon-owl.svg',
   'games/assets/pawpatrol/chase.webp', 'games/assets/pawpatrol/marshall.webp', 'games/assets/pawpatrol/skye.webp',
@@ -23,6 +26,9 @@ var EXTRA = [
 ];
 
 function scoped(path) { return new URL(path, self.registration.scope).href; }
+
+// fisiere cu hash de continut in nume (ex: index.cac437d069.js): niciodata nu se schimba sub acelasi nume
+var HASHED = /\.[0-9a-f]{10}\.(?:js|css)$/;
 
 function assetsOf(html) {
   var out = [];
@@ -35,8 +41,8 @@ function assetsOf(html) {
 self.addEventListener('install', function (event) {
   event.waitUntil((async function () {
     var cache = await caches.open(CACHE);
-    var core = ['./', 'index.html', 'admin.html', 'site.webmanifest'];
-    for (var page of ['index.html', 'admin.html']) {
+    var core = ['./', 'index.html', 'admin.html', 'tv.html', 'site.webmanifest'];
+    for (var page of ['index.html', 'admin.html', 'tv.html']) {
       var res = await fetch(scoped(page), { cache: 'reload' });
       if (!res.ok) throw new Error('nu pot citi ' + page);
       core = core.concat(assetsOf(await res.text()));
@@ -68,6 +74,11 @@ self.addEventListener('fetch', function (event) {
 
   event.respondWith((async function () {
     var cache = await caches.open(CACHE);
+    // pachetele cu hash in nume: cache intai (sunt, prin definitie, identice cu cele de pe server)
+    if (HASHED.test(url.pathname)) {
+      var hit = await cache.match(req);
+      if (hit) return hit;
+    }
     // "?room=COD" e o pagina obisnuita — o cautam in cache fara parametri
     var lookup = { ignoreSearch: req.mode === 'navigate' };
     try {
@@ -81,7 +92,7 @@ self.addEventListener('fetch', function (event) {
       var cached = await cache.match(req, lookup);
       if (cached) return cached;
       if (req.mode === 'navigate') {
-        var page = url.pathname === '/admin' ? 'admin.html' : 'index.html';
+        var page = url.pathname === '/admin' ? 'admin.html' : url.pathname === '/tv' ? 'tv.html' : 'index.html';
         var fallback = await cache.match(scoped(page));
         if (fallback) return fallback;
       }

@@ -18,6 +18,12 @@ echo "==> Version $VERSION"
 echo "self.APP_VERSION = '$VERSION';" > version.js
 sed "s/__VERSION__/$VERSION/g" nginx.conf.template > nginx.conf
 
+echo "==> Verificari + pachetul de productie (dist/)"
+(cd tools && [ -d node_modules ] || npm install --silent)
+node tools/lint.js
+node tools/check.js
+node tools/build.js
+
 echo "==> Build $IMAGE:latest"
 docker build -t "$IMAGE:latest" .
 
