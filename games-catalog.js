@@ -28,6 +28,8 @@ var GamesCatalog = (function () {
   var LIST = [
     { key: 'academy',        global: 'AcademyGame',        emoji: '🎓', name: 'Academia Vesela',      skill: 'Învățare, nivel automat', minAge: 2, maxAge: 10, stars: 0, free: true,
       sub: function () { var lv = Levels.info(); return lv.emoji + ' Nivel ' + lv.number; } },
+    { key: 'typing',         global: 'TypingGame',         emoji: '⌨️', name: 'Academia Tastaturii',  skill: 'Litere, cifre și cuvinte la tastatură', minAge: 4, maxAge: 10, stars: 0, free: true,
+      sub: 'Scrie la tastatură' },
     { key: 'balloons',       global: 'BalloonGame',        emoji: '🎈', name: 'Baloane Vesele',       skill: 'Culori',              minAge: 2,  maxAge: 6,  stars: 0 },
     { key: 'numbers',        global: 'NumbersGame',        emoji: '🔢', name: 'Numere Curajoase',     skill: 'Cifre',               minAge: 3,  maxAge: 7,  stars: 0 },
     { key: 'shapes',         global: 'ShapeGame',          emoji: '🔺', name: 'Formele Zburătoare',   skill: 'Forme',               minAge: 3,  maxAge: 7,  stars: 5 },

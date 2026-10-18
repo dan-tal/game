@@ -14,6 +14,8 @@ Live: `https://jocuri.casatd.org` · Panou părinți: `/admin`
 - **Jocuri online** (Duel Online, Cursa Prietenilor) folosesc un server WebSocket separat (`server/`), la `/ws`.
 - **Academia Vesela** e gratuită și își crește singură greutatea după steluțele câștigate; **Șarpele Vesel** e fără voce și fără exerciții și se conduce cum îi vine copilului: glisând cu degetul de oriunde pe ecran, atingând locul unde vrea să meargă, cu săgețile în T de sub tablă sau de la tastatură (`GameInput.gestures`).
 
+- **Academia Tastaturii** (`games/typing-game.js`, trepte în `typing-game.config.js`) e jocul pentru calculator: pe ecran apare o literă, cifră, un cuvânt cu imagine sau un număr, iar copilul îl scrie la tastatură (există și tastatură pe ecran; tasta căutată clipește după greșeli). Diacriticele se arată, dar se tastează litera simplă (Ă = A). Trece singur prin trepte (vocale → litere → cifre → cuvinte → numere), progresul rămâne salvat pe dispozitiv, iar fiecare item reușit e un punct pentru Duelul cu prietenul.
+
 ## Cum adaug un joc nou
 
 ```bash

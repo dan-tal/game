@@ -1069,3 +1069,22 @@ canvas {
 .duelResultBadge { font-size: clamp(70px, 20vw, 120px); line-height: 1.1; }
 .duelResultScore { font-size: clamp(26px, 7vw, 40px) !important; font-weight: bold; }
 .menuTileRow .duelTile { border-color: #4fc3f7; background: #e1f5fe; }
+
+/* ---------- Academia Tastaturii (games/typing-game.js) ---------- */
+.typeScreen { justify-content: flex-start; padding-top: clamp(58px, 9vh, 72px); background: #e0f7fa; border-color: #26c6da; gap: 8px; }
+.tkTitle { font-weight: bold; font-size: clamp(15px, 3.6vw, 20px); color: #006064; }
+.tkTarget { font-size: clamp(64px, 18vw, 110px); line-height: 1.1; min-height: 20px; }
+.tkTarget.big { font-size: clamp(110px, 34vw, 190px); font-weight: bold; color: #ff6f00; text-shadow: 0 4px 0 rgba(0,0,0,0.15); }
+.tkSlots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; min-height: 52px; }
+.tkSlot { min-width: 38px; height: 52px; padding: 0 4px; border-bottom: 5px solid #90a4ae; font-size: clamp(30px, 8vw, 44px); font-weight: bold; color: #263238; line-height: 52px; }
+.tkSlot.cur { border-color: #ff6f00; }
+.tkSlot.filled { color: #2e7d32; border-color: #66bb6a; }
+.tkSlots.single { display: none; }
+.tkMsg { min-height: 26px; font-weight: bold; font-size: clamp(16px, 4vw, 22px); color: #00838f; }
+.tkKeys { margin-top: auto; width: 100%; display: flex; flex-direction: column; gap: 6px; padding-bottom: 6px; }
+.tkRow { display: flex; justify-content: center; gap: 4px; }
+.tkKey { flex: 0 1 clamp(30px, 8.6vw, 44px); height: clamp(40px, 11vw, 52px); border: none; border-radius: 10px; background: #fff; color: #37474f; font-size: clamp(16px, 4.4vw, 22px); font-weight: bold; box-shadow: 0 3px 0 #b0bec5; padding: 0; }
+.tkKey.ok { background: #a5d6a7; }
+.tkKey.bad { background: #ef9a9a; }
+.tkKey.hint { background: #ffe082; animation: tkBlink 0.7s ease-in-out infinite alternate; }
+@keyframes tkBlink { from { transform: scale(1); } to { transform: scale(1.18); } }
