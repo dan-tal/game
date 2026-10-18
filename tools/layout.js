@@ -48,7 +48,8 @@ function inspect() {
     var r = a.r;
     var scrolls = a.el.closest('.screen') && a.el.closest('.screen').scrollHeight > a.el.closest('.screen').clientHeight + 2;
     if (!scrolls && (r.left < -1 || r.top < -1 || r.right > vw + 1 || r.bottom > vh + 1)) out.push('iese din ecran: ' + a.name);
-    var isBtn = a.el.tagName === 'BUTTON' || a.el.tagName === 'A';
+    var isBtn = (a.el.tagName === 'BUTTON' || a.el.tagName === 'A') && !a.el.classList.contains('tkKey'); // tastele (10 pe rand) au doar inaltimea verificata
+    if (a.el.classList.contains('tkKey') && r.height < 40) out.push('prea mic: ' + a.name);
     if (isBtn && (r.width < 40 || r.height < 40) && !a.el.closest('#debugPanel')) out.push('prea mic (' + Math.round(r.width) + 'x' + Math.round(r.height) + '): ' + a.name);
   });
   for (var i = 0; i < items.length; i++) for (var j = i + 1; j < items.length; j++) {
