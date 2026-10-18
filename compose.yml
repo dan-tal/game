@@ -1,0 +1,46 @@
+networks:
+  local-net:
+    external: true
+
+services:
+  coloring:
+    image: nginx:alpine
+    container_name: coloring
+    restart: unless-stopped
+    ports:
+      - "8093:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+      - ./data:/usr/share/nginx/html/data:ro
+      - ./curs/out:/usr/share/nginx/html/video:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.coloring.rule=Host(`colorat.home`)
+      - traefik.http.routers.coloring.entrypoints=web
+      - traefik.http.services.coloring.loadbalancer.server.port=80
+    networks:
+      - local-net
+
+  # Pornește/oprește cursul pe TV (DLNA/EShare) + pornire automată orară. Vezi README.md
+  coloring-tv:
+    image: python:3.12-slim
+    container_name: coloring-tv
+    restart: unless-stopped
+    user: "1000:1000"
+    command: ["python", "-u", "/app/server.py"]
+    environment:
+      - TZ=Europe/Chisinau
+      - PYTHONDONTWRITEBYTECODE=1
+      - VIDEO_URL=http://192.168.100.100:8093/video/curs-tv.mp4
+    volumes:
+      - ./curs/control:/app:ro
+      - ./curs/state:/state
+      - /docker/jellyfin/secrets/api_key:/run/secrets/jellyfin_api_key:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8080/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - local-net

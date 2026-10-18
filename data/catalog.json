@@ -1,0 +1,2722 @@
+[
+ {
+  "id": "litera-a",
+  "title": "Litera A a",
+  "category": "litere",
+  "tags": "litera alfabet abecedar A a Albină",
+  "file": "pages/litera-a.svg",
+  "color": "pages/litera-a.c.svg",
+  "learn": true,
+  "say": "Litera A. A ca în Albină."
+ },
+ {
+  "id": "litera-ă",
+  "title": "Litera Ă ă",
+  "category": "litere",
+  "tags": "litera alfabet abecedar Ă ă Ă ca în Măr",
+  "file": "pages/litera-ă.svg",
+  "color": "pages/litera-ă.c.svg",
+  "learn": true,
+  "say": "Litera Ă. Ă ca în Măr."
+ },
+ {
+  "id": "litera-â",
+  "title": "Litera Â â",
+  "category": "litere",
+  "tags": "litera alfabet abecedar Â â Â ca în Pâine",
+  "file": "pages/litera-â.svg",
+  "color": "pages/litera-â.c.svg",
+  "learn": true,
+  "say": "Litera Â. Â ca în Pâine."
+ },
+ {
+  "id": "litera-b",
+  "title": "Litera B b",
+  "category": "litere",
+  "tags": "litera alfabet abecedar B b Balon",
+  "file": "pages/litera-b.svg",
+  "color": "pages/litera-b.c.svg",
+  "learn": true,
+  "say": "Litera B. B ca în Balon."
+ },
+ {
+  "id": "litera-c",
+  "title": "Litera C c",
+  "category": "litere",
+  "tags": "litera alfabet abecedar C c Cățel",
+  "file": "pages/litera-c.svg",
+  "color": "pages/litera-c.c.svg",
+  "learn": true,
+  "say": "Litera C. C ca în Cățel."
+ },
+ {
+  "id": "litera-d",
+  "title": "Litera D d",
+  "category": "litere",
+  "tags": "litera alfabet abecedar D d Delfin",
+  "file": "pages/litera-d.svg",
+  "color": "pages/litera-d.c.svg",
+  "learn": true,
+  "say": "Litera D. D ca în Delfin."
+ },
+ {
+  "id": "litera-e",
+  "title": "Litera E e",
+  "category": "litere",
+  "tags": "litera alfabet abecedar E e Elefant",
+  "file": "pages/litera-e.svg",
+  "color": "pages/litera-e.c.svg",
+  "learn": true,
+  "say": "Litera E. E ca în Elefant."
+ },
+ {
+  "id": "litera-f",
+  "title": "Litera F f",
+  "category": "litere",
+  "tags": "litera alfabet abecedar F f Fluture",
+  "file": "pages/litera-f.svg",
+  "color": "pages/litera-f.c.svg",
+  "learn": true,
+  "say": "Litera F. F ca în Fluture."
+ },
+ {
+  "id": "litera-g",
+  "title": "Litera G g",
+  "category": "litere",
+  "tags": "litera alfabet abecedar G g Gogoașă",
+  "file": "pages/litera-g.svg",
+  "color": "pages/litera-g.c.svg",
+  "learn": true,
+  "say": "Litera G. G ca în Gogoașă."
+ },
+ {
+  "id": "litera-h",
+  "title": "Litera H h",
+  "category": "litere",
+  "tags": "litera alfabet abecedar H h Hipopotam",
+  "file": "pages/litera-h.svg",
+  "color": "pages/litera-h.c.svg",
+  "learn": true,
+  "say": "Litera H. H ca în Hipopotam."
+ },
+ {
+  "id": "litera-i",
+  "title": "Litera I i",
+  "category": "litere",
+  "tags": "litera alfabet abecedar I i Iepure",
+  "file": "pages/litera-i.svg",
+  "color": "pages/litera-i.c.svg",
+  "learn": true,
+  "say": "Litera I. I ca în Iepure."
+ },
+ {
+  "id": "litera-î",
+  "title": "Litera Î î",
+  "category": "litere",
+  "tags": "litera alfabet abecedar Î î Înghețată",
+  "file": "pages/litera-î.svg",
+  "color": "pages/litera-î.c.svg",
+  "learn": true,
+  "say": "Litera Î. Î ca în Înghețată."
+ },
+ {
+  "id": "litera-j",
+  "title": "Litera J j",
+  "category": "litere",
+  "tags": "litera alfabet abecedar J j Jucărie",
+  "file": "pages/litera-j.svg",
+  "color": "pages/litera-j.c.svg",
+  "learn": true,
+  "say": "Litera J. J ca în Jucărie."
+ },
+ {
+  "id": "litera-k",
+  "title": "Litera K k",
+  "category": "litere",
+  "tags": "litera alfabet abecedar K k Koala",
+  "file": "pages/litera-k.svg",
+  "color": "pages/litera-k.c.svg",
+  "learn": true,
+  "say": "Litera K. K ca în Koala."
+ },
+ {
+  "id": "litera-l",
+  "title": "Litera L l",
+  "category": "litere",
+  "tags": "litera alfabet abecedar L l Leu",
+  "file": "pages/litera-l.svg",
+  "color": "pages/litera-l.c.svg",
+  "learn": true,
+  "say": "Litera L. L ca în Leu."
+ },
+ {
+  "id": "litera-m",
+  "title": "Litera M m",
+  "category": "litere",
+  "tags": "litera alfabet abecedar M m Măr",
+  "file": "pages/litera-m.svg",
+  "color": "pages/litera-m.c.svg",
+  "learn": true,
+  "say": "Litera M. M ca în Măr."
+ },
+ {
+  "id": "litera-n",
+  "title": "Litera N n",
+  "category": "litere",
+  "tags": "litera alfabet abecedar N n Nor",
+  "file": "pages/litera-n.svg",
+  "color": "pages/litera-n.c.svg",
+  "learn": true,
+  "say": "Litera N. N ca în Nor."
+ },
+ {
+  "id": "litera-o",
+  "title": "Litera O o",
+  "category": "litere",
+  "tags": "litera alfabet abecedar O o Oaie",
+  "file": "pages/litera-o.svg",
+  "color": "pages/litera-o.c.svg",
+  "learn": true,
+  "say": "Litera O. O ca în Oaie."
+ },
+ {
+  "id": "litera-p",
+  "title": "Litera P p",
+  "category": "litere",
+  "tags": "litera alfabet abecedar P p Pisică",
+  "file": "pages/litera-p.svg",
+  "color": "pages/litera-p.c.svg",
+  "learn": true,
+  "say": "Litera P. P ca în Pisică."
+ },
+ {
+  "id": "litera-q",
+  "title": "Litera Q q",
+  "category": "litere",
+  "tags": "litera alfabet abecedar Q q Quokka",
+  "file": "pages/litera-q.svg",
+  "color": "pages/litera-q.c.svg",
+  "learn": true,
+  "say": "Litera Q. Q ca în Quokka."
+ },
+ {
+  "id": "litera-r",
+  "title": "Litera R r",
+  "category": "litere",
+  "tags": "litera alfabet abecedar R r Rățușcă",
+  "file": "pages/litera-r.svg",
+  "color": "pages/litera-r.c.svg",
+  "learn": true,
+  "say": "Litera R. R ca în Rățușcă."
+ },
+ {
+  "id": "litera-s",
+  "title": "Litera S s",
+  "category": "litere",
+  "tags": "litera alfabet abecedar S s Soare",
+  "file": "pages/litera-s.svg",
+  "color": "pages/litera-s.c.svg",
+  "learn": true,
+  "say": "Litera S. S ca în Soare."
+ },
+ {
+  "id": "litera-ș",
+  "title": "Litera Ș ș",
+  "category": "litere",
+  "tags": "litera alfabet abecedar Ș ș Șoarece",
+  "file": "pages/litera-ș.svg",
+  "color": "pages/litera-ș.c.svg",
+  "learn": true,
+  "say": "Litera Ș. Ș ca în Șoarece."
+ },
+ {
+  "id": "litera-t",
+  "title": "Litera T t",
+  "category": "litere",
+  "tags": "litera alfabet abecedar T t Tigru",
+  "file": "pages/litera-t.svg",
+  "color": "pages/litera-t.c.svg",
+  "learn": true,
+  "say": "Litera T. T ca în Tigru."
+ },
+ {
+  "id": "litera-ț",
+  "title": "Litera Ț ț",
+  "category": "litere",
+  "tags": "litera alfabet abecedar Ț ț Țânțar",
+  "file": "pages/litera-ț.svg",
+  "color": "pages/litera-ț.c.svg",
+  "learn": true,
+  "say": "Litera Ț. Ț ca în Țânțar."
+ },
+ {
+  "id": "litera-u",
+  "title": "Litera U u",
+  "category": "litere",
+  "tags": "litera alfabet abecedar U u Urs",
+  "file": "pages/litera-u.svg",
+  "color": "pages/litera-u.c.svg",
+  "learn": true,
+  "say": "Litera U. U ca în Urs."
+ },
+ {
+  "id": "litera-v",
+  "title": "Litera V v",
+  "category": "litere",
+  "tags": "litera alfabet abecedar V v Vacă",
+  "file": "pages/litera-v.svg",
+  "color": "pages/litera-v.c.svg",
+  "learn": true,
+  "say": "Litera V. V ca în Vacă."
+ },
+ {
+  "id": "litera-w",
+  "title": "Litera W w",
+  "category": "litere",
+  "tags": "litera alfabet abecedar W w Weekend",
+  "file": "pages/litera-w.svg",
+  "color": "pages/litera-w.c.svg",
+  "learn": true,
+  "say": "Litera W. W ca în Weekend."
+ },
+ {
+  "id": "litera-x",
+  "title": "Litera X x",
+  "category": "litere",
+  "tags": "litera alfabet abecedar X x Xilofon",
+  "file": "pages/litera-x.svg",
+  "color": "pages/litera-x.c.svg",
+  "learn": true,
+  "say": "Litera X. X ca în Xilofon."
+ },
+ {
+  "id": "litera-y",
+  "title": "Litera Y y",
+  "category": "litere",
+  "tags": "litera alfabet abecedar Y y Yacht",
+  "file": "pages/litera-y.svg",
+  "color": "pages/litera-y.c.svg",
+  "learn": true,
+  "say": "Litera Y. Y ca în Yacht."
+ },
+ {
+  "id": "litera-z",
+  "title": "Litera Z z",
+  "category": "litere",
+  "tags": "litera alfabet abecedar Z z Zebră",
+  "file": "pages/litera-z.svg",
+  "color": "pages/litera-z.c.svg",
+  "learn": true,
+  "say": "Litera Z. Z ca în Zebră."
+ },
+ {
+  "id": "cifra-0",
+  "title": "Cifra 0",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 0 zero",
+  "file": "pages/cifra-0.svg",
+  "color": "pages/cifra-0.c.svg",
+  "learn": true,
+  "say": "Cifra 0. Zero."
+ },
+ {
+  "id": "cifra-1",
+  "title": "Cifra 1",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 1 unu",
+  "file": "pages/cifra-1.svg",
+  "color": "pages/cifra-1.c.svg",
+  "learn": true,
+  "say": "Cifra 1. Unu."
+ },
+ {
+  "id": "cifra-2",
+  "title": "Cifra 2",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 2 doi",
+  "file": "pages/cifra-2.svg",
+  "color": "pages/cifra-2.c.svg",
+  "learn": true,
+  "say": "Cifra 2. Doi."
+ },
+ {
+  "id": "cifra-3",
+  "title": "Cifra 3",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 3 trei",
+  "file": "pages/cifra-3.svg",
+  "color": "pages/cifra-3.c.svg",
+  "learn": true,
+  "say": "Cifra 3. Trei."
+ },
+ {
+  "id": "cifra-4",
+  "title": "Cifra 4",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 4 patru",
+  "file": "pages/cifra-4.svg",
+  "color": "pages/cifra-4.c.svg",
+  "learn": true,
+  "say": "Cifra 4. Patru."
+ },
+ {
+  "id": "cifra-5",
+  "title": "Cifra 5",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 5 cinci",
+  "file": "pages/cifra-5.svg",
+  "color": "pages/cifra-5.c.svg",
+  "learn": true,
+  "say": "Cifra 5. Cinci."
+ },
+ {
+  "id": "cifra-6",
+  "title": "Cifra 6",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 6 șase",
+  "file": "pages/cifra-6.svg",
+  "color": "pages/cifra-6.c.svg",
+  "learn": true,
+  "say": "Cifra 6. Șase."
+ },
+ {
+  "id": "cifra-7",
+  "title": "Cifra 7",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 7 șapte",
+  "file": "pages/cifra-7.svg",
+  "color": "pages/cifra-7.c.svg",
+  "learn": true,
+  "say": "Cifra 7. Șapte."
+ },
+ {
+  "id": "cifra-8",
+  "title": "Cifra 8",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 8 opt",
+  "file": "pages/cifra-8.svg",
+  "color": "pages/cifra-8.c.svg",
+  "learn": true,
+  "say": "Cifra 8. Opt."
+ },
+ {
+  "id": "cifra-9",
+  "title": "Cifra 9",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 9 nouă",
+  "file": "pages/cifra-9.svg",
+  "color": "pages/cifra-9.c.svg",
+  "learn": true,
+  "say": "Cifra 9. Nouă."
+ },
+ {
+  "id": "cifra-10",
+  "title": "Cifra 10",
+  "category": "cifre",
+  "tags": "număr cifră cifre numere socotit numărat 10 zece",
+  "file": "pages/cifra-10.svg",
+  "color": "pages/cifra-10.c.svg",
+  "learn": true,
+  "say": "Cifra 10. Zece."
+ },
+ {
+  "id": "pisica",
+  "title": "Pisică",
+  "category": "animale",
+  "tags": "pisicuță mâță motan animal de casă miau",
+  "file": "pages/pisica.svg",
+  "color": "pages/pisica.c.svg",
+  "learn": true,
+  "say": "Pisică"
+ },
+ {
+  "id": "catel",
+  "title": "Câine",
+  "category": "animale",
+  "tags": "cățel căţel câine animal de casă ham ham prieten",
+  "file": "pages/catel.svg",
+  "color": "pages/catel.c.svg",
+  "learn": true,
+  "say": "Câine"
+ },
+ {
+  "id": "iepure",
+  "title": "Iepure",
+  "category": "animale",
+  "tags": "iepuraș urechi lungi morcov animal pădure paște",
+  "file": "pages/iepure.svg",
+  "color": "pages/iepure.c.svg",
+  "learn": true,
+  "say": "Iepure"
+ },
+ {
+  "id": "urs",
+  "title": "Ursuleț",
+  "category": "animale",
+  "tags": "urs ursuleț animal pădure miere",
+  "file": "pages/urs.svg",
+  "color": "pages/urs.c.svg",
+  "learn": true,
+  "say": "Ursuleț"
+ },
+ {
+  "id": "elefant",
+  "title": "Elefant",
+  "category": "animale",
+  "tags": "trompă colți animal mare safari africa jungla",
+  "file": "pages/elefant.svg",
+  "color": "pages/elefant.c.svg",
+  "learn": true,
+  "say": "Elefant"
+ },
+ {
+  "id": "pestisor",
+  "title": "Pește",
+  "category": "animale",
+  "tags": "peștișor apă mare acvariu bule animal acvatic",
+  "file": "pages/pestisor.svg",
+  "color": "pages/pestisor.c.svg",
+  "learn": true,
+  "say": "Pește"
+ },
+ {
+  "id": "pasare",
+  "title": "Păsărică",
+  "category": "animale",
+  "tags": "pasăre păsărică ramură cioc aripi zbor",
+  "file": "pages/pasare.svg",
+  "color": "pages/pasare.c.svg",
+  "learn": true,
+  "say": "Păsărică"
+ },
+ {
+  "id": "fluture",
+  "title": "Fluture",
+  "category": "animale",
+  "tags": "insectă aripi antene gradină primăvară",
+  "file": "pages/fluture.svg",
+  "color": "pages/fluture.c.svg",
+  "learn": true,
+  "say": "Fluture"
+ },
+ {
+  "id": "melc",
+  "title": "Melc",
+  "category": "animale",
+  "tags": "cochilie melcușor insectă lent grădină",
+  "file": "pages/melc.svg",
+  "color": "pages/melc.c.svg",
+  "learn": true,
+  "say": "Melc"
+ },
+ {
+  "id": "broasca-testoasa",
+  "title": "Broască țestoasă",
+  "category": "animale",
+  "tags": "țestoasă carapace reptilă lent",
+  "file": "pages/broasca-testoasa.svg",
+  "color": "pages/broasca-testoasa.c.svg",
+  "learn": true,
+  "say": "Broască țestoasă"
+ },
+ {
+  "id": "bufnita",
+  "title": "Bufniță",
+  "category": "animale",
+  "tags": "pasăre noapte ochi mari pădure",
+  "file": "pages/bufnita.svg",
+  "color": "pages/bufnita.c.svg",
+  "learn": true,
+  "say": "Bufniță"
+ },
+ {
+  "id": "porc",
+  "title": "Porcușor",
+  "category": "animale",
+  "tags": "porc purcel grohăit fermă animal domestic",
+  "file": "pages/porc.svg",
+  "color": "pages/porc.c.svg",
+  "learn": true,
+  "say": "Porcușor"
+ },
+ {
+  "id": "ratusca",
+  "title": "Rățușcă",
+  "category": "animale",
+  "tags": "rață pasăre apă lac cioc fermă",
+  "file": "pages/ratusca.svg",
+  "color": "pages/ratusca.c.svg",
+  "learn": true,
+  "say": "Rățușcă"
+ },
+ {
+  "id": "leu",
+  "title": "Leu",
+  "category": "animale",
+  "tags": "leu coamă regele junglei safari animal sălbatic",
+  "file": "pages/leu.svg",
+  "color": "pages/leu.c.svg",
+  "learn": true,
+  "say": "Leu"
+ },
+ {
+  "id": "buburuza",
+  "title": "Buburuză",
+  "category": "animale",
+  "tags": "insectă gărgăriță buline roșu",
+  "file": "pages/buburuza.svg",
+  "color": "pages/buburuza.c.svg",
+  "learn": true,
+  "say": "Buburuză"
+ },
+ {
+  "id": "albina",
+  "title": "Albină",
+  "category": "animale",
+  "tags": "insectă miere zumzet floare dungi",
+  "file": "pages/albina.svg",
+  "color": "pages/albina.c.svg",
+  "learn": true,
+  "say": "Albină"
+ },
+ {
+  "id": "pinguin",
+  "title": "Pinguin",
+  "category": "animale",
+  "tags": "pasăre polul sud gheață iarnă eșarfă",
+  "file": "pages/pinguin.svg",
+  "color": "pages/pinguin.c.svg",
+  "learn": true,
+  "say": "Pinguin"
+ },
+ {
+  "id": "castel",
+  "title": "Castel",
+  "category": "povesti",
+  "tags": "poveste prinț prințesă împărat rege turn steag",
+  "file": "pages/castel.svg",
+  "color": "pages/castel.c.svg",
+  "learn": true,
+  "say": "Castel"
+ },
+ {
+  "id": "coroana",
+  "title": "Coroană",
+  "category": "povesti",
+  "tags": "poveste rege regină prințesă bijuterii aur",
+  "file": "pages/coroana.svg",
+  "color": "pages/coroana.c.svg",
+  "learn": true,
+  "say": "Coroană"
+ },
+ {
+  "id": "dragon",
+  "title": "Dragon",
+  "category": "povesti",
+  "tags": "poveste monstru foc zmeu aripi Făt-Frumos Harap Alb",
+  "file": "pages/dragon.svg",
+  "color": "pages/dragon.c.svg",
+  "learn": true,
+  "say": "Dragon"
+ },
+ {
+  "id": "unicorn",
+  "title": "Unicorn",
+  "category": "povesti",
+  "tags": "poveste cal magic corn curcubeu zână",
+  "file": "pages/unicorn.svg",
+  "color": "pages/unicorn.c.svg",
+  "learn": true,
+  "say": "Unicorn"
+ },
+ {
+  "id": "lup",
+  "title": "Lupul",
+  "category": "povesti",
+  "tags": "poveste Scufița Roșie lup rău pădure",
+  "file": "pages/lup.svg",
+  "color": "pages/lup.c.svg",
+  "learn": true,
+  "say": "Lupul"
+ },
+ {
+  "id": "scufita",
+  "title": "Scufița Roșie",
+  "category": "povesti",
+  "tags": "poveste fetiță pelerină coș bunica pădure lup",
+  "file": "pages/scufita.svg",
+  "color": "pages/scufita.c.svg",
+  "learn": true,
+  "say": "Scufița Roșie"
+ },
+ {
+  "id": "casa-turta-dulce",
+  "title": "Casa de turtă dulce",
+  "category": "povesti",
+  "tags": "poveste Hänsel și Gretel dulciuri bomboane acadele",
+  "file": "pages/casa-turta-dulce.svg",
+  "color": "pages/casa-turta-dulce.c.svg",
+  "learn": true,
+  "say": "Casa de turtă dulce"
+ },
+ {
+  "id": "trasura-dovleac",
+  "title": "Trăsura din dovleac",
+  "category": "povesti",
+  "tags": "poveste Cenușăreasa Cenușa dovleac roți bal",
+  "file": "pages/trasura-dovleac.svg",
+  "color": "pages/trasura-dovleac.c.svg",
+  "learn": true,
+  "say": "Trăsura din dovleac"
+ },
+ {
+  "id": "pantof-cristal",
+  "title": "Pantoful de cristal",
+  "category": "povesti",
+  "tags": "poveste Cenușăreasa Cenușa pantof sticlă bal",
+  "file": "pages/pantof-cristal.svg",
+  "color": "pages/pantof-cristal.c.svg",
+  "learn": true,
+  "say": "Pantoful de cristal"
+ },
+ {
+  "id": "vrajitor",
+  "title": "Vrăjitorul",
+  "category": "povesti",
+  "tags": "poveste magie pălărie barbă Merlin vrajă",
+  "file": "pages/vrajitor.svg",
+  "color": "pages/vrajitor.c.svg",
+  "learn": true,
+  "say": "Vrăjitorul"
+ },
+ {
+  "id": "zana",
+  "title": "Zâna",
+  "category": "povesti",
+  "tags": "poveste magie baghetă aripi zână bună Tinker Bell",
+  "file": "pages/zana.svg",
+  "color": "pages/zana.c.svg",
+  "learn": true,
+  "say": "Zâna"
+ },
+ {
+  "id": "capra",
+  "title": "Capra",
+  "category": "povesti",
+  "tags": "poveste Capra cu trei iezi coarne barbă fermă",
+  "file": "pages/capra.svg",
+  "color": "pages/capra.c.svg",
+  "learn": true,
+  "say": "Capra"
+ },
+ {
+  "id": "mar",
+  "title": "Măr",
+  "category": "fructe",
+  "tags": "fruct mere roșu pom grădină",
+  "file": "pages/mar.svg",
+  "color": "pages/mar.c.svg",
+  "learn": true,
+  "say": "Măr"
+ },
+ {
+  "id": "para",
+  "title": "Pară",
+  "category": "fructe",
+  "tags": "fruct pere pom grădină",
+  "file": "pages/para.svg",
+  "color": "pages/para.c.svg",
+  "learn": true,
+  "say": "Pară"
+ },
+ {
+  "id": "capsuna",
+  "title": "Căpșună",
+  "category": "fructe",
+  "tags": "fruct căpșuni fructe de pădure vară roșu",
+  "file": "pages/capsuna.svg",
+  "color": "pages/capsuna.c.svg",
+  "learn": true,
+  "say": "Căpșună"
+ },
+ {
+  "id": "portocala",
+  "title": "Portocală",
+  "category": "fructe",
+  "tags": "fruct citrice portocale suc",
+  "file": "pages/portocala.svg",
+  "color": "pages/portocala.c.svg",
+  "learn": true,
+  "say": "Portocală"
+ },
+ {
+  "id": "cirese",
+  "title": "Cireșe",
+  "category": "fructe",
+  "tags": "fruct cireașă vară roșu",
+  "file": "pages/cirese.svg",
+  "color": "pages/cirese.c.svg",
+  "learn": true,
+  "say": "Cireșe"
+ },
+ {
+  "id": "pepene",
+  "title": "Pepene",
+  "category": "fructe",
+  "tags": "fruct felie pepene roșu vară sâmburi arbuz",
+  "file": "pages/pepene.svg",
+  "color": "pages/pepene.c.svg",
+  "learn": true,
+  "say": "Pepene"
+ },
+ {
+  "id": "banana",
+  "title": "Banană",
+  "category": "fructe",
+  "tags": "fruct banane galben maimuță",
+  "file": "pages/banana.svg",
+  "color": "pages/banana.c.svg",
+  "learn": true,
+  "say": "Banană"
+ },
+ {
+  "id": "morcov",
+  "title": "Morcov",
+  "category": "fructe",
+  "tags": "legumă legume morcovi iepure portocaliu",
+  "file": "pages/morcov.svg",
+  "color": "pages/morcov.c.svg",
+  "learn": true,
+  "say": "Morcov"
+ },
+ {
+  "id": "masina",
+  "title": "Mașină",
+  "category": "vehicule",
+  "tags": "automobil mașinuță drum roți șosea",
+  "file": "pages/masina.svg",
+  "color": "pages/masina.c.svg",
+  "learn": true,
+  "say": "Mașină"
+ },
+ {
+  "id": "autobuz",
+  "title": "Autobuz",
+  "category": "vehicule",
+  "tags": "transport în comun școală roți oraș",
+  "file": "pages/autobuz.svg",
+  "color": "pages/autobuz.c.svg",
+  "learn": true,
+  "say": "Autobuz"
+ },
+ {
+  "id": "tren",
+  "title": "Tren",
+  "category": "vehicule",
+  "tags": "locomotivă cale ferată fum șine",
+  "file": "pages/tren.svg",
+  "color": "pages/tren.c.svg",
+  "learn": true,
+  "say": "Tren"
+ },
+ {
+  "id": "barca",
+  "title": "Barcă",
+  "category": "vehicule",
+  "tags": "corabie navă vapor apă mare pânze valuri",
+  "file": "pages/barca.svg",
+  "color": "pages/barca.c.svg",
+  "learn": true,
+  "say": "Barcă"
+ },
+ {
+  "id": "avion",
+  "title": "Avion",
+  "category": "vehicule",
+  "tags": "zbor aripi cer aeroport nori",
+  "file": "pages/avion.svg",
+  "color": "pages/avion.c.svg",
+  "learn": true,
+  "say": "Avion"
+ },
+ {
+  "id": "racheta",
+  "title": "Rachetă",
+  "category": "vehicule",
+  "tags": "spațiu cosmos stele astronaut zbor",
+  "file": "pages/racheta.svg",
+  "color": "pages/racheta.c.svg",
+  "learn": true,
+  "say": "Rachetă"
+ },
+ {
+  "id": "soare",
+  "title": "Soare",
+  "category": "natura",
+  "tags": "soare raze vară zi cer cald",
+  "file": "pages/soare.svg",
+  "color": "pages/soare.c.svg",
+  "learn": true,
+  "say": "Soare"
+ },
+ {
+  "id": "floare",
+  "title": "Floare",
+  "category": "natura",
+  "tags": "floricică petale grădină primăvară tulpină",
+  "file": "pages/floare.svg",
+  "color": "pages/floare.c.svg",
+  "learn": true,
+  "say": "Floare"
+ },
+ {
+  "id": "copac",
+  "title": "Copac",
+  "category": "natura",
+  "tags": "pom pădure frunze trunchi",
+  "file": "pages/copac.svg",
+  "color": "pages/copac.c.svg",
+  "learn": true,
+  "say": "Copac"
+ },
+ {
+  "id": "casa",
+  "title": "Căsuță",
+  "category": "natura",
+  "tags": "casă acasă acoperiș fereastră ușă horn",
+  "file": "pages/casa.svg",
+  "color": "pages/casa.c.svg",
+  "learn": true,
+  "say": "Căsuță"
+ },
+ {
+  "id": "curcubeu",
+  "title": "Curcubeu",
+  "category": "natura",
+  "tags": "culori nori cer ploaie",
+  "file": "pages/curcubeu.svg",
+  "color": "pages/curcubeu.c.svg",
+  "learn": true,
+  "say": "Curcubeu"
+ },
+ {
+  "id": "ploaie",
+  "title": "Nor cu ploaie",
+  "category": "natura",
+  "tags": "nor picături vreme toamnă cer",
+  "file": "pages/ploaie.svg",
+  "color": "pages/ploaie.c.svg",
+  "learn": true,
+  "say": "Nor cu ploaie"
+ },
+ {
+  "id": "stea",
+  "title": "Stea",
+  "category": "natura",
+  "tags": "stea noapte cer",
+  "file": "pages/stea.svg",
+  "color": "pages/stea.c.svg",
+  "learn": true,
+  "say": "Stea"
+ },
+ {
+  "id": "luna",
+  "title": "Lună",
+  "category": "natura",
+  "tags": "lună noapte stele cer semilună",
+  "file": "pages/luna.svg",
+  "color": "pages/luna.c.svg",
+  "learn": true,
+  "say": "Lună"
+ },
+ {
+  "id": "cerc",
+  "title": "Cerc",
+  "category": "forme",
+  "tags": "formă geometrică rotund",
+  "file": "pages/cerc.svg",
+  "color": "pages/cerc.c.svg",
+  "learn": true,
+  "say": "Cerc"
+ },
+ {
+  "id": "patrat",
+  "title": "Pătrat",
+  "category": "forme",
+  "tags": "formă geometrică patru laturi",
+  "file": "pages/patrat.svg",
+  "color": "pages/patrat.c.svg",
+  "learn": true,
+  "say": "Pătrat"
+ },
+ {
+  "id": "triunghi",
+  "title": "Triunghi",
+  "category": "forme",
+  "tags": "formă geometrică trei laturi",
+  "file": "pages/triunghi.svg",
+  "color": "pages/triunghi.c.svg",
+  "learn": true,
+  "say": "Triunghi"
+ },
+ {
+  "id": "dreptunghi",
+  "title": "Dreptunghi",
+  "category": "forme",
+  "tags": "formă geometrică patru laturi",
+  "file": "pages/dreptunghi.svg",
+  "color": "pages/dreptunghi.c.svg",
+  "learn": true,
+  "say": "Dreptunghi"
+ },
+ {
+  "id": "inima",
+  "title": "Inimă",
+  "category": "forme",
+  "tags": "formă inimioară dragoste",
+  "file": "pages/inima.svg",
+  "color": "pages/inima.c.svg",
+  "learn": true,
+  "say": "Inimă"
+ },
+ {
+  "id": "stea-forma",
+  "title": "Stea",
+  "category": "forme",
+  "tags": "formă geometrică cinci colțuri",
+  "file": "pages/stea-forma.svg",
+  "color": "pages/stea-forma.c.svg",
+  "learn": true,
+  "say": "Stea"
+ },
+ {
+  "id": "romb",
+  "title": "Romb",
+  "category": "forme",
+  "tags": "formă geometrică patru laturi diamant",
+  "file": "pages/romb.svg",
+  "color": "pages/romb.c.svg",
+  "learn": true,
+  "say": "Romb"
+ },
+ {
+  "id": "oval",
+  "title": "Oval",
+  "category": "forme",
+  "tags": "formă geometrică ou",
+  "file": "pages/oval.svg",
+  "color": "pages/oval.c.svg",
+  "learn": true,
+  "say": "Oval"
+ },
+ {
+  "id": "pentagon",
+  "title": "Pentagon",
+  "category": "forme",
+  "tags": "formă geometrică cinci laturi",
+  "file": "pages/pentagon.svg",
+  "color": "pages/pentagon.c.svg",
+  "learn": true,
+  "say": "Pentagon"
+ },
+ {
+  "id": "robot",
+  "title": "Robot prietenos",
+  "category": "roboti",
+  "tags": "tehnologie jucărie viitor mașinărie robotel",
+  "file": "pages/robot.svg",
+  "color": "pages/robot.c.svg",
+  "learn": true,
+  "say": "Robot prietenos"
+ },
+ {
+  "id": "robot-ciclop",
+  "title": "Robot cu un ochi",
+  "category": "roboti",
+  "tags": "robot ciclop antenă roți tehnologie jucărie viitor",
+  "file": "pages/robot-ciclop.svg",
+  "color": "pages/robot-ciclop.c.svg",
+  "learn": true,
+  "say": "Robot cu un ochi"
+ },
+ {
+  "id": "robot-catel",
+  "title": "Câine robot",
+  "category": "roboti",
+  "tags": "robot cățel câine animal tehnologie viitor",
+  "file": "pages/robot-catel.svg",
+  "color": "pages/robot-catel.c.svg",
+  "learn": true,
+  "say": "Câine robot"
+ },
+ {
+  "id": "robot-spatial",
+  "title": "Robot în spațiu",
+  "category": "roboti",
+  "tags": "robot astronaut cosmos stele cască tehnologie",
+  "file": "pages/robot-spatial.svg",
+  "color": "pages/robot-spatial.c.svg",
+  "learn": true,
+  "say": "Robot în spațiu"
+ },
+ {
+  "id": "dinozaur",
+  "title": "Stegosaur",
+  "category": "dinozauri",
+  "tags": "dino dinozaur preistorie stegozaur jurasic animal plăci",
+  "file": "pages/dinozaur.svg",
+  "color": "pages/dinozaur.c.svg",
+  "learn": true,
+  "say": "Stegosaur"
+ },
+ {
+  "id": "tyrannosaurus",
+  "title": "T-Rex",
+  "category": "dinozauri",
+  "tags": "dinozaur dino tiranozaur rex dinți preistorie monstru",
+  "file": "pages/tyrannosaurus.svg",
+  "color": "pages/tyrannosaurus.c.svg",
+  "learn": true,
+  "say": "T-Rex"
+ },
+ {
+  "id": "triceratops",
+  "title": "Triceratops",
+  "category": "dinozauri",
+  "tags": "dinozaur dino coarne preistorie ierbivor",
+  "file": "pages/triceratops.svg",
+  "color": "pages/triceratops.c.svg",
+  "learn": true,
+  "say": "Triceratops"
+ },
+ {
+  "id": "brontozaur",
+  "title": "Brontozaur",
+  "category": "dinozauri",
+  "tags": "dinozaur dino gât lung diplodocus preistorie ierbivor",
+  "file": "pages/brontozaur.svg",
+  "color": "pages/brontozaur.c.svg",
+  "learn": true,
+  "say": "Brontozaur"
+ },
+ {
+  "id": "pterodactil",
+  "title": "Pterodactil",
+  "category": "dinozauri",
+  "tags": "dinozaur dino zburător aripi cer preistorie",
+  "file": "pages/pterodactil.svg",
+  "color": "pages/pterodactil.c.svg",
+  "learn": true,
+  "say": "Pterodactil"
+ },
+ {
+  "id": "pui-dino",
+  "title": "Pui de dinozaur",
+  "category": "dinozauri",
+  "tags": "dinozaur dino ou pui bebe cute preistorie",
+  "file": "pages/pui-dino.svg",
+  "color": "pages/pui-dino.c.svg",
+  "learn": true,
+  "say": "Pui de dinozaur"
+ },
+ {
+  "id": "mandala-1",
+  "title": "Mandala 1",
+  "category": "mandale",
+  "tags": "model geometric relaxare complicat desen simetric floare cerc 7+",
+  "file": "pages/mandala-1.svg",
+  "color": "pages/mandala-1.c.svg",
+  "learn": false,
+  "say": "Mandala 1"
+ },
+ {
+  "id": "mandala-2",
+  "title": "Mandala 2",
+  "category": "mandale",
+  "tags": "model geometric relaxare complicat desen simetric floare cerc 7+",
+  "file": "pages/mandala-2.svg",
+  "color": "pages/mandala-2.c.svg",
+  "learn": false,
+  "say": "Mandala 2"
+ },
+ {
+  "id": "mandala-3",
+  "title": "Mandala 3",
+  "category": "mandale",
+  "tags": "model geometric relaxare complicat desen simetric floare cerc 7+",
+  "file": "pages/mandala-3.svg",
+  "color": "pages/mandala-3.c.svg",
+  "learn": false,
+  "say": "Mandala 3"
+ },
+ {
+  "id": "mandala-4",
+  "title": "Mandala 4",
+  "category": "mandale",
+  "tags": "model geometric relaxare complicat desen simetric floare cerc 7+",
+  "file": "pages/mandala-4.svg",
+  "color": "pages/mandala-4.c.svg",
+  "learn": false,
+  "say": "Mandala 4"
+ },
+ {
+  "id": "mandala-5",
+  "title": "Mandala 5",
+  "category": "mandale",
+  "tags": "model geometric relaxare complicat desen simetric floare cerc 7+",
+  "file": "pages/mandala-5.svg",
+  "color": "pages/mandala-5.c.svg",
+  "learn": false,
+  "say": "Mandala 5"
+ },
+ {
+  "id": "mandala-6",
+  "title": "Mandala 6",
+  "category": "mandale",
+  "tags": "model geometric relaxare complicat desen simetric floare cerc 7+",
+  "file": "pages/mandala-6.svg",
+  "color": "pages/mandala-6.c.svg",
+  "learn": false,
+  "say": "Mandala 6"
+ },
+ {
+  "id": "scris-litera-a",
+  "title": "Scrie litera A a",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare A a",
+  "file": "pages/scris-litera-a.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera A a"
+ },
+ {
+  "id": "scris-litera-ă",
+  "title": "Scrie litera Ă ă",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare Ă ă",
+  "file": "pages/scris-litera-ă.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera Ă ă"
+ },
+ {
+  "id": "scris-litera-â",
+  "title": "Scrie litera Â â",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare Â â",
+  "file": "pages/scris-litera-â.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera Â â"
+ },
+ {
+  "id": "scris-litera-b",
+  "title": "Scrie litera B b",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare B b",
+  "file": "pages/scris-litera-b.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera B b"
+ },
+ {
+  "id": "scris-litera-c",
+  "title": "Scrie litera C c",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare C c",
+  "file": "pages/scris-litera-c.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera C c"
+ },
+ {
+  "id": "scris-litera-d",
+  "title": "Scrie litera D d",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare D d",
+  "file": "pages/scris-litera-d.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera D d"
+ },
+ {
+  "id": "scris-litera-e",
+  "title": "Scrie litera E e",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare E e",
+  "file": "pages/scris-litera-e.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera E e"
+ },
+ {
+  "id": "scris-litera-f",
+  "title": "Scrie litera F f",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare F f",
+  "file": "pages/scris-litera-f.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera F f"
+ },
+ {
+  "id": "scris-litera-g",
+  "title": "Scrie litera G g",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare G g",
+  "file": "pages/scris-litera-g.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera G g"
+ },
+ {
+  "id": "scris-litera-h",
+  "title": "Scrie litera H h",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare H h",
+  "file": "pages/scris-litera-h.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera H h"
+ },
+ {
+  "id": "scris-litera-i",
+  "title": "Scrie litera I i",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare I i",
+  "file": "pages/scris-litera-i.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera I i"
+ },
+ {
+  "id": "scris-litera-î",
+  "title": "Scrie litera Î î",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare Î î",
+  "file": "pages/scris-litera-î.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera Î î"
+ },
+ {
+  "id": "scris-litera-j",
+  "title": "Scrie litera J j",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare J j",
+  "file": "pages/scris-litera-j.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera J j"
+ },
+ {
+  "id": "scris-litera-k",
+  "title": "Scrie litera K k",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare K k",
+  "file": "pages/scris-litera-k.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera K k"
+ },
+ {
+  "id": "scris-litera-l",
+  "title": "Scrie litera L l",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare L l",
+  "file": "pages/scris-litera-l.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera L l"
+ },
+ {
+  "id": "scris-litera-m",
+  "title": "Scrie litera M m",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare M m",
+  "file": "pages/scris-litera-m.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera M m"
+ },
+ {
+  "id": "scris-litera-n",
+  "title": "Scrie litera N n",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare N n",
+  "file": "pages/scris-litera-n.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera N n"
+ },
+ {
+  "id": "scris-litera-o",
+  "title": "Scrie litera O o",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare O o",
+  "file": "pages/scris-litera-o.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera O o"
+ },
+ {
+  "id": "scris-litera-p",
+  "title": "Scrie litera P p",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare P p",
+  "file": "pages/scris-litera-p.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera P p"
+ },
+ {
+  "id": "scris-litera-q",
+  "title": "Scrie litera Q q",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare Q q",
+  "file": "pages/scris-litera-q.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera Q q"
+ },
+ {
+  "id": "scris-litera-r",
+  "title": "Scrie litera R r",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare R r",
+  "file": "pages/scris-litera-r.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera R r"
+ },
+ {
+  "id": "scris-litera-s",
+  "title": "Scrie litera S s",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare S s",
+  "file": "pages/scris-litera-s.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera S s"
+ },
+ {
+  "id": "scris-litera-ș",
+  "title": "Scrie litera Ș ș",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare Ș ș",
+  "file": "pages/scris-litera-ș.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera Ș ș"
+ },
+ {
+  "id": "scris-litera-t",
+  "title": "Scrie litera T t",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare T t",
+  "file": "pages/scris-litera-t.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera T t"
+ },
+ {
+  "id": "scris-litera-ț",
+  "title": "Scrie litera Ț ț",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare Ț ț",
+  "file": "pages/scris-litera-ț.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera Ț ț"
+ },
+ {
+  "id": "scris-litera-u",
+  "title": "Scrie litera U u",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare U u",
+  "file": "pages/scris-litera-u.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera U u"
+ },
+ {
+  "id": "scris-litera-v",
+  "title": "Scrie litera V v",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare V v",
+  "file": "pages/scris-litera-v.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera V v"
+ },
+ {
+  "id": "scris-litera-w",
+  "title": "Scrie litera W w",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare W w",
+  "file": "pages/scris-litera-w.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera W w"
+ },
+ {
+  "id": "scris-litera-x",
+  "title": "Scrie litera X x",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare X x",
+  "file": "pages/scris-litera-x.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera X x"
+ },
+ {
+  "id": "scris-litera-y",
+  "title": "Scrie litera Y y",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare Y y",
+  "file": "pages/scris-litera-y.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera Y y"
+ },
+ {
+  "id": "scris-litera-z",
+  "title": "Scrie litera Z z",
+  "category": "scris",
+  "tags": "litera scris de mână caligrafie liniuțe exersare Z z",
+  "file": "pages/scris-litera-z.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie litera Z z"
+ },
+ {
+  "id": "scris-cifre-04",
+  "title": "Scrie cifrele 0–4",
+  "category": "scris",
+  "tags": "cifre numere scris de mână caligrafie liniuțe exersare 0 1 2 3 4",
+  "file": "pages/scris-cifre-04.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie cifrele 0–4"
+ },
+ {
+  "id": "scris-cifre-59",
+  "title": "Scrie cifrele 5–9",
+  "category": "scris",
+  "tags": "cifre numere scris de mână caligrafie liniuțe exersare 5 6 7 8 9",
+  "file": "pages/scris-cifre-59.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie cifrele 5–9"
+ },
+ {
+  "id": "scris-cuvant-mama",
+  "title": "Scrie: mama",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare mama",
+  "file": "pages/scris-cuvant-mama.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: mama"
+ },
+ {
+  "id": "scris-cuvant-tata",
+  "title": "Scrie: tata",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare tata",
+  "file": "pages/scris-cuvant-tata.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: tata"
+ },
+ {
+  "id": "scris-cuvant-casa",
+  "title": "Scrie: casa",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare casa",
+  "file": "pages/scris-cuvant-casa.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: casa"
+ },
+ {
+  "id": "scris-cuvant-carte",
+  "title": "Scrie: carte",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare carte",
+  "file": "pages/scris-cuvant-carte.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: carte"
+ },
+ {
+  "id": "scris-cuvant-creion",
+  "title": "Scrie: creion",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare creion",
+  "file": "pages/scris-cuvant-creion.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: creion"
+ },
+ {
+  "id": "scris-cuvant-scoala",
+  "title": "Scrie: școală",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare școală",
+  "file": "pages/scris-cuvant-scoala.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: școală"
+ },
+ {
+  "id": "scris-cuvant-prieten",
+  "title": "Scrie: prieten",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare prieten",
+  "file": "pages/scris-cuvant-prieten.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: prieten"
+ },
+ {
+  "id": "scris-cuvant-familie",
+  "title": "Scrie: familie",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare familie",
+  "file": "pages/scris-cuvant-familie.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: familie"
+ },
+ {
+  "id": "scris-cuvant-soare",
+  "title": "Scrie: soare",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare soare",
+  "file": "pages/scris-cuvant-soare.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: soare"
+ },
+ {
+  "id": "scris-cuvant-floare",
+  "title": "Scrie: floare",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare floare",
+  "file": "pages/scris-cuvant-floare.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: floare"
+ },
+ {
+  "id": "scris-cuvant-pisica",
+  "title": "Scrie: pisică",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare pisică",
+  "file": "pages/scris-cuvant-pisica.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: pisică"
+ },
+ {
+  "id": "scris-cuvant-catel",
+  "title": "Scrie: cățel",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare cățel",
+  "file": "pages/scris-cuvant-catel.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: cățel"
+ },
+ {
+  "id": "scris-cuvant-iepure",
+  "title": "Scrie: iepure",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare iepure",
+  "file": "pages/scris-cuvant-iepure.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: iepure"
+ },
+ {
+  "id": "scris-cuvant-fluture",
+  "title": "Scrie: fluture",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare fluture",
+  "file": "pages/scris-cuvant-fluture.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: fluture"
+ },
+ {
+  "id": "scris-cuvant-masina",
+  "title": "Scrie: mașină",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare mașină",
+  "file": "pages/scris-cuvant-masina.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: mașină"
+ },
+ {
+  "id": "scris-cuvant-avion",
+  "title": "Scrie: avion",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare avion",
+  "file": "pages/scris-cuvant-avion.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: avion"
+ },
+ {
+  "id": "scris-cuvant-bunica",
+  "title": "Scrie: bunica",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare bunica",
+  "file": "pages/scris-cuvant-bunica.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: bunica"
+ },
+ {
+  "id": "scris-cuvant-bunicul",
+  "title": "Scrie: bunicul",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare bunicul",
+  "file": "pages/scris-cuvant-bunicul.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: bunicul"
+ },
+ {
+  "id": "scris-cuvant-vacanta",
+  "title": "Scrie: vacanță",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare vacanță",
+  "file": "pages/scris-cuvant-vacanta.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: vacanță"
+ },
+ {
+  "id": "scris-cuvant-ciocolata",
+  "title": "Scrie: ciocolată",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare ciocolată",
+  "file": "pages/scris-cuvant-ciocolata.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: ciocolată"
+ },
+ {
+  "id": "scris-cuvant-primavara",
+  "title": "Scrie: primăvara",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare primăvara",
+  "file": "pages/scris-cuvant-primavara.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: primăvara"
+ },
+ {
+  "id": "scris-cuvant-vara",
+  "title": "Scrie: vara",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare vara",
+  "file": "pages/scris-cuvant-vara.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: vara"
+ },
+ {
+  "id": "scris-cuvant-toamna",
+  "title": "Scrie: toamna",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare toamna",
+  "file": "pages/scris-cuvant-toamna.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: toamna"
+ },
+ {
+  "id": "scris-cuvant-iarna",
+  "title": "Scrie: iarna",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare iarna",
+  "file": "pages/scris-cuvant-iarna.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: iarna"
+ },
+ {
+  "id": "scris-cuvant-craciun",
+  "title": "Scrie: Crăciun",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare Crăciun",
+  "file": "pages/scris-cuvant-craciun.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: Crăciun"
+ },
+ {
+  "id": "scris-cuvant-paste",
+  "title": "Scrie: Paște",
+  "category": "scris",
+  "tags": "cuvânt cuvinte scris de mână caligrafie liniuțe exersare Paște",
+  "file": "pages/scris-cuvant-paste.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scrie: Paște"
+ },
+ {
+  "id": "scris-propozitie-1",
+  "title": "Propoziția 1",
+  "category": "scris",
+  "tags": "propoziție propoziții scris de mână caligrafie liniuțe exersare Mama mea este bună.",
+  "file": "pages/scris-propozitie-1.svg",
+  "color": null,
+  "learn": false,
+  "say": "Propoziția 1"
+ },
+ {
+  "id": "scris-propozitie-2",
+  "title": "Propoziția 2",
+  "category": "scris",
+  "tags": "propoziție propoziții scris de mână caligrafie liniuțe exersare Eu merg la școală.",
+  "file": "pages/scris-propozitie-2.svg",
+  "color": null,
+  "learn": false,
+  "say": "Propoziția 2"
+ },
+ {
+  "id": "scris-propozitie-3",
+  "title": "Propoziția 3",
+  "category": "scris",
+  "tags": "propoziție propoziții scris de mână caligrafie liniuțe exersare Soarele strălucește pe cer.",
+  "file": "pages/scris-propozitie-3.svg",
+  "color": null,
+  "learn": false,
+  "say": "Propoziția 3"
+ },
+ {
+  "id": "scris-propozitie-4",
+  "title": "Propoziția 4",
+  "category": "scris",
+  "tags": "propoziție propoziții scris de mână caligrafie liniuțe exersare Pisica doarme pe pat.",
+  "file": "pages/scris-propozitie-4.svg",
+  "color": null,
+  "learn": false,
+  "say": "Propoziția 4"
+ },
+ {
+  "id": "scris-propozitie-5",
+  "title": "Propoziția 5",
+  "category": "scris",
+  "tags": "propoziție propoziții scris de mână caligrafie liniuțe exersare Îmi place să desenez.",
+  "file": "pages/scris-propozitie-5.svg",
+  "color": null,
+  "learn": false,
+  "say": "Propoziția 5"
+ },
+ {
+  "id": "scris-propozitie-6",
+  "title": "Propoziția 6",
+  "category": "scris",
+  "tags": "propoziție propoziții scris de mână caligrafie liniuțe exersare Vine primăvara cu flori.",
+  "file": "pages/scris-propozitie-6.svg",
+  "color": null,
+  "learn": false,
+  "say": "Propoziția 6"
+ },
+ {
+  "id": "scris-caiet-dictando",
+  "title": "Caiet dictando",
+  "category": "scris",
+  "tags": "caiet liniat gol scris liber liniuțe dictando",
+  "file": "pages/scris-caiet-dictando.svg",
+  "color": null,
+  "learn": false,
+  "say": "Caiet dictando"
+ },
+ {
+  "id": "scris-matematica",
+  "title": "Caiet de matematică",
+  "category": "scris",
+  "tags": "pătrățele matematică caiet cifre calcule adunare scădere grila",
+  "file": "pages/scris-matematica.svg",
+  "color": null,
+  "learn": false,
+  "say": "Caiet de matematică"
+ },
+ {
+  "id": "matem-adunari-10-a",
+  "title": "Adunări până la 10 (A)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa adunare adunări până la 10",
+  "file": "pages/matem-adunari-10-a.svg",
+  "color": null,
+  "learn": false,
+  "say": "Adunări până la 10 (A)"
+ },
+ {
+  "id": "matem-adunari-10-b",
+  "title": "Adunări până la 10 (B)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa adunare adunări până la 10",
+  "file": "pages/matem-adunari-10-b.svg",
+  "color": null,
+  "learn": false,
+  "say": "Adunări până la 10 (B)"
+ },
+ {
+  "id": "matem-adunari-10-c",
+  "title": "Adunări până la 10 (C)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa adunare adunări până la 10",
+  "file": "pages/matem-adunari-10-c.svg",
+  "color": null,
+  "learn": false,
+  "say": "Adunări până la 10 (C)"
+ },
+ {
+  "id": "matem-adunari-20-a",
+  "title": "Adunări până la 20 (A)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa adunare adunări până la 20",
+  "file": "pages/matem-adunari-20-a.svg",
+  "color": null,
+  "learn": false,
+  "say": "Adunări până la 20 (A)"
+ },
+ {
+  "id": "matem-adunari-20-b",
+  "title": "Adunări până la 20 (B)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa adunare adunări până la 20",
+  "file": "pages/matem-adunari-20-b.svg",
+  "color": null,
+  "learn": false,
+  "say": "Adunări până la 20 (B)"
+ },
+ {
+  "id": "matem-adunari-20-c",
+  "title": "Adunări până la 20 (C)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa adunare adunări până la 20",
+  "file": "pages/matem-adunari-20-c.svg",
+  "color": null,
+  "learn": false,
+  "say": "Adunări până la 20 (C)"
+ },
+ {
+  "id": "matem-scaderi-10-a",
+  "title": "Scăderi până la 10 (A)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa scădere scăderi până la 10",
+  "file": "pages/matem-scaderi-10-a.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scăderi până la 10 (A)"
+ },
+ {
+  "id": "matem-scaderi-10-b",
+  "title": "Scăderi până la 10 (B)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa scădere scăderi până la 10",
+  "file": "pages/matem-scaderi-10-b.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scăderi până la 10 (B)"
+ },
+ {
+  "id": "matem-scaderi-10-c",
+  "title": "Scăderi până la 10 (C)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa scădere scăderi până la 10",
+  "file": "pages/matem-scaderi-10-c.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scăderi până la 10 (C)"
+ },
+ {
+  "id": "matem-scaderi-20-a",
+  "title": "Scăderi până la 20 (A)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa scădere scăderi până la 20",
+  "file": "pages/matem-scaderi-20-a.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scăderi până la 20 (A)"
+ },
+ {
+  "id": "matem-scaderi-20-b",
+  "title": "Scăderi până la 20 (B)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa scădere scăderi până la 20",
+  "file": "pages/matem-scaderi-20-b.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scăderi până la 20 (B)"
+ },
+ {
+  "id": "matem-scaderi-20-c",
+  "title": "Scăderi până la 20 (C)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa scădere scăderi până la 20",
+  "file": "pages/matem-scaderi-20-c.svg",
+  "color": null,
+  "learn": false,
+  "say": "Scăderi până la 20 (C)"
+ },
+ {
+  "id": "matem-mixt-20-a",
+  "title": "Adunări și scăderi până la 20 (A)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa adunări scăderi mixt",
+  "file": "pages/matem-mixt-20-a.svg",
+  "color": null,
+  "learn": false,
+  "say": "Adunări și scăderi până la 20 (A)"
+ },
+ {
+  "id": "matem-mixt-20-b",
+  "title": "Adunări și scăderi până la 20 (B)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa adunări scăderi mixt",
+  "file": "pages/matem-mixt-20-b.svg",
+  "color": null,
+  "learn": false,
+  "say": "Adunări și scăderi până la 20 (B)"
+ },
+ {
+  "id": "matem-numar-lipsa-a",
+  "title": "Numărul lipsă (A)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa numărul lipsă completează pătrățelul",
+  "file": "pages/matem-numar-lipsa-a.svg",
+  "color": null,
+  "learn": false,
+  "say": "Numărul lipsă (A)"
+ },
+ {
+  "id": "matem-numar-lipsa-b",
+  "title": "Numărul lipsă (B)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa numărul lipsă completează pătrățelul",
+  "file": "pages/matem-numar-lipsa-b.svg",
+  "color": null,
+  "learn": false,
+  "say": "Numărul lipsă (B)"
+ },
+ {
+  "id": "matem-numar-lipsa-c",
+  "title": "Numărul lipsă (C)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa numărul lipsă completează pătrățelul",
+  "file": "pages/matem-numar-lipsa-c.svg",
+  "color": null,
+  "learn": false,
+  "say": "Numărul lipsă (C)"
+ },
+ {
+  "id": "matem-inmultire-2",
+  "title": "Tabla înmulțirii cu 2",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa înmulțire tabla înmulțirii cu 2",
+  "file": "pages/matem-inmultire-2.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabla înmulțirii cu 2"
+ },
+ {
+  "id": "matem-impartire-2",
+  "title": "Împărțirea cu 2",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa împărțire împărțirea cu 2",
+  "file": "pages/matem-impartire-2.svg",
+  "color": null,
+  "learn": false,
+  "say": "Împărțirea cu 2"
+ },
+ {
+  "id": "matem-inmultire-3",
+  "title": "Tabla înmulțirii cu 3",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa înmulțire tabla înmulțirii cu 3",
+  "file": "pages/matem-inmultire-3.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabla înmulțirii cu 3"
+ },
+ {
+  "id": "matem-impartire-3",
+  "title": "Împărțirea cu 3",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa împărțire împărțirea cu 3",
+  "file": "pages/matem-impartire-3.svg",
+  "color": null,
+  "learn": false,
+  "say": "Împărțirea cu 3"
+ },
+ {
+  "id": "matem-inmultire-4",
+  "title": "Tabla înmulțirii cu 4",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa înmulțire tabla înmulțirii cu 4",
+  "file": "pages/matem-inmultire-4.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabla înmulțirii cu 4"
+ },
+ {
+  "id": "matem-impartire-4",
+  "title": "Împărțirea cu 4",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa împărțire împărțirea cu 4",
+  "file": "pages/matem-impartire-4.svg",
+  "color": null,
+  "learn": false,
+  "say": "Împărțirea cu 4"
+ },
+ {
+  "id": "matem-inmultire-5",
+  "title": "Tabla înmulțirii cu 5",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa înmulțire tabla înmulțirii cu 5",
+  "file": "pages/matem-inmultire-5.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabla înmulțirii cu 5"
+ },
+ {
+  "id": "matem-impartire-5",
+  "title": "Împărțirea cu 5",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa împărțire împărțirea cu 5",
+  "file": "pages/matem-impartire-5.svg",
+  "color": null,
+  "learn": false,
+  "say": "Împărțirea cu 5"
+ },
+ {
+  "id": "matem-inmultire-6",
+  "title": "Tabla înmulțirii cu 6",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa înmulțire tabla înmulțirii cu 6",
+  "file": "pages/matem-inmultire-6.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabla înmulțirii cu 6"
+ },
+ {
+  "id": "matem-impartire-6",
+  "title": "Împărțirea cu 6",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa împărțire împărțirea cu 6",
+  "file": "pages/matem-impartire-6.svg",
+  "color": null,
+  "learn": false,
+  "say": "Împărțirea cu 6"
+ },
+ {
+  "id": "matem-inmultire-7",
+  "title": "Tabla înmulțirii cu 7",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa înmulțire tabla înmulțirii cu 7",
+  "file": "pages/matem-inmultire-7.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabla înmulțirii cu 7"
+ },
+ {
+  "id": "matem-impartire-7",
+  "title": "Împărțirea cu 7",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa împărțire împărțirea cu 7",
+  "file": "pages/matem-impartire-7.svg",
+  "color": null,
+  "learn": false,
+  "say": "Împărțirea cu 7"
+ },
+ {
+  "id": "matem-inmultire-8",
+  "title": "Tabla înmulțirii cu 8",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa înmulțire tabla înmulțirii cu 8",
+  "file": "pages/matem-inmultire-8.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabla înmulțirii cu 8"
+ },
+ {
+  "id": "matem-impartire-8",
+  "title": "Împărțirea cu 8",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa împărțire împărțirea cu 8",
+  "file": "pages/matem-impartire-8.svg",
+  "color": null,
+  "learn": false,
+  "say": "Împărțirea cu 8"
+ },
+ {
+  "id": "matem-inmultire-9",
+  "title": "Tabla înmulțirii cu 9",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa înmulțire tabla înmulțirii cu 9",
+  "file": "pages/matem-inmultire-9.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabla înmulțirii cu 9"
+ },
+ {
+  "id": "matem-impartire-9",
+  "title": "Împărțirea cu 9",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa împărțire împărțirea cu 9",
+  "file": "pages/matem-impartire-9.svg",
+  "color": null,
+  "learn": false,
+  "say": "Împărțirea cu 9"
+ },
+ {
+  "id": "matem-tabla-completa-model",
+  "title": "Tabla înmulțirii (model)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa tabla înmulțirii model referință tabel",
+  "file": "pages/matem-tabla-completa-model.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabla înmulțirii (model)"
+ },
+ {
+  "id": "matem-tabla-completa-gol",
+  "title": "Tabla înmulțirii (de completat)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa tabla înmulțirii de completat tabel",
+  "file": "pages/matem-tabla-completa-gol.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabla înmulțirii (de completat)"
+ },
+ {
+  "id": "matem-compara-20",
+  "title": "Compară numerele (până la 20)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa compară numere mai mare mai mic egal < > =",
+  "file": "pages/matem-compara-20.svg",
+  "color": null,
+  "learn": false,
+  "say": "Compară numerele (până la 20)"
+ },
+ {
+  "id": "matem-compara-100",
+  "title": "Compară numerele (până la 100)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa compară numere mai mare mai mic egal < > =",
+  "file": "pages/matem-compara-100.svg",
+  "color": null,
+  "learn": false,
+  "say": "Compară numerele (până la 100)"
+ },
+ {
+  "id": "matem-numara-1",
+  "title": "Numără și scrie (1)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa numără obiecte figuri cifre scrie numărul",
+  "file": "pages/matem-numara-1.svg",
+  "color": null,
+  "learn": false,
+  "say": "Numără și scrie (1)"
+ },
+ {
+  "id": "matem-numara-2",
+  "title": "Numără și scrie (2)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa numără obiecte figuri cifre scrie numărul",
+  "file": "pages/matem-numara-2.svg",
+  "color": null,
+  "learn": false,
+  "say": "Numără și scrie (2)"
+ },
+ {
+  "id": "matem-numara-3",
+  "title": "Numără și scrie (3)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa numără obiecte figuri cifre scrie numărul",
+  "file": "pages/matem-numara-3.svg",
+  "color": null,
+  "learn": false,
+  "say": "Numără și scrie (3)"
+ },
+ {
+  "id": "matem-numara-4",
+  "title": "Numără și scrie (4)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa numără obiecte figuri cifre scrie numărul",
+  "file": "pages/matem-numara-4.svg",
+  "color": null,
+  "learn": false,
+  "say": "Numără și scrie (4)"
+ },
+ {
+  "id": "matem-sir-1",
+  "title": "Completează șirul (din 1 în 1)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa șir de numere completează șirul numerotare",
+  "file": "pages/matem-sir-1.svg",
+  "color": null,
+  "learn": false,
+  "say": "Completează șirul (din 1 în 1)"
+ },
+ {
+  "id": "matem-sir-2",
+  "title": "Completează șirul (din 2 în 2)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa șir de numere completează șirul numerotare",
+  "file": "pages/matem-sir-2.svg",
+  "color": null,
+  "learn": false,
+  "say": "Completează șirul (din 2 în 2)"
+ },
+ {
+  "id": "matem-sir-5",
+  "title": "Completează șirul (din 5 în 5)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa șir de numere completează șirul numerotare",
+  "file": "pages/matem-sir-5.svg",
+  "color": null,
+  "learn": false,
+  "say": "Completează șirul (din 5 în 5)"
+ },
+ {
+  "id": "matem-sir-10",
+  "title": "Completează șirul (din 10 în 10)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa șir de numere completează șirul numerotare",
+  "file": "pages/matem-sir-10.svg",
+  "color": null,
+  "learn": false,
+  "say": "Completează șirul (din 10 în 10)"
+ },
+ {
+  "id": "matem-sir-2d",
+  "title": "Completează șirul (descrescător)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa șir de numere completează șirul numerotare",
+  "file": "pages/matem-sir-2d.svg",
+  "color": null,
+  "learn": false,
+  "say": "Completează șirul (descrescător)"
+ },
+ {
+  "id": "matem-linie-numerica-1",
+  "title": "Linia numerică (1)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa linia numerică numere lipsă axa",
+  "file": "pages/matem-linie-numerica-1.svg",
+  "color": null,
+  "learn": false,
+  "say": "Linia numerică (1)"
+ },
+ {
+  "id": "matem-linie-numerica-2",
+  "title": "Linia numerică (2)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa linia numerică numere lipsă axa",
+  "file": "pages/matem-linie-numerica-2.svg",
+  "color": null,
+  "learn": false,
+  "say": "Linia numerică (2)"
+ },
+ {
+  "id": "matem-ordoneaza-cresc-20",
+  "title": "Ordonează crescător (până la 20)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa ordonează numere crescător descrescător mic mare",
+  "file": "pages/matem-ordoneaza-cresc-20.svg",
+  "color": null,
+  "learn": false,
+  "say": "Ordonează crescător (până la 20)"
+ },
+ {
+  "id": "matem-ordoneaza-descresc-20",
+  "title": "Ordonează descrescător (până la 20)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa ordonează numere crescător descrescător mic mare",
+  "file": "pages/matem-ordoneaza-descresc-20.svg",
+  "color": null,
+  "learn": false,
+  "say": "Ordonează descrescător (până la 20)"
+ },
+ {
+  "id": "matem-ordoneaza-cresc-100",
+  "title": "Ordonează crescător (până la 100)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa ordonează numere crescător descrescător mic mare",
+  "file": "pages/matem-ordoneaza-cresc-100.svg",
+  "color": null,
+  "learn": false,
+  "say": "Ordonează crescător (până la 100)"
+ },
+ {
+  "id": "matem-ordoneaza-descresc-100",
+  "title": "Ordonează descrescător (până la 100)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa ordonează numere crescător descrescător mic mare",
+  "file": "pages/matem-ordoneaza-descresc-100.svg",
+  "color": null,
+  "learn": false,
+  "say": "Ordonează descrescător (până la 100)"
+ },
+ {
+  "id": "matem-vecini-20",
+  "title": "Vecinii numărului (până la 20)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa vecinii numărului înainte după",
+  "file": "pages/matem-vecini-20.svg",
+  "color": null,
+  "learn": false,
+  "say": "Vecinii numărului (până la 20)"
+ },
+ {
+  "id": "matem-vecini-100",
+  "title": "Vecinii numărului (până la 100)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa vecinii numărului înainte după",
+  "file": "pages/matem-vecini-100.svg",
+  "color": null,
+  "learn": false,
+  "say": "Vecinii numărului (până la 100)"
+ },
+ {
+  "id": "matem-tabel-100-1",
+  "title": "Tabelul numerelor 1–100 (1)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa tabel numere 1 100 completează",
+  "file": "pages/matem-tabel-100-1.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabelul numerelor 1–100 (1)"
+ },
+ {
+  "id": "matem-tabel-100-2",
+  "title": "Tabelul numerelor 1–100 (2)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa tabel numere 1 100 completează",
+  "file": "pages/matem-tabel-100-2.svg",
+  "color": null,
+  "learn": false,
+  "say": "Tabelul numerelor 1–100 (2)"
+ },
+ {
+  "id": "matem-ceas-citeste-1",
+  "title": "Cât arată ceasul? (ore fixe)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa ceas ora citește ora acele ceasului ore fixe",
+  "file": "pages/matem-ceas-citeste-1.svg",
+  "color": null,
+  "learn": false,
+  "say": "Cât arată ceasul? (ore fixe)"
+ },
+ {
+  "id": "matem-ceas-deseneaza-1",
+  "title": "Desenează acele (ore fixe)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa ceas ora citește ora acele ceasului ore fixe",
+  "file": "pages/matem-ceas-deseneaza-1.svg",
+  "color": null,
+  "learn": false,
+  "say": "Desenează acele (ore fixe)"
+ },
+ {
+  "id": "matem-ceas-citeste-2",
+  "title": "Cât arată ceasul? (jumătăți)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa ceas ora citește ora acele ceasului jumătăți",
+  "file": "pages/matem-ceas-citeste-2.svg",
+  "color": null,
+  "learn": false,
+  "say": "Cât arată ceasul? (jumătăți)"
+ },
+ {
+  "id": "matem-ceas-deseneaza-2",
+  "title": "Desenează acele (jumătăți)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa ceas ora citește ora acele ceasului jumătăți",
+  "file": "pages/matem-ceas-deseneaza-2.svg",
+  "color": null,
+  "learn": false,
+  "say": "Desenează acele (jumătăți)"
+ },
+ {
+  "id": "matem-ceas-citeste-3",
+  "title": "Cât arată ceasul? (sferturi)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa ceas ora citește ora acele ceasului sferturi",
+  "file": "pages/matem-ceas-citeste-3.svg",
+  "color": null,
+  "learn": false,
+  "say": "Cât arată ceasul? (sferturi)"
+ },
+ {
+  "id": "matem-ceas-citeste-4",
+  "title": "Cât arată ceasul? (din 5 în 5 minute)",
+  "category": "matematica",
+  "tags": "matematică calcul exerciții fișă de lucru școală clasa ceas ora citește ora acele ceasului din 5 în 5 minute",
+  "file": "pages/matem-ceas-citeste-4.svg",
+  "color": null,
+  "learn": false,
+  "say": "Cât arată ceasul? (din 5 în 5 minute)"
+ },
+ {
+  "id": "logica-uneste-1-5",
+  "title": "Unește cifra cu puncte (1–5)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție unește cu săgeată cifră număr puncte numărat",
+  "file": "pages/logica-uneste-1-5.svg",
+  "color": null,
+  "learn": false,
+  "say": "Unește cifra cu puncte (1–5)"
+ },
+ {
+  "id": "logica-uneste-3-8",
+  "title": "Unește cifra cu puncte (3–8)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție unește cu săgeată cifră număr puncte numărat",
+  "file": "pages/logica-uneste-3-8.svg",
+  "color": null,
+  "learn": false,
+  "say": "Unește cifra cu puncte (3–8)"
+ },
+ {
+  "id": "logica-uneste-5-10",
+  "title": "Unește cifra cu puncte (5–10)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție unește cu săgeată cifră număr puncte numărat",
+  "file": "pages/logica-uneste-5-10.svg",
+  "color": null,
+  "learn": false,
+  "say": "Unește cifra cu puncte (5–10)"
+ },
+ {
+  "id": "logica-sageti-4",
+  "title": "Urmează săgețile (4×4)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție labirint de săgeți urmează săgețile drum direcții atenție",
+  "file": "pages/logica-sageti-4.svg",
+  "color": null,
+  "learn": false,
+  "say": "Urmează săgețile (4×4)"
+ },
+ {
+  "id": "logica-sageti-5",
+  "title": "Urmează săgețile (5×5)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție labirint de săgeți urmează săgețile drum direcții atenție",
+  "file": "pages/logica-sageti-5.svg",
+  "color": null,
+  "learn": false,
+  "say": "Urmează săgețile (5×5)"
+ },
+ {
+  "id": "logica-sageti-6",
+  "title": "Urmează săgețile (6×6)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție labirint de săgeți urmează săgețile drum direcții atenție",
+  "file": "pages/logica-sageti-6.svg",
+  "color": null,
+  "learn": false,
+  "say": "Urmează săgețile (6×6)"
+ },
+ {
+  "id": "logica-sageti-7",
+  "title": "Urmează săgețile (7×7)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție labirint de săgeți urmează săgețile drum direcții atenție",
+  "file": "pages/logica-sageti-7.svg",
+  "color": null,
+  "learn": false,
+  "say": "Urmează săgețile (7×7)"
+ },
+ {
+  "id": "logica-sageti-8",
+  "title": "Urmează săgețile (8×8)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție labirint de săgeți urmează săgețile drum direcții atenție",
+  "file": "pages/logica-sageti-8.svg",
+  "color": null,
+  "learn": false,
+  "say": "Urmează săgețile (8×8)"
+ },
+ {
+  "id": "logica-directii-3",
+  "title": "Direcții cu săgeți (3 pași)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție direcții pași sus jos stânga dreapta orientare în spațiu",
+  "file": "pages/logica-directii-3.svg",
+  "color": null,
+  "learn": false,
+  "say": "Direcții cu săgeți (3 pași)"
+ },
+ {
+  "id": "logica-directii-4",
+  "title": "Direcții cu săgeți (4 pași)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție direcții pași sus jos stânga dreapta orientare în spațiu",
+  "file": "pages/logica-directii-4.svg",
+  "color": null,
+  "learn": false,
+  "say": "Direcții cu săgeți (4 pași)"
+ },
+ {
+  "id": "logica-directii-6",
+  "title": "Direcții cu săgeți (6 pași)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție direcții pași sus jos stânga dreapta orientare în spațiu",
+  "file": "pages/logica-directii-6.svg",
+  "color": null,
+  "learn": false,
+  "say": "Direcții cu săgeți (6 pași)"
+ },
+ {
+  "id": "logica-directii-8",
+  "title": "Direcții cu săgeți (8 pași)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție direcții pași sus jos stânga dreapta orientare în spațiu",
+  "file": "pages/logica-directii-8.svg",
+  "color": null,
+  "learn": false,
+  "say": "Direcții cu săgeți (8 pași)"
+ },
+ {
+  "id": "logica-sir-sageti-1",
+  "title": "Ce săgeți urmează? (1)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție model șir de săgeți continuă modelul",
+  "file": "pages/logica-sir-sageti-1.svg",
+  "color": null,
+  "learn": false,
+  "say": "Ce săgeți urmează? (1)"
+ },
+ {
+  "id": "logica-sir-sageti-2",
+  "title": "Ce săgeți urmează? (2)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție model șir de săgeți continuă modelul",
+  "file": "pages/logica-sir-sageti-2.svg",
+  "color": null,
+  "learn": false,
+  "say": "Ce săgeți urmează? (2)"
+ },
+ {
+  "id": "logica-puncte-casa",
+  "title": "Unește punctele: Casa (1–13)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție unește punctele numerotate desen ascuns casa",
+  "file": "pages/logica-puncte-casa.svg",
+  "color": null,
+  "learn": false,
+  "say": "Unește punctele: Casa (1–13)"
+ },
+ {
+  "id": "logica-puncte-stea",
+  "title": "Unește punctele: Steaua (1–20)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție unește punctele numerotate desen ascuns steaua",
+  "file": "pages/logica-puncte-stea.svg",
+  "color": null,
+  "learn": false,
+  "say": "Unește punctele: Steaua (1–20)"
+ },
+ {
+  "id": "logica-puncte-brad",
+  "title": "Unește punctele: Bradul (1–21)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție unește punctele numerotate desen ascuns bradul",
+  "file": "pages/logica-puncte-brad.svg",
+  "color": null,
+  "learn": false,
+  "say": "Unește punctele: Bradul (1–21)"
+ },
+ {
+  "id": "logica-puncte-racheta",
+  "title": "Unește punctele: Racheta (1–17)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție unește punctele numerotate desen ascuns racheta",
+  "file": "pages/logica-puncte-racheta.svg",
+  "color": null,
+  "learn": false,
+  "say": "Unește punctele: Racheta (1–17)"
+ },
+ {
+  "id": "logica-puncte-pestele",
+  "title": "Unește punctele: Peștele (1–14)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție unește punctele numerotate desen ascuns peștele",
+  "file": "pages/logica-puncte-pestele.svg",
+  "color": null,
+  "learn": false,
+  "say": "Unește punctele: Peștele (1–14)"
+ },
+ {
+  "id": "logica-puncte-soare",
+  "title": "Unește punctele: Soarele (1–24)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție unește punctele numerotate desen ascuns soarele",
+  "file": "pages/logica-puncte-soare.svg",
+  "color": null,
+  "learn": false,
+  "say": "Unește punctele: Soarele (1–24)"
+ },
+ {
+  "id": "logica-puncte-inima",
+  "title": "Unește punctele: Inima (1–24)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție unește punctele numerotate desen ascuns inima",
+  "file": "pages/logica-puncte-inima.svg",
+  "color": null,
+  "learn": false,
+  "say": "Unește punctele: Inima (1–24)"
+ },
+ {
+  "id": "logica-labirint-7",
+  "title": "Labirint (ușor)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție labirint drum ieșire atenție dificultate ușor",
+  "file": "pages/logica-labirint-7.svg",
+  "color": null,
+  "learn": false,
+  "say": "Labirint (ușor)"
+ },
+ {
+  "id": "logica-labirint-10",
+  "title": "Labirint (mediu)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție labirint drum ieșire atenție dificultate mediu",
+  "file": "pages/logica-labirint-10.svg",
+  "color": null,
+  "learn": false,
+  "say": "Labirint (mediu)"
+ },
+ {
+  "id": "logica-labirint-14",
+  "title": "Labirint (greu)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție labirint drum ieșire atenție dificultate greu",
+  "file": "pages/logica-labirint-14.svg",
+  "color": null,
+  "learn": false,
+  "say": "Labirint (greu)"
+ },
+ {
+  "id": "logica-labirint-20",
+  "title": "Labirint (foarte greu)",
+  "category": "logica",
+  "tags": "săgeți logică joc puzzle atenție labirint drum ieșire atenție dificultate foarte greu",
+  "file": "pages/logica-labirint-20.svg",
+  "color": null,
+  "learn": false,
+  "say": "Labirint (foarte greu)"
+ }
+]

@@ -1,7 +1,2 @@
-FROM nginx:alpine
-
-# dist/ e produs de tools/build.js (deploy.sh il ruleaza inainte de `docker build`): pachete cu hash in nume
-COPY dist/ /usr/share/nginx/html/
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
+FROM python:3.12-slim
+RUN apt-get update -qq && apt-get install -y -qq ffmpeg libcairo2 >/dev/null && pip install -q piper-tts cairosvg pillow fonttools
