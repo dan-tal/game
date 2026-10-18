@@ -88,7 +88,8 @@ function findChrome() {
     var page = await ctx.newPage();
     var errors = [];
     page.on('pageerror', function (e) { errors.push(String(e.message || e)); });
-    page.on('console', function (m) { if (m.type() === 'error') errors.push(m.text()); });
+    // analiza Cloudflare (beacon injectat de proxy pe site-ul live) poate fi blocata in mediul de test: nu e codul nostru
+    page.on('console', function (m) { if (m.type() === 'error' && !/cloudflareinsights/.test((m.location() || {}).url || '')) errors.push(m.text()); });
     try { await fn(page, errors); } catch (e) { errors.push('exceptie: ' + e.message); }
     if (errors.length) { failures++; console.log('FAIL  ' + label + '\n      ' + errors.join('\n      ')); }
     else console.log('ok    ' + label);
