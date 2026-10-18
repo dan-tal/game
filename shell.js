@@ -73,6 +73,13 @@
   });
   renderMute();
 
+  // ---------- Reset steluțe din meniu (cu intrebare, ca sa nu se stearga din greseala) ----------
+  document.getElementById('resetStarsBtn').addEventListener('click', function () {
+    if (!window.confirm('Ștergi toate steluțele? Jocurile deblocate se vor bloca din nou.')) return;
+    Credits.reset();
+    buildMenu();
+  });
+
   // ---------- Ecran care nu se stinge cat se joaca ----------
   // jocurile lente (memorie, puzzle, calcule) nu au atingeri continue, iar
   // telefonul isi stingea ecranul in mijlocul unei runde

@@ -34,6 +34,8 @@
     '<p class="academyLine"></p>' +
     '<div class="academyBar"><div class="academyBarFill"></div></div>' +
     '<p class="academyNext"></p>' +
+    '<p class="academyLearn"></p>' +
+    '<div class="academyBar academyLearnBar"><div class="academyBarFill academyLearnFill"></div></div>' +
     '<button type="button" class="bigStartBtn academyGo"></button>';
   stageEl.appendChild(screenEl);
   var badgeEl = screenEl.querySelector('.academyBadge');
@@ -41,6 +43,8 @@
   var lineEl = screenEl.querySelector('.academyLine');
   var barFillEl = screenEl.querySelector('.academyBarFill');
   var nextEl = screenEl.querySelector('.academyNext');
+  var learnEl = screenEl.querySelector('.academyLearn');
+  var learnFillEl = screenEl.querySelector('.academyLearnFill');
   var goEl = screenEl.querySelector('.academyGo');
   goEl.addEventListener('click', function () { startLesson(); });
 
@@ -53,6 +57,10 @@
     nextEl.textContent = lv.nextAt === null
       ? 'Ai ajuns la nivelul maxim! 🏆'
       : 'Încă ' + lv.toNext + ' ⭐ până la nivelul ' + (lv.number + 1);
+    var lp = Exercises.learnProgress();
+    learnEl.textContent = '📚 Ai învățat ' + lp.learned + ' din ' + lp.total + ' (' +
+      (lp.letters ? lp.letters + ' litere, ' : '') + lp.digits + ' cifre)';
+    learnFillEl.style.width = Math.round(100 * lp.learned / Math.max(1, lp.total)) + '%';
     goEl.textContent = opts.button;
     screenEl.classList.add('show');
     if (opts.speak) Exercises.speak(opts.speak);
@@ -74,17 +82,28 @@
     state.level = Levels.info();
     // greutatea exercitiilor urmeaza nivelul — calculata o data pe lectie
     Exercises.setDifficultyAge(state.level.effectiveAge);
-    askStep(1);
+    teachStep(0);
+  }
+
+  // intai lectii NOI (card cu litera/cifra si voce), apoi intrebarile
+  function teachStep(n) {
+    if (!state.active) return;
+    if (n >= C.TEACH_PER_LESSON) { askStep(1); return; }
+    var title = '📚 Lecție nouă ' + (n + 1) + '/' + C.TEACH_PER_LESSON;
+    if (!Exercises.teach(title, function () { teachStep(n + 1); })) askStep(1);
   }
 
   function askStep(n) {
     var title = state.level.emoji + ' Nivel ' + state.level.number + ' · ' + n + '/' + C.LESSON_LENGTH;
+    // primele intrebari repeta ce s-a invatat (litere / cifre), restul sunt variate
+    var review = n <= C.REVIEW_QUESTIONS ? (n % 2 ? 'firstletter' : 'digits') : null;
+    if (review === 'firstletter' && !Exercises.learnProgress().letters) review = 'digits';
     Exercises.ask('visual', title, 'Privește și alege la fel:', function () {
       var res = Exercises.lastResult();
       if (res) state.mistakes += res.wrong;
       if (n < C.LESSON_LENGTH) askStep(n + 1);
       else timers.set(finishLesson, 0);
-    });
+    }, review ? { cat: review } : null);
   }
 
   function finishLesson() {

@@ -548,16 +548,59 @@ var Exercises = (function () {
   var LETTERS_KEY = 'arcade.learnedLetters';
   var MIN_KNOWN_LETTERS = 3;     // atatea litere se invata inainte de prima intrebare
   var NEW_LETTER_CHANCE = 0.22;  // dupa aceea, din cand in cand apare cate o litera noua
-  function learnedLetters() {
+  var DIGITS_KEY = 'arcade.learnedDigits';
+  var LESSON_DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  function readLearned(key, allowed) {
     try {
-      var list = JSON.parse(localStorage.getItem(LETTERS_KEY) || '[]');
-      return list.filter(function (l) { return WORD_LETTERS.indexOf(l) >= 0; });
+      var list = JSON.parse(localStorage.getItem(key) || '[]');
+      return list.filter(function (v) { return allowed.indexOf(v) >= 0; });
     } catch (e) { return []; }
   }
-  function learnLetter(letter) {
-    var list = learnedLetters();
-    if (list.indexOf(letter) < 0) list.push(letter);
-    try { localStorage.setItem(LETTERS_KEY, JSON.stringify(list)); } catch (e) { /* fara salvare */ }
+  function markLearned(key, allowed, value) {
+    var list = readLearned(key, allowed);
+    if (list.indexOf(value) < 0) list.push(value);
+    try { localStorage.setItem(key, JSON.stringify(list)); } catch (e) { /* fara salvare */ }
+  }
+  function learnedLetters() { return readLearned(LETTERS_KEY, WORD_LETTERS); }
+  function learnLetter(letter) { markLearned(LETTERS_KEY, WORD_LETTERS, letter); }
+  function learnedDigits() { return readLearned(DIGITS_KEY, LESSON_DIGITS); }
+
+  // Card de invatare pentru o cifra: cifra mare + atatea obiecte, vocea numara
+  var DIGIT_WORDS = ['', 'unu', 'doi', 'trei', 'patru', 'cinci', 'șase', 'șapte', 'opt', 'nouă', 'zece'];
+  function makeDigitLessonRound(d) {
+    var icon = pick(['🍎', '⭐', '🐶', '🎈', '🚗', '🐟']);
+    return {
+      category: 'digits',
+      correctValue: d,
+      speakText: 'Cifra ' + d + ', ' + DIGIT_WORDS[d] + '. Uite ' + d + ' ' + (icon === '🍎' ? 'mere' : 'lucruri') + '. Atinge cifra ' + d + '!',
+      prompt: 'Învățăm o cifră nouă! Atinge-o:',
+      onCorrect: function () { markLearned(DIGITS_KEY, LESSON_DIGITS, d); },
+      renderTarget: function (box) {
+        box.classList.add('mode-puzzle');
+        box.textContent = repeatEmoji(icon, d);
+      },
+      options: [{ value: d, kind: 'digit', label: d }]
+    };
+  }
+
+  // Urmatoarea lectie noua din programa Academiei (litere si cifre pe rand;
+  // literele de la 4 ani). null = a invatat tot.
+  function nextLessonRound() {
+    var letters = currentAge() >= 4 ? WORDS.filter(function (w) { return learnedLetters().indexOf(w.letter) < 0; }) : [];
+    var digits = LESSON_DIGITS.filter(function (d) { return learnedDigits().indexOf(d) < 0; });
+    var wantLetter = letters.length && (!digits.length || learnedLetters().length <= learnedDigits().length);
+    if (wantLetter) return makeLetterLessonRound(letters[0]);
+    if (digits.length) return makeDigitLessonRound(digits[0]);
+    return null;
+  }
+  function learnProgress() {
+    var letterTotal = currentAge() >= 4 ? WORD_LETTERS.length : 0;
+    return {
+      learned: learnedDigits().length + (letterTotal ? learnedLetters().length : 0),
+      total: LESSON_DIGITS.length + letterTotal,
+      letters: learnedLetters().length,
+      digits: learnedDigits().length
+    };
   }
 
   // Card de invatare: litera mare + imaginea cuvantului + vocea; copilul atinge
@@ -842,14 +885,21 @@ var Exercises = (function () {
     }
   }
 
-  function newRound(mode) {
+  function newRound(mode, forced) {
     var tier = ageTier();
     OPTION_COUNT = optionCountForTier(tier);
     wrongCount = 0;
 
-    var gen = pickGenerator();
-    lastCategory = gen.cat;
-    currentRound = gen.make(mode, tier);
+    if (forced && forced.round) {
+      currentRound = forced.round;
+      lastCategory = currentRound.category;
+    } else {
+      var gen = null;
+      if (forced && forced.cat) gen = GENERATORS.filter(function (g) { return g.cat === forced.cat; })[0] || null;
+      if (!gen) gen = pickGenerator();
+      lastCategory = gen.cat;
+      currentRound = gen.make(mode, tier);
+    }
 
     // cutie de tinta curata pentru fiecare runda — generatorii adauga doar ce le trebuie
     targetBoxEl.className = 'exTargetBox';
@@ -884,7 +934,8 @@ var Exercises = (function () {
   }
 
   // mode: 'visual' (shows the target) or 'audio' (only spoken, harder recall)
-  function ask(mode, titleText, promptText, onComplete) {
+  // forced (optional): { round } = o runda gata facuta (card de invatare), { cat } = doar acel tip
+  function ask(mode, titleText, promptText, onComplete, forced) {
     clearCompleteTimer();
     var effectiveMode = mode === 'audio' ? 'audio' : 'visual';
     var audioOk = audioModeUsable();
@@ -904,13 +955,21 @@ var Exercises = (function () {
     if (effectiveMode === 'audio') promptEl.textContent = 'Ascultă și alege:';
     else promptEl.textContent = (mode === 'audio' || forcedAudio) ? 'Privește și alege la fel:' : (promptText || 'Privește și alege la fel:');
     containerEl.classList.add('show');
-    newRound(effectiveMode);
+    newRound(effectiveMode, forced);
     // exercitiile de calcul/numarat au propria lor cerinta scrisa
     if (currentRound.prompt) promptEl.textContent = currentRound.prompt;
   }
 
   // pauza de invatare din mijlocul unui joc (la fiecare cateva puncte sau cand s-au pierdut vietile):
   // un exercitiu doar din auz; jocul continua in `onComplete`. Folosita de toate jocurile.
+  // Lectie noua din programa (card cu voce); fara nimic nou de invatat apeleaza direct onComplete
+  function teach(titleText, onComplete) {
+    var round = nextLessonRound();
+    if (!round) { if (onComplete) onComplete(); return false; }
+    ask('visual', titleText, null, onComplete, { round: round });
+    return true;
+  }
+
   function askBreak(onComplete) {
     ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', onComplete);
   }
@@ -971,6 +1030,8 @@ var Exercises = (function () {
     init: init,
     ask: ask,
     askBreak: askBreak,
+    teach: teach,
+    learnProgress: learnProgress,
     askSeries: askSeries,
     askIntro: askIntro,
     isShowing: isShowing,

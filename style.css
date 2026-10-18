@@ -178,10 +178,23 @@ canvas {
 #homeBtn.show { display: block; }
 
 /* buton de sunet — doar in meniu, in acelasi colt ca 🏠 din jocuri */
-#muteBtn {
+#menuIcons {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 10px; left: 10px;
+  display: flex; gap: 8px;
+  z-index: 6;
+}
+#resetStarsBtn {
+  position: absolute;
+  top: 52px; right: 10px;
+  min-height: 40px; padding: 0 12px;
+  border: none; border-radius: 12px;
+  background: rgba(255,255,255,0.85);
+  font-size: 14px; color: #444;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 6;
+}
+#muteBtn {
   min-width: 44px; min-height: 44px;
   border: none;
   border-radius: 14px;
@@ -191,12 +204,8 @@ canvas {
   z-index: 6;
 }
 #muteBtn:active { transform: scale(0.94); }
-#colorLink { top: 112px !important; }
 #tvLink,
 #colorLink {
-  position: absolute;
-  top: 62px;
-  left: 10px;
   min-width: 44px; min-height: 44px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 14px;
@@ -435,9 +444,10 @@ canvas {
   margin: 2px auto 4px auto;
   font-size: clamp(13px, 2.4vw, 16px);
   font-weight: bold;
-  padding: 6px 14px;
+  padding: 10px 18px;
+  min-height: 44px;
   border: none;
-  border-radius: 20px;
+  border-radius: 22px;
   background: #1e88e5;
   color: #fff;
   box-shadow: 0 3px 0 #1257a3;
@@ -988,6 +998,8 @@ canvas {
 .snakeOverScore { font-size: clamp(20px, 4.6vw, 30px) !important; font-weight: bold; }
 
 /* ---------- Academia Vesela ---------- */
+.academyLearn { margin: 6px 0 2px !important; font-size: clamp(14px, 3.4vw, 18px) !important; font-weight: bold; }
+.academyLearnFill { background: #66bb6a !important; }
 .academyBadge { font-size: clamp(64px, 18vw, 110px); line-height: 1.1; }
 .academyTitle { margin-top: 6px !important; }
 .academyLine { font-size: clamp(17px, 3.6vw, 24px) !important; font-weight: bold; }
