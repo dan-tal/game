@@ -17,7 +17,7 @@
   var stageEl = document.getElementById('stage');
   var timers = GameShared.createTimers();
 
-  var ROWS = ['1234567890', 'QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'];
+  var ROWS = ['1234567890', 'QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM', ' '];
 
   var state = { active: false, stage: 0, done: 0, item: null, pos: 0, misses: 0 };
 
@@ -62,7 +62,8 @@
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'tkKey';
-      b.textContent = ch;
+      b.textContent = ch === ' ' ? 'spațiu' : ch;
+      if (ch === ' ') b.classList.add('tkSpace');
       b.addEventListener('pointerdown', function (e) { e.preventDefault(); press(ch); });
       keyBtns[ch] = b;
       r.appendChild(b);
@@ -87,12 +88,29 @@
     return ch.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
   }
 
+  // ---------- numele copilului (se intreaba o data, apoi ramane salvat) ----------
+  function childName() {
+    var n = '';
+    try { n = localStorage.getItem(C.NAME_KEY) || ''; } catch (e) { n = ''; }
+    if (!n) {
+      var typed = '';
+      try { typed = window.prompt('Cum te cheamă? (ca să scriem numele tău)') || ''; } catch (e) { typed = ''; }
+      n = typed.toUpperCase().replace(/[^A-ZĂÂÎȘȚŞŢ]/g, '').slice(0, 10);
+      if (n) { try { localStorage.setItem(C.NAME_KEY, n); } catch (e2) { /* fara salvare */ } }
+    }
+    return n;
+  }
+
   // ---------- itemii ----------
   function makeItem() {
     var st = stageInfo();
+    if (st && st.kind === 'name' && !childName()) { // fara nume: treapta se sare
+      state.stage += 1; state.done = 0; saveProgress();
+      return makeItem();
+    }
     var kind = st ? st.kind : null;
-    if (!st) { // maestru: cuvinte lungi sau numere mari
-      st = Util.pick([C.STAGES[C.STAGES.length - 3], C.STAGES[C.STAGES.length - 1]]);
+    if (!st) { // maestru: cuvinte lungi, numere sau propozitii
+      st = Util.pick(C.STAGES.filter(function (s) { return s.kind === 'words' || s.kind === 'nums' || s.kind === 'phrases'; }));
       kind = st.kind;
     }
     var chars, emoji = '', say;
@@ -101,11 +119,16 @@
       if (state.item && state.item.chars[0] === c && st.pool.length > 1) c = Util.pick(st.pool.replace(c, '').split(''));
       chars = [c];
       say = 'Scrie ' + st.what + ' ' + c;
-    } else if (kind === 'words') {
+    } else if (kind === 'name') {
+      var nm = childName();
+      chars = nm.split('');
+      emoji = '😊';
+      say = 'Scrie numele tău: ' + nm.toLowerCase();
+    } else if (kind === 'words' || kind === 'phrases') {
       var w = Util.pick(st.words);
       chars = w[0].split('');
       emoji = w[1];
-      say = 'Scrie cuvântul ' + w[0].toLowerCase();
+      say = (kind === 'words' ? 'Scrie cuvântul ' : 'Scrie propoziția ') + w[0].toLowerCase();
     } else {
       var n = '' + (1 + Util.rand(9));
       for (var i = 1; i < st.digits; i++) n += Util.rand(10);
@@ -133,12 +156,16 @@
     targetEl.classList.toggle('big', it.big);
     targetEl.textContent = it.emoji ? it.emoji : (it.big ? it.chars[0] : '');
     slotsEl.innerHTML = '';
+    var wordEl = null;   // literele unui cuvant raman impreuna cand propozitia se rupe pe randuri
     it.chars.forEach(function (ch) {
       var s = document.createElement('span');
       s.className = 'tkSlot';
       s.textContent = it.big ? '' : ch;   // la litere/cifre, semnul mare e deasupra
-      slotsEl.appendChild(s);
+      if (ch === ' ') { s.classList.add('sp'); wordEl = null; slotsEl.appendChild(s); return; }
+      if (!wordEl) { wordEl = document.createElement('span'); wordEl.className = 'tkWord'; slotsEl.appendChild(wordEl); }
+      wordEl.appendChild(s);
     });
+    slotsEl.classList.toggle('long', it.chars.length > 9);
     slotsEl.classList.toggle('single', it.big);
     msgEl.textContent = '';
     focusSlot();
@@ -146,7 +173,7 @@
   }
 
   function focusSlot() {
-    Array.prototype.forEach.call(slotsEl.children, function (s, i) {
+    Array.prototype.forEach.call(slotsEl.querySelectorAll('.tkSlot'), function (s, i) {
       s.classList.toggle('cur', i === state.pos);
       s.classList.toggle('filled', i < state.pos);
     });
@@ -197,7 +224,7 @@
     locked = true;
     clearTimeout(idleTimer);
     setHint(null);
-    Array.prototype.forEach.call(slotsEl.children, function (s) { s.classList.remove('cur'); s.classList.add('filled'); });
+    Array.prototype.forEach.call(slotsEl.querySelectorAll('.tkSlot'), function (s) { s.classList.remove('cur'); s.classList.add('filled'); });
     msgEl.textContent = 'Bravo! 🎉';
     GameShared.sfxGood();
     var it = state.item;
@@ -235,10 +262,9 @@
   // ---------- tastatura fizica ----------
   window.addEventListener('keydown', function (e) {
     if (!state.active || e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.key === ' ') { e.preventDefault(); return; }
     if (e.key.length !== 1) return;
     var ch = baseChar(e.key);
-    if (/^[A-Z0-9]$/.test(ch)) { e.preventDefault(); press(ch); }
+    if (/^[A-Z0-9 ]$/.test(ch)) { e.preventDefault(); press(ch); }
   });
 
   function drawBackdrop() {

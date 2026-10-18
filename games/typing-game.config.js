@@ -7,6 +7,8 @@
 //   chars — un singur semn pe item (litera sau cifra), luat din `pool`
 //   words — cuvinte cu imagine; diacriticele se afiseaza, dar se tasteaza litera simpla (Ă = A)
 //   nums  — numere de `digits` cifre
+//   name  — numele copilului (il intreaba o data si il tine minte)
+//   phrases — propozitii scurte cu imagine; spatiul se tasteaza cu bara de spatiu
 var TypingGameConfig = {
   PROGRESS_KEY: 'arcadeTypingProgress',
   STAGE_BONUS_STARS: 2,   // steluțe la terminarea unei trepte
@@ -31,9 +33,16 @@ var TypingGameConfig = {
       ['CURCUBEU', '🌈'], ['BROASCĂ', '🐸'], ['ROCHETĂ', '🚀'], ['PEPENE', '🍉'], ['FRAGĂ', '🍓']
     ] },
     { title: 'Numere', kind: 'nums', what: 'numărul', digits: 2, count: 8 },
-    { title: 'Numere mari', kind: 'nums', what: 'numărul', digits: 3, count: 8 }
+    { title: 'Numere mari', kind: 'nums', what: 'numărul', digits: 3, count: 8 },
+    { title: 'Numele tău', kind: 'name', count: 3 },
+    { title: 'Propoziții', kind: 'phrases', count: 8, words: [
+      ['MAMA ARE MERE', '🍎'], ['EU AM O PISICĂ', '🐱'], ['SOARELE ESTE SUS', '☀️'], ['LUNA ESTE MARE', '🌙'],
+      ['TATA ȘI MAMA', '👨‍👩‍👧'], ['CÂINELE LATRĂ', '🐶'], ['PEȘTELE ÎNOATĂ', '🐟'], ['TRENUL ESTE MARE', '🚂'],
+      ['EU MĂ JOC', '🎮'], ['FLOAREA ESTE ROȘIE', '🌹']
+    ] }
   ],
+  NAME_KEY: 'arcadeTypingName',
 
-  // dupa ultima treapta: se amesteca cuvintele lungi si numerele mari
+  // dupa ultima treapta: se amesteca cuvinte lungi, numere si propozitii
   MASTER_TITLE: 'Maestrul tastaturii'
 };
