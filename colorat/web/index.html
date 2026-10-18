@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Planșe de colorat</title>
+<style>
+:root{--bg:#fff8ec;--ink:#2b2b3a;--card:#fff;--accent:#ff7a59;--line:#f1dfc2;--ok:#3a9d5d}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Trebuchet MS",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:16px 16px 8px;text-align:center}
+h1{margin:0 0 10px;font-size:clamp(24px,5vw,40px)}
+#q{width:min(560px,100%);font-size:20px;padding:12px 18px;border-radius:30px;border:3px solid var(--line);outline:none}
+#q:focus{border-color:var(--accent)}
+#cats{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 12px}
+.chip{font-size:17px;padding:7px 14px;border-radius:24px;border:3px solid var(--line);background:#fff;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+#tools{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:8px 12px;background:#fff8ece8;backdrop-filter:blur(4px);border-bottom:2px solid var(--line)}
+#tools button,#tools select{font-size:16px;padding:8px 12px;border-radius:12px;border:3px solid var(--line);background:#fff;cursor:pointer;font-family:inherit}
+#tools button.main{background:var(--ok);border-color:var(--ok);color:#fff}
+#tools button:disabled{opacity:.45;cursor:default}
+#count{opacity:.7;font-size:15px}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;padding:14px 16px 40px;max-width:1300px;margin:auto}
+.card{position:relative;background:var(--card);border:3px solid var(--line);border-radius:16px;padding:8px;cursor:pointer;text-align:center;transition:transform .1s}
+.card:hover{transform:scale(1.03);border-color:var(--accent)}
+.card.sel{border-color:var(--ok);box-shadow:0 0 0 3px var(--ok) inset}
+.card img{width:100%;display:block;border-radius:10px;background:#fff}
+.card b{display:block;margin-top:4px}
+.ck{position:absolute;top:6px;left:6px;width:30px;height:30px;border-radius:9px;border:3px solid #cdbb98;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;cursor:pointer}
+.card.sel .ck{background:var(--ok);border-color:var(--ok)}
+.card.sel .ck::after{content:"✓"}
+#empty{text-align:center;font-size:22px;padding:40px;display:none}
+#viewer{position:fixed;inset:0;background:#fff8ecf2;display:none;flex-direction:column;z-index:10}
+#viewer.open{display:flex}
+#bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:8px;background:#fff;border-bottom:3px solid var(--line)}
+#bar button{font-size:17px;padding:8px 12px;border-radius:12px;border:3px solid var(--line);background:#fff;cursor:pointer}
+#bar button.main{background:var(--accent);color:#fff;border-color:var(--accent)}
+#pal{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px}
+.sw{width:36px;height:36px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #bbb;cursor:pointer}
+.sw.on{box-shadow:0 0 0 4px var(--ink)}
+#stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:8px}
+#stage svg{height:100%;width:auto;max-width:100%;background:#fff;border:3px solid var(--line);border-radius:10px}
+#stage svg .f{cursor:pointer}
+#printarea{display:none}
+.sheet{display:flex;flex-direction:column;align-items:center;justify-content:space-evenly}
+.sheet small{font:11pt "Trebuchet MS",sans-serif;color:#777;align-self:flex-start}
+.sheet .cut{width:100%;border-top:2px dashed #bbb}
+.sheet svg{display:block}
+@media print{
+ @page{size:A4;margin:10mm}
+ html,body{background:#fff}
+ body.printing>*:not(#printarea){display:none!important}
+ body.printing #printarea{display:block}
+ .sheet{height:276mm;break-after:page;page-break-after:always;overflow:hidden}
+ .sheet:last-child{break-after:auto;page-break-after:auto}
+ .sheet.duo svg{height:122mm;width:auto}
+ .sheet.one svg{width:190mm;height:auto;max-height:272mm}
+ .sheet.two svg{height:128mm;width:auto}
+}
+</style>
+</head>
+<body>
+<header>
+ <h1>🎨 Planșe de colorat</h1>
+ <p style="margin:0 0 10px"><a href="invata.html" style="font-size:18px;padding:8px 16px;border-radius:20px;background:#3a9d5d;color:#fff;text-decoration:none;font-weight:bold">🧒 Învață (pe telefon, cu voce)</a> <a href="/" style="font-size:18px;padding:8px 16px;border-radius:20px;background:#ff7a59;color:#fff;text-decoration:none;font-weight:bold;display:inline-block;margin-top:6px">🎮 Jocurile</a></p>
+ <input id="q" type="search" placeholder="Caută: pisică, litera A, scufița, mandala, scris…" autofocus>
+</header>
+<div id="cats"></div>
+<div id="tools">
+ <span id="count"></span>
+ <button id="selall">☑ Selectează tot ce se vede</button>
+ <button id="selnone">☐ Deselectează</button>
+ <select id="mode" title="Cum se printează">
+  <option value="duo">2 pe pagină: model colorat sus + contur jos</option>
+  <option value="one">Doar contur, 1 pe pagină</option>
+  <option value="two">Doar contur, 2 pe pagină</option>
+ </select>
+ <button id="printsel" class="main" disabled>🖨 Printează selecția</button>
+ <button id="printall" class="main">🖨 Printează tot ce se vede</button>
+</div>
+<div id="grid"></div>
+<div id="empty">Nu am găsit nimic 🙈 Încearcă alt cuvânt.</div>
+
+<div id="viewer">
+ <div id="bar">
+  <button id="back">⬅ Înapoi</button>
+  <button id="prev">◀</button><strong id="vt"></strong><button id="next">▶</button>
+  <button id="model">👁 Model colorat</button>
+  <button id="pick">☐ Selectează</button>
+  <button class="main" id="print">🖨 Printează</button>
+  <button id="dlsvg">⬇ SVG</button><button id="dlpng">⬇ PNG</button>
+  <button id="reset">↺ Șterge culorile</button>
+ </div>
+ <div id="pal"></div>
+ <div id="stage"></div>
+</div>
+<div id="printarea"></div>
+
+<script>
+const CATS=[["toate","🌈 Toate"],["litere","🔤 Litere"],["cifre","🔢 Cifre"],["animale","🐾 Animale"],["povesti","📖 Povești"],["fructe","🍎 Fructe și legume"],["vehicule","🚗 Vehicule"],["natura","🌳 Natură"],["forme","🔺 Forme"],["roboti","🤖 Roboți"],["dinozauri","🦖 Dinozauri"],["mandale","🌀 Mandale (7+)"],["scris","✏️ Scris de mână (7+)"],["matematica","➕ Matematică"],["logica","🧩 Săgeți și logică"]];
+const COLORS=["#e53935","#fb8c00","#fdd835","#7cb342","#2e7d32","#00acc1","#1e88e5","#3949ab","#8e24aa","#ec407a","#8d6e63","#212121","#9e9e9e","#ffffff"];
+const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const $=id=>document.getElementById(id);
+let all=[],cat="toate",shown=[],cur=-1,color=COLORS[0],sel=new Set(),showModel=false;
+try{sel=new Set(JSON.parse(localStorage.getItem("sel")||"[]"))}catch(e){}
+const saveSel=()=>{try{localStorage.setItem("sel",JSON.stringify([...sel]))}catch(e){}};
+try{$("mode").value=localStorage.getItem("mode")||"duo"}catch(e){}
+$("mode").onchange=()=>{try{localStorage.setItem("mode",$("mode").value)}catch(e){}};
+
+fetch("data/catalog.json").then(r=>r.json()).then(d=>{all=d.map(x=>({...x,hay:norm(x.title+" "+x.category+" "+x.tags)}));render()});
+
+$("cats").innerHTML=CATS.map(([k,l])=>`<button class="chip${k==="toate"?" on":""}" data-k="${k}">${l}</button>`).join("");
+$("cats").onclick=e=>{const k=e.target.dataset.k;if(!k)return;cat=k;document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on",c.dataset.k===k));render()};
+$("q").oninput=render;
+
+function render(){
+ const words=norm($("q").value).split(/\s+/).filter(Boolean);
+ shown=all.filter(x=>(cat==="toate"||x.category===cat)&&words.every(w=>x.hay.includes(w)));
+ $("grid").innerHTML=shown.map((x,i)=>`<div class="card${sel.has(x.id)?" sel":""}" data-i="${i}"><div class="ck" data-ck="1"></div><img loading="lazy" src="data/${x.file}" alt=""><b>${x.title}</b></div>`).join("");
+ $("empty").style.display=shown.length?"none":"block";
+ updateTools();
+}
+function updateTools(){
+ $("count").textContent=shown.length+" planșe · "+sel.size+" selectate";
+ $("printsel").disabled=!sel.size;
+ $("printsel").textContent="🖨 Printează selecția ("+sel.size+")";
+ $("printall").disabled=!shown.length;
+ $("printall").textContent="🖨 Printează tot ce se vede ("+shown.length+")";
+}
+function toggle(id){sel.has(id)?sel.delete(id):sel.add(id);saveSel()}
+$("grid").onclick=e=>{
+ const c=e.target.closest(".card");if(!c)return;
+ const x=shown[+c.dataset.i];
+ if(e.target.dataset.ck){toggle(x.id);c.classList.toggle("sel",sel.has(x.id));updateTools()}
+ else openItem(+c.dataset.i);
+};
+$("selall").onclick=()=>{shown.forEach(x=>sel.add(x.id));saveSel();render()};
+$("selnone").onclick=()=>{sel.clear();saveSel();render()};
+
+/* ---------- vizualizator ---------- */
+$("pal").innerHTML=COLORS.map(c=>`<div class="sw${c===color?" on":""}" data-c="${c}" style="background:${c}"></div>`).join("");
+$("pal").onclick=e=>{const c=e.target.dataset.c;if(!c)return;color=c;document.querySelectorAll(".sw").forEach(s=>s.classList.toggle("on",s.dataset.c===c))};
+const txt=u=>fetch("data/"+u).then(r=>r.text());
+async function openItem(i){
+ if(i<0||i>=shown.length)return;
+ cur=i;const x=shown[i];showModel=false;
+ $("vt").textContent=x.title;
+ $("stage").innerHTML=await txt(x.file);
+ const has=!!x.color;
+ $("model").style.display=has?"":"none";$("model").textContent="👁 Model colorat";
+ $("pal").style.display=$("reset").style.display=$("stage").querySelector(".f")?"":"none";
+ $("pick").textContent=sel.has(x.id)?"☑ Selectat":"☐ Selectează";
+ $("viewer").classList.add("open");
+}
+$("model").onclick=async()=>{
+ const x=shown[cur];showModel=!showModel;
+ const svgs=$("stage").querySelectorAll("svg");
+ if(showModel){
+  if(svgs.length<2){const d=document.createElement("div");d.innerHTML=await txt(x.color);$("stage").appendChild(d.firstElementChild)}
+  $("stage").querySelectorAll("svg")[0].style.display="none";$("stage").querySelectorAll("svg")[1].style.display="";
+  $("model").textContent="✏️ Înapoi la contur";
+ }else{
+  $("stage").querySelectorAll("svg")[0].style.display="";const m=$("stage").querySelectorAll("svg")[1];if(m)m.style.display="none";
+  $("model").textContent="👁 Model colorat";
+ }
+};
+$("pick").onclick=()=>{const x=shown[cur];toggle(x.id);$("pick").textContent=sel.has(x.id)?"☑ Selectat":"☐ Selectează"};
+$("stage").onclick=e=>{const t=e.target;if(!showModel&&t.classList&&t.classList.contains("f"))t.style.fill=color};
+$("back").onclick=()=>{$("viewer").classList.remove("open");render()};
+$("prev").onclick=()=>openItem(cur-1);$("next").onclick=()=>openItem(cur+1);
+$("reset").onclick=()=>$("stage").querySelector("svg").querySelectorAll(".f").forEach(e=>e.style.fill="");
+document.addEventListener("keydown",e=>{if(!$("viewer").classList.contains("open"))return;
+ if(e.key==="Escape")$("back").click();if(e.key==="ArrowLeft")$("prev").click();if(e.key==="ArrowRight")$("next").click()});
+const curSvg=()=>$("stage").querySelector("svg");
+function svgText(){return new XMLSerializer().serializeToString(curSvg())}
+function save(href,name){const a=document.createElement("a");a.href=href;a.download=name;a.click()}
+$("dlsvg").onclick=()=>{const u=URL.createObjectURL(new Blob([svgText()],{type:"image/svg+xml"}));save(u,shown[cur].id+".svg")};
+$("dlpng").onclick=()=>{const s=curSvg(),vb=s.viewBox.baseVal,img=new Image();
+ img.onload=()=>{const c=document.createElement("canvas");c.width=1600;c.height=Math.round(1600*vb.height/vb.width);const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);save(c.toDataURL("image/png"),shown[cur].id+".png")};
+ img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svgText())};
+
+/* ---------- printare ---------- */
+const cache=new Map();
+const get=u=>cache.has(u)?Promise.resolve(cache.get(u)):txt(u).then(t=>(cache.set(u,t),t));
+async function printItems(items){
+ if(!items.length)return;
+ const mode=$("mode").value,pa=$("printarea");
+ pa.textContent="Se pregătește…";document.body.classList.add("printing");
+ const out=[];let pend=null;
+ const flush=()=>{if(pend){out.push(`<div class="sheet one">${pend}</div>`);pend=null}};
+ for(const x of items){
+  const portrait=["scris","matematica","logica"].includes(x.category);
+  const o=await get(x.file);
+  if(portrait||mode==="one"){flush();out.push(`<div class="sheet one">${o}</div>`)}
+  else if(mode==="duo"){
+   flush();
+   if(x.color){const c=await get(x.color);
+    out.push(`<div class="sheet duo"><small>Model: așa poate arăta ⭐</small>${c}<div class="cut"></div><small>Acum colorează tu! 🖍</small>${o}</div>`)}
+   else out.push(`<div class="sheet one">${o}</div>`);
+  }else{ // two
+   if(pend){out.push(`<div class="sheet two">${pend}<div class="cut"></div>${o}</div>`);pend=null}
+   else pend=o;
+  }
+ }
+ if(pend){out.push(`<div class="sheet two">${pend}</div>`);pend=null}
+ pa.innerHTML=out.join("");
+ const done=()=>{document.body.classList.remove("printing");pa.innerHTML="";window.removeEventListener("afterprint",done)};
+ window.addEventListener("afterprint",done);
+ setTimeout(()=>window.print(),150);
+}
+$("printsel").onclick=()=>printItems(all.filter(x=>sel.has(x.id)));
+$("printall").onclick=()=>{
+ if(shown.length>40&&!confirm("Se pregătesc "+shown.length+" planșe pentru printare. Continui?"))return;
+ printItems(shown);
+};
+$("print").onclick=()=>printItems([shown[cur]]);
+</script>
+</body>
+</html>

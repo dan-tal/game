@@ -39,6 +39,15 @@ server {
         try_files $uri =404;
     }
 
+    # sectiunea Colorat: /colorat -> /colorat/ ; planșele SVG se schimba rar (cache o zi)
+    location = /colorat {
+        return 301 /colorat/;
+    }
+    location ^~ /colorat/data/pages/ {
+        add_header Cache-Control "public, max-age=86400" always;
+        try_files $uri =404;
+    }
+
     # TOATE celelalte fisiere (index.html, version.js, sw.js, imagini...) trebuie sa fie mereu
     # proaspete. "no-cache" inseamna "verifica la server inainte de folosire": nginx trimite
     # ETag, deci daca nu s-a schimbat raspunsul e doar un 304 de cativa octeti, nu o noua

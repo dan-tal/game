@@ -56,6 +56,22 @@ function copy(rel) {
   }
 }
 
+// sectiunea "Colorat" (colorat/): paginile + planșele generate (colorat/data/pages, vezi
+// colorat/README.md) — se copiaza neschimbate la dist/colorat/
+function copyColorat() {
+  if (!fs.existsSync(path.join(ROOT, 'colorat/data/pages'))) {
+    throw new Error('lipsesc planșele: ruleaza `colorat/generate.sh` (vezi colorat/README.md)');
+  }
+  fs.readdirSync(path.join(ROOT, 'colorat/web')).forEach(function (f) {
+    fs.mkdirSync(path.join(DIST, 'colorat'), { recursive: true });
+    fs.copyFileSync(path.join(ROOT, 'colorat/web', f), path.join(DIST, 'colorat', f));
+  });
+  var data = path.join(DIST, 'colorat/data');
+  fs.mkdirSync(data, { recursive: true });
+  fs.copyFileSync(path.join(ROOT, 'colorat/data/catalog.json'), path.join(data, 'catalog.json'));
+  copy('colorat/data/pages');
+}
+
 var totals = { in: 0, out: 0 };
 
 async function bundleScripts(files, baseName) {
@@ -126,6 +142,7 @@ async function buildPage(page) {
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
   STATIC.forEach(copy);
+  copyColorat();
   for (var i = 0; i < PAGES.length; i++) {
     var r = await buildPage(PAGES[i]);
     console.log('  ' + r.page + ': ' + r.scripts + ' grup(uri) de scripturi impachetate');

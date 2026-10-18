@@ -1,3 +1,8 @@
 server/node_modules
 tools/node_modules
 dist
+colorat/data/pages
+colorat/curs/out
+colorat/curs/work
+colorat/curs/state
+colorat/curs/voices

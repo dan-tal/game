@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fff8ec">
+<title>Curs pe TV</title>
+<style>
+:root{--bg:#fff8ec;--ink:#2b2b3a;--line:#f1dfc2;--ok:#3a9d5d;--stop:#d9534f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:"Trebuchet MS",system-ui,sans-serif;background:var(--bg);color:var(--ink);padding:env(safe-area-inset-top) 16px 24px}
+main{max-width:520px;margin:0 auto;text-align:center}
+h1{font-size:clamp(26px,7vw,36px);margin:20px 0 4px}
+.sub{opacity:.7;margin:0 0 18px}
+#card{background:#fff;border:3px solid var(--line);border-radius:22px;padding:18px;margin-bottom:16px}
+#dot{display:inline-block;width:16px;height:16px;border-radius:50%;background:#bbb;margin-right:8px;vertical-align:-2px}
+#dot.on{background:var(--ok);box-shadow:0 0 0 6px #3a9d5d33}
+#dot.off{background:#aaa}
+#dot.bad{background:var(--stop)}
+#status{font-size:22px;font-weight:bold}
+#pos{margin-top:6px;opacity:.75;min-height:22px}
+#bar{height:14px;background:#f4ead6;border-radius:8px;overflow:hidden;margin-top:12px}
+#fill{height:100%;width:0;background:var(--ok);transition:width 1s linear}
+button{font-family:inherit;width:100%;font-size:clamp(20px,6vw,28px);font-weight:bold;padding:20px;border-radius:22px;border:0;color:#fff;margin-bottom:12px}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.5}
+#go{background:var(--ok)}
+#halt{background:var(--stop)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:3px solid var(--line);border-radius:18px;padding:14px 16px;text-align:left;margin-bottom:12px}
+.row label{font-size:18px;flex:1}
+.row small{display:block;opacity:.6;font-size:14px}
+.sw{position:relative;width:64px;height:36px;flex:none}
+.sw input{opacity:0;position:absolute;inset:0;width:100%;height:100%;margin:0;z-index:2}
+.sw span{position:absolute;inset:0;background:#cfc5b0;border-radius:20px;transition:.2s}
+.sw span::after{content:"";position:absolute;top:4px;left:4px;width:28px;height:28px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+span{background:var(--ok)}
+.sw input:checked+span::after{left:32px}
+#msg{min-height:24px;color:#b36b00;margin:6px 0}
+details{text-align:left;font-size:13px;opacity:.8}
+pre{white-space:pre-wrap;margin:6px 0;font-size:12px}
+a{color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+ <h1>📺 Cursul pe TV</h1>
+ <p class="sub">Învață cu Colorat · 16 minute</p>
+ <div id="card">
+  <div id="status"><span id="dot"></span><span id="st">…</span></div>
+  <div id="pos"></div>
+  <div id="bar"><div id="fill"></div></div>
+ </div>
+ <div id="msg"></div>
+ <button id="go">▶ Pornește cursul pe TV</button>
+ <button id="halt">⏹ Oprește</button>
+ <div class="row">
+  <label for="auto">Pornește singur din oră în oră<small id="win"></small></label>
+  <span class="sw"><input type="checkbox" id="auto"><span></span></span>
+ </div>
+ <details><summary>Jurnal</summary><pre id="log"></pre></details>
+ <p style="margin-top:22px"><a href="index.html">🎨 Înapoi la colorat</a> · <a href="invata.html">🧒 Învață pe telefon</a></p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let busy=false;
+async function api(path,method="GET"){
+ const r=await fetch("tv/"+path,{method});
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok)throw new Error(j.error||("eroare "+r.status));
+ return j;
+}
+const secs=t=>{const m=/^(\d+):(\d+):(\d+)/.exec(t||"");return m?(+m[1])*3600+(+m[2])*60+(+m[3]):0};
+function render(s){
+ const dot=$("dot");
+ if(!s.tv_online){dot.className="bad";$("st").textContent=s.tv_on_net?"TV-ul e pornit, dar EShare nu răspunde (deschide aplicația EShare pe TV)":"TV-ul nu răspunde (e oprit?)";$("pos").textContent="";$("fill").style.width="0"}
+ else if(s.playing){dot.className="on";$("st").textContent="Rulează pe TV";
+  const p=secs(s.position),d=secs(s.duration);
+  $("pos").textContent=s.position&&s.duration?(s.position.slice(3)+" din "+s.duration.slice(3)):"";
+  $("fill").style.width=(d?Math.min(100,100*p/d):0)+"%"}
+ else{dot.className="off";$("st").textContent="Oprit";$("pos").textContent="";$("fill").style.width="0"}
+ $("go").disabled=busy||!s.tv_online;
+ $("halt").disabled=busy||!s.playing;
+ $("auto").checked=!!s.auto;
+ $("win").textContent="între "+String(s.start_hour).padStart(2,"0")+":00 și "+String(s.end_hour).padStart(2,"0")+":00";
+}
+async function refresh(){
+ try{render(await api("state"));$("msg").textContent=""}
+ catch(e){$("dot").className="bad";$("st").textContent="Serviciul de control nu răspunde";$("msg").textContent=e.message}
+}
+async function act(path,txt){
+ busy=true;$("msg").textContent=txt;$("go").disabled=$("halt").disabled=true;
+ try{render(await api(path,"POST"));$("msg").textContent=""}
+ catch(e){$("msg").textContent="Nu a mers: "+e.message}
+ busy=false;refresh();loadLog();
+}
+$("go").onclick=()=>act("start","Se pornește… (câteva secunde)");
+$("halt").onclick=()=>act("stop","Se oprește…");
+$("auto").onchange=()=>act("auto/"+($("auto").checked?"on":"off"),"");
+async function loadLog(){try{$("log").textContent=(await api("log")).log.join("\n")}catch(e){}}
+refresh();loadLog();
+setInterval(()=>{if(!busy)refresh()},3000);
+setInterval(loadLog,15000);
+</script>
+</body>
+</html>

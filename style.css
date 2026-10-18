@@ -191,7 +191,9 @@ canvas {
   z-index: 6;
 }
 #muteBtn:active { transform: scale(0.94); }
-#tvLink {
+#colorLink { top: 112px !important; }
+#tvLink,
+#colorLink {
   position: absolute;
   top: 62px;
   left: 10px;

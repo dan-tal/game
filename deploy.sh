@@ -18,6 +18,8 @@ echo "==> Version $VERSION"
 echo "self.APP_VERSION = '$VERSION';" > version.js
 sed "s/__VERSION__/$VERSION/g" nginx.conf.template > nginx.conf
 
+[ -d colorat/data/pages ] || ./colorat/generate.sh
+
 echo "==> Verificari + pachetul de productie (dist/)"
 (cd tools && [ -d node_modules ] || npm install --silent)
 node tools/lint.js

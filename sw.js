@@ -71,6 +71,8 @@ self.addEventListener('fetch', function (event) {
   var url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname === '/ws') return;
+  // sectiunea Colorat (sute de planse SVG, zeci de MB): nu se pune in cache-ul offline
+  if (url.pathname.indexOf('/colorat/') === 0) return;
 
   event.respondWith((async function () {
     var cache = await caches.open(CACHE);

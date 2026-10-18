@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#fff8ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Învață</title>
+<style>
+:root{--bg:#fff8ec;--ink:#2b2b3a;--line:#f1dfc2;--ok:#3a9d5d;--accent:#ff7a59}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{height:100%;margin:0}
+body{font-family:"Trebuchet MS",system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;height:100dvh;overflow:hidden;
+ padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#top{display:flex;align-items:center;gap:8px;padding:8px 10px}
+#top a{font-size:22px;text-decoration:none;color:var(--ink);padding:6px 10px;border:3px solid var(--line);border-radius:12px;background:#fff}
+#bar{flex:1;height:18px;background:#fff;border:3px solid var(--line);border-radius:12px;overflow:hidden}
+#fill{height:100%;width:0;background:var(--ok);transition:width .4s}
+#cnt{font-size:15px;min-width:64px;text-align:right}
+#cats{display:flex;gap:6px;overflow-x:auto;padding:0 10px 6px;scrollbar-width:none}
+#cats::-webkit-scrollbar{display:none}
+.chip{flex:none;font-size:16px;padding:6px 12px;border-radius:20px;border:3px solid var(--line);background:#fff;font-family:inherit}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+#stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 14px;text-align:center}
+#pic{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+#pic img{max-width:100%;max-height:100%;border:3px solid var(--line);border-radius:20px;background:#fff;object-fit:contain}
+#name{font-size:clamp(28px,8vw,46px);font-weight:bold;margin:8px 0 2px}
+#warn{font-size:13px;color:#b36b00;min-height:16px}
+#btns{display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;padding:8px 12px 12px}
+#btns button{font-family:inherit;font-size:clamp(17px,5vw,24px);padding:16px 6px;border-radius:20px;border:4px solid var(--line);background:#fff;color:var(--ink)}
+#btns #done{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:bold}
+#btns button:active{transform:scale(.96)}
+#start,#end{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;z-index:5}
+#end{display:none}
+#start h1,#end h1{margin:0;font-size:clamp(30px,9vw,48px)}
+#start p,#end p{margin:0;font-size:18px}
+.big{font-family:inherit;font-size:26px;padding:18px 36px;border-radius:26px;border:0;background:var(--ok);color:#fff;font-weight:bold}
+.sec{font-family:inherit;font-size:16px;padding:10px 18px;border-radius:16px;border:3px solid var(--line);background:#fff;color:var(--ink)}
+#cheer{position:fixed;inset:0;display:none;align-items:center;justify-content:center;font-size:clamp(60px,22vw,120px);z-index:4;pointer-events:none;animation:pop .7s ease}
+@keyframes pop{0%{transform:scale(.3);opacity:0}40%{transform:scale(1.15);opacity:1}100%{transform:scale(1);opacity:0}}
+</style>
+</head>
+<body>
+<div id="top">
+ <a href="/" title="Jocurile">🏠</a>
+ <div id="bar"><div id="fill"></div></div>
+ <div id="cnt"></div>
+</div>
+<div id="cats"></div>
+<div id="stage">
+ <div id="pic"><img id="img" alt=""></div>
+ <div id="name"></div>
+ <div id="warn"></div>
+</div>
+<div id="btns">
+ <button id="skip">Sari ➜</button>
+ <button id="done">✓ Am învățat!</button>
+ <button id="say">🔊</button>
+</div>
+
+<div id="start">
+ <h1>🌟 Hai să învățăm!</h1>
+ <p id="sinfo"></p>
+ <button class="big" id="go">▶ Începe</button>
+<label style="font-size:16px">Voce:<br><select id="vsel" class="sec" style="max-width:88vw"></select></label>
+ <label style="font-size:16px">Viteză:<br><select id="vspd" class="sec"><option value="0.8">Foarte lent</option><option value="1">Lent</option><option value="1.3">Normal</option></select></label>
+ <button class="sec" id="test">🔊 Testează vocea</button>
+ <p id="vstat" style="font-size:14px;opacity:.7"></p>
+ <button class="sec" id="reset">↺ Ia-o de la capăt</button>
+ <a class="sec" href="index.html" style="text-decoration:none">🎨 Înapoi la colorat</a>
+</div>
+<div id="end">
+ <h1>🏆 Bravo!</h1>
+ <p>Ai învățat tot ce era la categoria asta!</p>
+ <button class="big" id="again">↺ De la început</button>
+ <button class="sec" id="endback">Alege altă categorie</button>
+</div>
+<div id="cheer">⭐</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const CATS=[["toate","🌈 Toate"],["litere","🔤 Litere"],["cifre","🔢 Cifre"],["animale","🐾 Animale"],["povesti","📖 Povești"],["fructe","🍎 Fructe"],["vehicule","🚗 Vehicule"],["natura","🌳 Natură"],["forme","🔺 Forme"],["roboti","🤖 Roboți"],["dinozauri","🦖 Dinozauri"]];
+let all=[],learned=new Set(),cat="toate",queue=[],cur=null,voice=null,voices=[];
+try{learned=new Set(JSON.parse(localStorage.getItem("learned")||"[]"));cat=localStorage.getItem("lcat")||"toate"}catch(e){}
+const save=()=>{try{localStorage.setItem("learned",JSON.stringify([...learned]));localStorage.setItem("lcat",cat)}catch(e){}};
+
+/* ---------- voce ---------- */
+const synth=window.speechSynthesis;
+let spd=1,savedVoice="";
+try{savedVoice=localStorage.getItem("vname")||"";spd=parseFloat(localStorage.getItem("vspd")||"1")||1}catch(e){}
+function loadVoices(){
+ if(!synth)return;
+ voices=synth.getVoices();
+ const ro=voices.filter(v=>/^ro([-_]|$)/i.test(v.lang));voice=ro.find(v=>v.name===savedVoice)||ro[0]||null;
+ fillVoices();
+}
+function fillVoices(){
+ const sel=$("vsel");if(!sel)return;
+ const ro=voices.filter(v=>/^ro([-_]|$)/i.test(v.lang));
+ sel.innerHTML=ro.length?ro.map(v=>`<option value="${v.name}"${voice&&v.name===voice.name?" selected":""}>${v.name} (${v.lang})</option>`).join(""):'<option>Nicio voce în română</option>';
+}
+if(synth){loadVoices();synth.onvoiceschanged=()=>{loadVoices();$("vstat")&&($("vstat").textContent=vinfo())}}
+let lastErr="";
+function mk(t,rate,pitch){
+ const u=new SpeechSynthesisUtterance(t);
+ u.lang="ro-RO";if(voice)u.voice=voice;
+ u.rate=Math.min(2,rate*spd);u.pitch=pitch;u.volume=1;
+ u.onerror=e=>{lastErr=e&&e.error||"eroare";warn()};
+ window._u=u;               // iOS: nu lăsa obiectul să fie colectat
+ return u;
+}
+let seq=0;
+function speak(t){
+ if(!synth||!t||!t.trim())return;
+ const my=++seq;
+ let parts=t.split(/[.!?]\s*/).map(x=>x.trim()).filter(Boolean);
+ if(parts.length===1)parts=[parts[0],parts[0]];     // cuvânt simplu: îl repetă, mai rar
+ try{if(synth.speaking||synth.pending)synth.cancel();synth.resume()}catch(e){}
+ const run=i=>{
+  if(my!==seq||i>=parts.length)return;
+  try{
+   const u=mk(parts[i],i===0?.6:.5,1.1);
+   u.onend=()=>setTimeout(()=>run(i+1),900);        // pauză între fraze
+   synth.speak(u);
+  }catch(e){lastErr=String(e);warn()}
+ };
+ run(0);
+}
+function unlock(){try{synth.speak(mk(" ",1,1))}catch(e){}}
+function vinfo(){
+ if(!synth)return "Browserul nu știe să vorbească.";
+ return voice?("Voce: "+voice.name+" ("+voice.lang+")"):("Nu văd voce în română ("+voices.length+" voci în total)");
+}
+function warn(){
+ $("warn").textContent=(lastErr?"Eroare voce: "+lastErr+" · ":"")+(voice?"":vinfo());
+}
+
+/* ---------- date ---------- */
+setTimeout(()=>{loadVoices();$("vstat").textContent=vinfo()},400);
+fetch("data/catalog.json").then(r=>r.json()).then(d=>{all=d.filter(x=>x.learn);buildCats();info()});
+function buildCats(){
+ $("cats").innerHTML=CATS.map(([k,l])=>`<button class="chip${k===cat?" on":""}" data-k="${k}">${l}</button>`).join("");
+}
+$("cats").onclick=e=>{const k=e.target.dataset.k;if(!k)return;cat=k;save();buildCats();info();if($("start").style.display==="none")nextItem()};
+const pool=()=>all.filter(x=>cat==="toate"||x.category===cat);
+function info(){
+ const p=pool(),n=p.filter(x=>learned.has(x.id)).length;
+ $("sinfo").textContent=n+" din "+p.length+" învățate";
+ $("fill").style.width=(p.length?100*n/p.length:0)+"%";
+ $("cnt").textContent=n+"/"+p.length;
+}
+
+/* ---------- flux ---------- */
+function nextItem(after){
+ const p=pool();
+ const left=p.filter(x=>!learned.has(x.id));
+ if(!left.length){show(null);return}
+ // continuă în ordine după elementul curent; apoi de la început
+ let i=after?p.findIndex(x=>x.id===after):-1,pick=null;
+ for(let k=1;k<=p.length;k++){const x=p[(i+k)%p.length];if(!learned.has(x.id)){pick=x;break}}
+ show(pick);
+}
+function show(x){
+ info();
+ if(!x){$("end").style.display="flex";cur=null;return}
+ $("end").style.display="none";
+ cur=x;
+ $("img").src="data/"+(x.color||x.file);
+ $("name").textContent=x.title;
+ warn();speak(x.say);
+}
+$("go").onclick=()=>{
+ loadVoices();
+unlock();                 // deblochează sunetul pe iOS (în interiorul atingerii)
+ $("start").style.display="none";nextItem()};
+$("vsel").onchange=()=>{voice=voices.find(v=>v.name===$("vsel").value&&/^ro([-_]|$)/i.test(v.lang))||voice;try{localStorage.setItem("vname",voice?voice.name:"")}catch(e){};savedVoice=voice?voice.name:"";$("vstat").textContent=vinfo();speak("Salut! Eu sunt vocea care te ajută să înveți.")};
+$("vspd").value=String(spd);if(!$("vspd").value)$("vspd").value="1";
+$("vspd").onchange=()=>{spd=parseFloat($("vspd").value)||1;try{localStorage.setItem("vspd",String(spd))}catch(e){};speak("Așa vorbesc eu acum.")};
+$("test").onclick=()=>{loadVoices();speak("Salut! Eu sunt vocea care te ajută să înveți.");$("vstat").textContent=vinfo()};
+$("say").onclick=()=>cur&&speak(cur.say);
+$("img").onclick=()=>cur&&speak(cur.say);
+$("name").onclick=()=>cur&&speak(cur.say);
+$("skip").onclick=()=>cur&&nextItem(cur.id);
+$("done").onclick=()=>{
+ if(!cur)return;
+ learned.add(cur.id);save();info();
+ const ch=$("cheer");ch.textContent=["⭐","🎉","👏","🌟","🥳"][Math.floor(Math.random()*5)];
+ ch.style.display="flex";ch.style.animation="none";void ch.offsetWidth;ch.style.animation="";
+ setTimeout(()=>ch.style.display="none",650);
+ const id=cur.id;
+ try{
+  if(synth.speaking||synth.pending)synth.cancel();
+  synth.resume();
+  const u=mk("Bravo!",.75,1.2);u.onend=()=>nextItem(id);u.onerror=()=>nextItem(id);synth.speak(u);
+ }catch(e){setTimeout(()=>nextItem(id),500)}
+ // siguranță dacă onend nu vine
+ const mark=cur;setTimeout(()=>{if(cur===mark)nextItem(id)},2500);
+};
+$("reset").onclick=()=>{if(confirm("Ștergi tot progresul?")){learned.clear();save();info()}};
+$("again").onclick=()=>{pool().forEach(x=>learned.delete(x.id));save();info();nextItem()};
+$("endback").onclick=()=>{$("end").style.display="none";$("start").style.display="flex";info()};
+
+/* glisare stânga = sari peste */
+let tx=null;
+$("stage").addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
+$("stage").addEventListener("touchend",e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(dx<-70)$("skip").click()});
+</script>
+</body>
+</html>
