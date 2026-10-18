@@ -542,14 +542,55 @@ var Exercises = (function () {
     };
   }
 
+  // Literele deja invatate (cu cardul de invatare de mai jos), pastrate pe dispozitiv.
+  // Intrebarea "cu ce litera incepe" foloseste DOAR litere pe care copilul le-a
+  // vazut si auzit — altfel un copil de 5 ani care nu stie literele ghiceste.
+  var LETTERS_KEY = 'arcade.learnedLetters';
+  var MIN_KNOWN_LETTERS = 3;     // atatea litere se invata inainte de prima intrebare
+  var NEW_LETTER_CHANCE = 0.22;  // dupa aceea, din cand in cand apare cate o litera noua
+  function learnedLetters() {
+    try {
+      var list = JSON.parse(localStorage.getItem(LETTERS_KEY) || '[]');
+      return list.filter(function (l) { return WORD_LETTERS.indexOf(l) >= 0; });
+    } catch (e) { return []; }
+  }
+  function learnLetter(letter) {
+    var list = learnedLetters();
+    if (list.indexOf(letter) < 0) list.push(letter);
+    try { localStorage.setItem(LETTERS_KEY, JSON.stringify(list)); } catch (e) { /* fara salvare */ }
+  }
+
+  // Card de invatare: litera mare + imaginea cuvantului + vocea; copilul atinge
+  // litera ca s-o tina minte (apoi intra la cele invatate)
+  function makeLetterLessonRound(word) {
+    return {
+      category: 'firstletter',
+      correctValue: word.letter,
+      speakText: 'Litera ' + word.letter + '. ' + word.letter + ' ca în ' + word.name + '. Atinge litera ' + word.letter + '!',
+      prompt: 'Învățăm o literă nouă! Atinge-o:',
+      onCorrect: function () { learnLetter(word.letter); },
+      renderTarget: function (box) {
+        box.classList.add('mode-puzzle');
+        box.textContent = word.emoji + ' ' + word.name;
+      },
+      options: [{ value: word.letter, kind: 'text', label: word.letter }]
+    };
+  }
+
   // "Cu ce literă începe cuvântul?" — prima legatura dintre sunete si litere,
   // exact ce se invata la clasa pregatitoare. Cuvantul apare scris doar de la
-  // 6 ani (cei mici il aud, nu il citesc).
+  // 6 ani (cei mici il aud, nu il citesc). Intai se invata literele (card),
+  // apoi se intreaba doar din cele invatate.
   function makeFirstLetterRound(mode) {
-    var word = pick(WORDS);
-    var count = Math.min(OPTION_COUNT, WORD_LETTERS.length);
+    var known = learnedLetters();
+    var fresh = WORDS.filter(function (w) { return known.indexOf(w.letter) < 0; });
+    if (fresh.length && (known.length < MIN_KNOWN_LETTERS || Math.random() < NEW_LETTER_CHANCE)) {
+      return makeLetterLessonRound(pick(fresh));
+    }
+    var word = pick(WORDS.filter(function (w) { return known.indexOf(w.letter) >= 0; }));
+    var count = Math.min(OPTION_COUNT, known.length);
     var opts = [word.letter];
-    var pool = shuffle(WORD_LETTERS.filter(function (l) { return l !== word.letter; }));
+    var pool = shuffle(known.filter(function (l) { return l !== word.letter; }));
     for (var i = 0; i < pool.length && opts.length < count; i++) opts.push(pool[i]);
     shuffle(opts);
     var showWord = currentAge() >= 6;
@@ -758,6 +799,7 @@ var Exercises = (function () {
     if (!currentRound || btn.disabled) return;
     if (value === currentRound.correctValue) {
       sfxCorrect();
+      if (currentRound.onCorrect) currentRound.onCorrect();
       haptic(30);
       feedbackEl.textContent = 'Bravo! 🎉';
       feedbackEl.style.color = '#2e7d32';
