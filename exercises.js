@@ -88,9 +88,8 @@ var Exercises = (function () {
     return s;
   }
 
-  function rand(n) { return Math.floor(Math.random() * n); }
+  var rand = Util.rand, pick = Util.pick, shuffle = Util.shuffle;
   function between(lo, hi) { return hi <= lo ? lo : lo + rand(hi - lo + 1); }
-  function pick(list) { return list[rand(list.length)]; }
 
   var SHAPES = [
     { key: 'circle', symbol: '⚫', name: 'Cerc' },
@@ -304,41 +303,9 @@ var Exercises = (function () {
     if (lastSpokenText) speak(lastSpokenText);
   }
 
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
-
-  // cate optiuni distincte incap in [min, max] — daca se cer mai multe decat
-  // exista, bucla de mai jos n-ar mai iesi niciodata, asa ca limitam
-  function pickOptions(target, min, max, count) {
-    count = Math.min(count, max - min + 1);
-    var opts = [target];
-    while (opts.length < count) {
-      var d = min + Math.floor(Math.random() * (max - min + 1));
-      if (opts.indexOf(d) === -1) opts.push(d);
-    }
-    return shuffle(opts);
-  }
-
-  // numere apropiate de raspuns (nu la intamplare in tot intervalul) — altfel
-  // raspunsul se ghiceste dupa marime, nu dupa calcul
-  function nearOptions(target, count, spread) {
-    var opts = [target];
-    var guard = 0;
-    while (opts.length < count && guard++ < 300) {
-      var off = 1 + rand(Math.max(2, spread));
-      var c = target + (Math.random() < 0.5 ? -off : off);
-      if (c >= 0 && opts.indexOf(c) === -1) opts.push(c);
-    }
-    for (var k = 1; opts.length < count; k++) {
-      if (opts.indexOf(target + k) === -1) opts.push(target + k);
-    }
-    return shuffle(opts);
-  }
+  // cate optiuni distincte incap in [min, max] (vezi Util.distinctNumbers) / numere apropiate de raspuns
+  var pickOptions = Util.distinctNumbers;
+  function nearOptions(target, count, spread) { return Util.nearNumbers(target, count, Math.max(2, spread)); }
 
   function pickFromList(list, target, count, keyFn) {
     var opts = [target];
@@ -900,6 +867,12 @@ var Exercises = (function () {
     if (currentRound.prompt) promptEl.textContent = currentRound.prompt;
   }
 
+  // pauza de invatare din mijlocul unui joc (la fiecare cateva puncte sau cand s-au pierdut vietile):
+  // un exercitiu doar din auz; jocul continua in `onComplete`. Folosita de toate jocurile.
+  function askBreak(onComplete) {
+    ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', onComplete);
+  }
+
   // ruleaza mai multe exercitii la rand (ex: cateva inainte de a incepe joaca)
   function askSeries(mode, count, titleText, promptText, onAllComplete) {
     var total = Math.max(1, count || 1);
@@ -955,6 +928,7 @@ var Exercises = (function () {
   return {
     init: init,
     ask: ask,
+    askBreak: askBreak,
     askSeries: askSeries,
     askIntro: askIntro,
     isShowing: isShowing,

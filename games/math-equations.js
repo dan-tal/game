@@ -59,30 +59,10 @@ var MathEquations = (function () {
   function spoken(eq) { return 'Cât fac ' + eq.a + ' ' + WORD[eq.op] + ' ' + eq.b + '?'; }
   function solved(eq) { return eq.a + ' ' + SYMBOL[eq.op] + ' ' + eq.b + ' = ' + eq.answer; }
 
-  // raspunsuri gresite apropiate de cel corect (procent din valoare, nu la
-  // intamplare in tot intervalul) — altfel raspunsul se ghiceste dupa marime,
-  // nu dupa calcul propriu-zis
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
+  // raspunsuri gresite apropiate de cel corect (procent din valoare, nu la intamplare in tot intervalul)
+  // — altfel raspunsul se ghiceste dupa marime, nu dupa calcul propriu-zis
   function options(target, count) {
-    var opts = [target];
-    var maxOffset = Math.max(4, Math.round(target * 0.12));
-    var attempts = 0;
-    while (opts.length < count && attempts < 300) {
-      attempts++;
-      var offset = 1 + Math.floor(Math.random() * maxOffset);
-      var candidate = target + (Math.random() < 0.5 ? -offset : offset);
-      if (candidate >= 0 && opts.indexOf(candidate) === -1) opts.push(candidate);
-    }
-    for (var k = 1; opts.length < count; k++) {
-      if (opts.indexOf(target + k) === -1) opts.push(target + k);
-    }
-    return shuffle(opts);
+    return Util.nearNumbers(target, count, Math.max(4, Math.round(target * 0.12)));
   }
 
   return { kindsForAge: kindsForAge, make: make, text: text, spoken: spoken, solved: solved, options: options };

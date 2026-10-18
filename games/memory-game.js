@@ -9,19 +9,14 @@
 // viata, doar il face sa incerce din nou. Cand toate perechile sunt gasite,
 // apare o tabla noua. Punctul de intrare public e
 // window.MemoryGame.activate().
+//
+// Ciclul de viata (activare, exercitii de intro, scor, pauze de invatare, bucla de desen,
+// debug) vine din BoardGame (games/board-game.js); aici e doar ce e specific jocului.
 (function () {
   'use strict';
 
-  var canvas = document.getElementById('game');
-  var ctx = canvas.getContext('2d');
-  var W = GameShared.W, H = GameShared.H;
-
   var stageEl = document.getElementById('stage');
-  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
-  var timers = GameShared.createTimers();
-
-  var heartsEl = document.getElementById('hearts');
-  var scoreEl = document.getElementById('score');
+  var shuffle = GameShared.shuffle;
 
   var boardEl = document.createElement('div');
   boardEl.className = 'memoryBoard';
@@ -35,34 +30,40 @@
     return MemoryGameConfig.LAYOUTS[ChildAge.tier()] || MemoryGameConfig.LAYOUTS.preschool;
   }
 
-  var sfxGood = GameShared.sfxGood;
-  var sfxBad = GameShared.sfxBad;
-
-  var shuffle = GameShared.shuffle;
-
   function pickIcons(count) {
     var pool = MemoryGameConfig.ICONS.slice();
     shuffle(pool);
     return pool.slice(0, count);
   }
 
-  var state = {
-    running: false,
-    score: 0,
-    lives: AppConfig.NORMAL_MAX_LIVES,
-    maxLives: AppConfig.NORMAL_MAX_LIVES,
-    pairs: 6,
-    sinceBreak: 0, // perechi gasite de la ultima pauza de exercitii
-    cards: [],     // { icon, matched, flipped, el }
-    flipped: [],   // indici (max 2) intorsi acum, in asteptarea verificarii
-    lock: false    // cat timp se verifica o pereche, ignora alte atingeri
-  };
+  var game = window.MemoryGame = BoardGame.create({
+    name: 'memory-game',
+    intro: 'Hai să găsim perechile!',
+    els: [boardEl],
+    extraState: {
+      pairs: 6,
+      sinceBreak: 0, // perechi gasite de la ultima pauza de exercitii
+      cards: [],     // { icon, matched, flipped, el }
+      flipped: [],   // indici (max 2) intorsi acum, in asteptarea verificarii
+      lock: false    // cat timp se verifica o pereche, ignora alte atingeri
+    },
+    onStart: function (core) { core.state.sinceBreak = 0; },
+    build: buildBoard,
+    debug: function (core) {
+      var matched = core.state.cards.filter(function (c) { return c.matched; }).length / 2;
+      return ['  perechi gasite: ' + matched + '/' + core.state.pairs];
+    },
 
-  // jocul nu scade vieti (o pereche gresita doar se intoarce la loc) — nu afisam inimi
-  function updateHUD() {
-    heartsEl.textContent = '';
-    scoreEl.textContent = '⭐ ' + state.score;
-  }
+    // masa de joc, decor simplu, fara elemente interactive
+    draw: function (ctx) {
+      ctx.fillStyle = '#5d4037';
+      ctx.fillRect(0, 0, GameShared.W, GameShared.H);
+
+      ctx.fillStyle = '#4527a0';
+      ctx.fillRect(18, 18, GameShared.W - 36, GameShared.H - 36);
+    }
+  });
+  var core = game.core, state = core.state;
 
   function renderCardFace(card) {
     card.el.textContent = (card.flipped || card.matched) ? card.icon : '❓';
@@ -118,21 +119,21 @@
       renderCardFace(b);
       state.score += 1;
       GameShared.awardMatch();
-      sfxGood();
-      updateHUD();
+      GameShared.sfxGood();
+      core.hud();
       Exercises.speak('Bravo! Ai găsit o pereche!');
       state.sinceBreak += 1;
       state.flipped = [];
       state.lock = false;
 
       if (state.cards.every(function (c) { return c.matched; })) {
-        timers.set(afterBoardComplete, MemoryGameConfig.MATCH_DELAY_MS);
+        core.timers.set(afterBoardComplete, MemoryGameConfig.MATCH_DELAY_MS);
       }
     } else {
-      sfxBad();
+      GameShared.sfxBad();
       if (window.Credits) Credits.deduct(AppConfig.CREDIT_PENALTY_PER_MISTAKE);
       Exercises.speak('Mai încearcă!');
-      timers.set(function () {
+      core.timers.set(function () {
         a.flipped = false; b.flipped = false;
         renderCardFace(a);
         renderCardFace(b);
@@ -148,84 +149,9 @@
     // perechi pe tabla, scorul cadea rar exact pe un multiplu de 5)
     if (state.sinceBreak >= AppConfig.EXERCISE_EVERY_SCORE) {
       state.sinceBreak = 0;
-      triggerLearningBreak();
+      core.learningBreak();
     } else {
       buildBoard();
     }
   }
-
-  function startGame() {
-    timers.clearAll();
-    state.sinceBreak = 0;
-    state.score = 0;
-    state.maxLives = GameShared.maxLives();
-    state.lives = state.maxLives;
-    state.running = true;
-
-    buildBoard();
-    stageEl.classList.add('playing');
-    updateHUD();
-  }
-
-  function triggerLearningBreak() {
-    state.running = false;
-    stageEl.classList.remove('playing');
-    Exercises.ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', function () {
-      state.running = true;
-      buildBoard();
-      stageEl.classList.add('playing');
-      updateHUD();
-    });
-  }
-
-  function getGameDebugLines() {
-    var screenName = state.running ? 'playing' : Exercises.isShowing() ? 'exercise' : 'menu';
-    var matched = state.cards.filter(function (c) { return c.matched; }).length / 2;
-    return [
-      'GAME STATE (memory-game):',
-      '  screen: ' + screenName,
-      '  perechi gasite: ' + matched + '/' + state.pairs,
-      '  score: ' + state.score,
-      ''
-    ];
-  }
-  function renderDebugPanel() {
-    Debug.render(GameShared.debugLines(getGameDebugLines(), gameLoop.fps()));
-  }
-
-  // ---------- Draw: masa de joc, decor simplu, fara elemente interactive ----------
-  function drawBoard() {
-    ctx.fillStyle = '#5d4037';
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.fillStyle = '#4527a0';
-    ctx.fillRect(18, 18, W - 36, H - 36);
-  }
-
-  function draw() {
-    drawBoard();
-    if (Debug.isOn()) renderDebugPanel();
-  }
-
-  // ---------- Main loop (fara reflexe — doar redeseneaza fundalul) ----------
-  var gameLoop = GameShared.createLoop({ draw: draw, interval: 100 }); // scena e statica: 10 desene/s scutesc bateria
-
-  updateHUD();
-
-  // ---------- Public entry point (called by shell.js when chosen from the menu) ----------
-  window.MemoryGame = {
-    activate: function () {
-      boardEl.style.display = '';
-      Exercises.speak('Hai să găsim perechile!');
-      gameLoop.start();
-      Exercises.askIntro(startGame);
-    },
-    deactivate: function () {
-      gameLoop.stop();
-      timers.clearAll();
-      state.running = false;
-      stageEl.classList.remove('playing');
-      boardEl.style.display = 'none';
-    }
-  };
 })();

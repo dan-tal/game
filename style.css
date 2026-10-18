@@ -119,7 +119,7 @@ canvas {
 }
 
 /* ---------- Sageti/D-pad pe ecran, pentru control pe telefon (toate jocurile cu miscare continua) ---------- */
-.carTouchControls, .mazeTouchControls, .hDpadControls {
+.mazeTouchControls, .hDpadControls {
   position: absolute;
   left: 14px; right: 14px; bottom: 14px;
   display: none;
@@ -137,7 +137,7 @@ canvas {
 }
 /* containerele acopera tot latul jos — fara asta, o tragere cu degetul care
    incepe in golul dintre sageti nu mai ajunge la canvas (swipe-ul nu porneste) */
-.carTouchControls, .mazeTouchControls, .hDpadControls, .vDpadControls { pointer-events: none; }
+.mazeTouchControls, .hDpadControls, .vDpadControls { pointer-events: none; }
 .dpadBtn { pointer-events: auto; }
 .dpadGroup { display: flex; gap: 10px; }
 .dpadGroupMove { flex-direction: column; }
@@ -954,15 +954,34 @@ canvas {
   .shake, .hint, .practiceTile.hint { animation: none !important; }
 }
 
-/* ---------- Șarpele Vesel: patru sageti jos ---------- */
+/* ---------- Șarpele Vesel: sagetile in forma de T, centrate sub tabla ----------
+   (patru sageti in rand erau greu de nimerit: degetul alerga de la un colt la altul) */
 .snakeControls {
   position: absolute;
-  left: 14px; right: 14px; bottom: 14px;
+  left: 0; right: 0; bottom: 8px;
   display: none;
-  justify-content: space-between;
-  align-items: flex-end;
+  grid-template-columns: repeat(3, auto);
+  grid-template-rows: auto auto;
+  justify-content: center;
+  gap: 8px;
   z-index: 7;
   pointer-events: none;
+}
+.snakeControls .dpadBtn {
+  pointer-events: auto;
+  width: clamp(56px, 16vw, 72px);
+  height: clamp(56px, 16vw, 72px);
+}
+.snakeControls [data-dir="up"] { grid-column: 2; grid-row: 1; }
+.snakeControls [data-dir="left"] { grid-column: 1; grid-row: 2; }
+.snakeControls [data-dir="down"] { grid-column: 2; grid-row: 2; }
+.snakeControls [data-dir="right"] { grid-column: 3; grid-row: 2; }
+.snakeHint {
+  position: absolute; left: 50%; top: 8.6%; transform: translateX(-50%);
+  max-width: 92%; padding: 2px 12px; border-radius: 14px;
+  background: rgba(255,255,255,0.9); color: #2e7d32;
+  font-weight: bold; font-size: clamp(11px, 3.1vw, 15px); text-align: center; white-space: nowrap;
+  pointer-events: none; z-index: 6;
 }
 .snakeOverScore { font-size: clamp(20px, 4.6vw, 30px) !important; font-weight: bold; }
 

@@ -25,7 +25,6 @@ var POOLS = {
 };
 var KINDS = Object.keys(POOLS);
 
-function other(num) { return num === 1 ? 2 : 1; }
 function randomItem(list) { return list[crypto.randomInt(list.length)]; }
 
 function shuffle(list) {

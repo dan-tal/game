@@ -36,9 +36,9 @@
   stageEl.appendChild(questionEl);
 
   // ---------- Sounds (reuse the shared AudioContext from the Exercises module) ----------
-  function sfxStar() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
-  function sfxHit() { Exercises.beep(140, 0.25, 'sawtooth'); }
-  function sfxLevelUp() { Exercises.beep(660, 0.12, 'triangle'); setTimeout(function () { Exercises.beep(880, 0.12, 'triangle'); }, 100); setTimeout(function () { Exercises.beep(1100, 0.18, 'triangle'); }, 200); }
+  var sfxStar = GameShared.sfxGood;
+  var sfxHit = GameShared.sfxHit;
+  var sfxLevelUp = GameShared.sfxLevelUp;
 
   // ---------- Lantern color selection ----------
   var COLOR_NAMES = AppConfig.COLOR_NAMES;
@@ -72,18 +72,36 @@
     return a;
   }
   var shuffle = GameShared.shuffle;
+  // ---------- Culori: pereti umbriti de ceata ----------
+  // Peretele se amesteca intai putin cu culoarea felinarului alese, apoi cu cea a cetii, in functie de
+  // distanta. Inainte, amestecul se facea "la fiecare dunga, la fiecare cadru", iar rezultatul primului
+  // amestec (un text 'rgb(...)') era dat din nou ca "hex" celui de-al doilea — se citea ca negru, deci
+  // peretii apropiati se vedeau NEGRI, indiferent de culoarea lor. Acum culorile se parseaza o singura data
+  // si toate nuantele (SHADE_STEPS trepte de ceata) se pregatesc dinainte, fara alocari in bucla de desen.
+  var SHADE_STEPS = 128;
   function hexToRgb(hex) {
     var n = parseInt(hex.slice(1), 16);
-    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
-  function mixColor(hexA, hexB, t) {
-    var a = hexToRgb(hexA), b = hexToRgb(hexB);
-    var r = Math.round(a.r + (b.r - a.r) * t);
-    var g = Math.round(a.g + (b.g - a.g) * t);
-    var bl = Math.round(a.b + (b.b - a.b) * t);
-    return 'rgb(' + r + ',' + g + ',' + bl + ')';
+  function mixRgb(a, b, t) {
+    return [Math.round(a[0] + (b[0] - a[0]) * t), Math.round(a[1] + (b[1] - a[1]) * t), Math.round(a[2] + (b[2] - a[2]) * t)];
   }
+  function rgbCss(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
 
+  var shades = { lantern: undefined, ns: null, ew: null };
+  function wallShades() {
+    if (shades.lantern === lanternColor && shades.ns) return shades;
+    var fogRgb = hexToRgb(CFG.FOG_COLOR);
+    function build(wallHex) {
+      var base = hexToRgb(wallHex);
+      if (lanternColor) base = mixRgb(base, hexToRgb(lanternColor), 0.12);
+      var out = [];
+      for (var k = 0; k <= SHADE_STEPS; k++) out.push(rgbCss(mixRgb(base, fogRgb, k / SHADE_STEPS)));
+      return out;
+    }
+    shades = { lantern: lanternColor, ns: build(CFG.WALL_COLOR_NS), ew: build(CFG.WALL_COLOR_EW) };
+    return shades;
+  }
   // ---------- Maze generation (recursive backtracker, odd-sized grid) ----------
   // grid[y][x] === true inseamna perete. Celulele "reale" ale labirintului
   // stau pe indecsi impari; indecsii pari sunt fie perete plin, fie trecerea
@@ -233,11 +251,24 @@
     state.stars = cells.map(function (c) { return { x: c.x, y: c.y, alive: true, seed: Math.random() * 1000 }; });
   }
 
+  // la inceput copilul sa vada un coridor, nu un perete in nas: privirea se intoarce spre cea mai lunga
+  // zare libera din celula de plecare (fara asta, unghiul fix de start dadea adesea in zid)
+  function faceOpenSpace() {
+    var best = 0, bestDist = -1;
+    for (var k = 0; k < 36; k++) {
+      var a = k * Math.PI * 2 / 36;
+      var d = castRay(player.x, player.y, a).dist;
+      if (d > bestDist + 0.01) { bestDist = d; best = a; }
+    }
+    player.angle = best;
+  }
+
   function buildLevel() {
     var lvl = currentLevelCfg();
     maze = generateMaze(lvl.cellsX, lvl.cellsY);
     floorCellList = collectFloorCells();
-    player.x = 1.5; player.y = 1.5; player.angle = 0.7;
+    player.x = 1.5; player.y = 1.5;
+    faceOpenSpace();
     exitPos.x = (lvl.cellsX - 1) * 2 + 1 + 0.5;
     exitPos.y = (lvl.cellsY - 1) * 2 + 1 + 0.5;
     exitPos.unlocked = false;
@@ -265,7 +296,8 @@
     state.lives = state.maxLives;
     state.invuln = 1000;
     state.orbCooldown = 400;
-    player.x = 1.5; player.y = 1.5; player.angle = 0.7;
+    player.x = 1.5; player.y = 1.5;
+    faceOpenSpace();
     state.running = true;
     stageEl.classList.add('playing');
     touchControlsEl.style.display = 'flex';
@@ -290,93 +322,19 @@
     state.running = false;
     stageEl.classList.remove('playing');
     touchControlsEl.style.display = 'none';
-    Exercises.ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', continueGameAfterBreak);
+    Exercises.askBreak(continueGameAfterBreak);
   }
 
-  // ---------- Input: keyboard ----------
-  var keyFwd = false, keyBack = false, keyLeft = false, keyRight = false;
-  window.addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keyFwd = true;
-    if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keyBack = true;
-    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keyLeft = true;
-    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keyRight = true;
-  });
-  window.addEventListener('keyup', function (e) {
-    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keyFwd = false;
-    if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keyBack = false;
-    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keyLeft = false;
-    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keyRight = false;
-  });
-
-  // ---------- Input: touch (D-pad: viraj stanga/dreapta + inainte/inapoi) ----------
+  // ---------- Input: D-pad pe ecran + tastatura + gamepad (stick: axa 0 = viraj, axa 1 = inainte/inapoi) ----------
   var touchControlsEl = document.createElement('div');
   touchControlsEl.className = 'mazeTouchControls';
-  touchControlsEl.innerHTML =
-    '<div class="dpadGroup dpadGroupTurn">' +
-      '<button type="button" class="dpadBtn dpadLeft" aria-label="stânga">◀</button>' +
-      '<button type="button" class="dpadBtn dpadRight" aria-label="dreapta">▶</button>' +
-    '</div>' +
-    '<div class="dpadGroup dpadGroupMove">' +
-      '<button type="button" class="dpadBtn dpadUp" aria-label="înainte">▲</button>' +
-      '<button type="button" class="dpadBtn dpadDown" aria-label="înapoi">▼</button>' +
-    '</div>';
+  touchControlsEl.innerHTML = '<div class="dpadGroup dpadGroupTurn"></div><div class="dpadGroup dpadGroupMove"></div>';
   touchControlsEl.style.display = 'none';
   stageEl.appendChild(touchControlsEl);
 
-  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadLeft'), function () { keyLeft = true; }, function () { keyLeft = false; });
-  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadRight'), function () { keyRight = true; }, function () { keyRight = false; });
-  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadUp'), function () { keyFwd = true; }, function () { keyFwd = false; });
-  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadDown'), function () { keyBack = true; }, function () { keyBack = false; });
+  var turnCtl = GameInput.axis({ axis: 'x', buttons: { into: touchControlsEl.querySelector('.dpadGroupTurn') } });
+  var moveCtl = GameInput.axis({ axis: 'y', buttons: { into: touchControlsEl.querySelector('.dpadGroupMove'), labels: ['înainte', 'înapoi'] } });
 
-  // ---------- Input: Gamepad (stick stanga: axa 0 = viraj, axa 1 = inainte/inapoi) ----------
-  var gamepadIndex = null;
-  var gamepadTurn = 0, gamepadMove = 0;
-  window.addEventListener('gamepadconnected', function (e) { gamepadIndex = e.gamepad.index; });
-  window.addEventListener('gamepaddisconnected', function (e) {
-    if (gamepadIndex === e.gamepad.index) gamepadIndex = null;
-    gamepadTurn = 0; gamepadMove = 0;
-  });
-
-  function applyDeadzone(v) {
-    if (Math.abs(v) < AppConfig.GAMEPAD_DEADZONE) return 0;
-    var sign = v < 0 ? -1 : 1;
-    return sign * Math.min(1, Math.abs(v) * AppConfig.GAMEPAD_GAIN);
-  }
-
-  function pollGamepad() {
-    var pads = navigator.getGamepads ? navigator.getGamepads() : [];
-    var found = null;
-    for (var i = 0; i < pads.length; i++) { if (pads[i]) { found = pads[i]; break; } }
-    if (found) {
-      gamepadIndex = found.index;
-      gamepadTurn = applyDeadzone(found.axes && found.axes.length ? found.axes[0] : 0);
-      gamepadMove = -applyDeadzone(found.axes && found.axes.length > 1 ? found.axes[1] : 0);
-      var padLeft = found.buttons[14] && found.buttons[14].pressed;
-      var padRight = found.buttons[15] && found.buttons[15].pressed;
-      var padUp = found.buttons[12] && found.buttons[12].pressed;
-      var padDown = found.buttons[13] && found.buttons[13].pressed;
-      if (padLeft) gamepadTurn = -1;
-      if (padRight) gamepadTurn = 1;
-      if (padUp) gamepadMove = 1;
-      if (padDown) gamepadMove = -1;
-      if (Debug.isOn()) renderDebugPanel(found);
-    } else {
-      gamepadIndex = null;
-      gamepadTurn = 0; gamepadMove = 0;
-      if (Debug.isOn()) renderDebugPanel(null);
-    }
-  }
-
-  function getSystemDebugLines() {
-    var rect = stageEl.getBoundingClientRect();
-    return [
-      'SYSTEM:',
-      '  fps: ' + fps.toFixed(1),
-      '  viewport: ' + window.innerWidth + 'x' + window.innerHeight,
-      '  stage (CSS px): ' + Math.round(rect.width) + 'x' + Math.round(rect.height),
-      ''
-    ];
-  }
   function getGameDebugLines() {
     var screenName = state.running ? 'playing'
       : Exercises.isShowing() ? 'exercise'
@@ -391,18 +349,8 @@
       '  question: ' + (state.question ? state.question.text + ' (ans=' + state.question.answer + ')' : '-'),
       '  roundCorrect: ' + state.roundCorrect + '/' + currentLevelCfg().exitStars + '   exit unlocked: ' + exitPos.unlocked,
       '  orbs alive: ' + state.orbs.filter(function (o) { return o.alive; }).length,
-      '',
-      'INPUT:',
-      '  tastatura: fwd=' + keyFwd + ' back=' + keyBack + ' left=' + keyLeft + ' right=' + keyRight,
-      '  gamepad turn=' + gamepadTurn.toFixed(2) + ' move=' + gamepadMove.toFixed(2),
       ''
-    ];
-  }
-  function renderDebugPanel(gp) {
-    var lines = getSystemDebugLines().concat(getGameDebugLines());
-    if (!gp) { lines.push('GAMEPAD: niciun gamepad detectat.'); Debug.render(lines); return; }
-    lines.push('GAMEPAD:'); lines.push('  id: ' + gp.id);
-    Debug.render(lines);
+    ].concat(turnCtl.debugLines(), moveCtl.debugLines());
   }
 
   // ---------- Movement / collision ----------
@@ -477,21 +425,13 @@
   }
 
   // ---------- Update ----------
-  var lastTime = null;
   function update(dt) {
     if (!state.running) return;
     state.clock += dt;
 
-    var turnDir = 0;
-    if (keyLeft) turnDir -= 1;
-    if (keyRight) turnDir += 1;
-    if (gamepadTurn) turnDir = gamepadTurn;
-    player.angle += turnDir * CFG.TURN_SPEED * dt;
+    player.angle += turnCtl.dir() * CFG.TURN_SPEED * dt;
 
-    var moveDir = 0;
-    if (keyFwd) moveDir += 1;
-    if (keyBack) moveDir -= 1;
-    if (gamepadMove) moveDir = gamepadMove;
+    var moveDir = -moveCtl.dir(); // sus (inainte) e -1 pe axa verticala
     if (moveDir !== 0) {
       var dx = Math.cos(player.angle) * moveDir * CFG.MOVE_SPEED * dt;
       var dy = Math.sin(player.angle) * moveDir * CFG.MOVE_SPEED * dt;
@@ -506,6 +446,7 @@
 
   // ---------- Raycasting (DDA) ----------
   var zbuffer = new Array(CFG.NUM_RAYS);
+  var rayHit = { dist: 0, side: 0 };   // refolosit: 140 de raze x 60 de cadre pe secunda ar fi mii de obiecte noi pe secunda
   function castRay(px, py, angle) {
     var cos = Math.cos(angle), sin = Math.sin(angle);
     var mapX = Math.floor(px), mapY = Math.floor(py);
@@ -524,7 +465,9 @@
       if (isWall(mapX, mapY)) hit = true;
     }
     var dist = side === 0 ? (sideDistX - deltaDistX) : (sideDistY - deltaDistY);
-    return { dist: Math.max(0.05, dist), side: side };
+    rayHit.dist = Math.max(0.05, dist);
+    rayHit.side = side;
+    return rayHit;
   }
 
   // ---------- Draw: 3D scene ----------
@@ -541,6 +484,7 @@
   function drawWalls() {
     var colWidth = W / CFG.NUM_RAYS;
     var flicker = 1 + Math.sin(state.clock * 0.004) * 0.02;
+    var sh = wallShades();
     for (var i = 0; i < CFG.NUM_RAYS; i++) {
       var rayAngle = player.angle - CFG.FOV / 2 + (i / (CFG.NUM_RAYS - 1)) * CFG.FOV;
       var r = castRay(player.x, player.y, rayAngle);
@@ -549,9 +493,7 @@
       var lineH = Math.min(H * 3, (H / Math.max(0.08, corrected)) * flicker);
       var drawStart = (H - lineH) / 2;
       var fog = clamp(corrected / CFG.RENDER_MAX_DIST, 0, 1);
-      var base = r.side === 0 ? CFG.WALL_COLOR_NS : CFG.WALL_COLOR_EW;
-      if (lanternColor) base = mixColor(base, lanternColor, 0.12);
-      ctx.fillStyle = mixColor(base, CFG.FOG_COLOR, fog);
+      ctx.fillStyle = (r.side === 0 ? sh.ns : sh.ew)[Math.round(fog * SHADE_STEPS)];
       ctx.fillRect(Math.floor(i * colWidth), drawStart, Math.ceil(colWidth) + 1, lineH);
     }
   }
@@ -709,21 +651,18 @@
   }
 
   // ---------- Main loop ----------
-  var fps = 0;
-  var rafId = null;
-  function loop(ts) {
-    if (lastTime === null) lastTime = ts;
-    var dt = ts - lastTime;
-    lastTime = ts;
-    if (dt > 60) dt = 60;
-    if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
-
-    pollGamepad();
-    update(dt);
-    draw();
-
-    rafId = requestAnimationFrame(loop);
-  }
+  var loop = GameShared.createLoop({
+    maxDt: 60,
+    update: function (dt) {
+      turnCtl.poll();
+      moveCtl.poll();
+      update(dt);
+    },
+    draw: function () {
+      draw();
+      if (Debug.isOn()) Debug.render(GameShared.debugLines(getGameDebugLines(), loop.fps()));
+    }
+  });
 
   updateHUD();
 
@@ -733,16 +672,10 @@
       questionEl.style.display = '';
       screenSelectEl.classList.add('show');
       Exercises.speak('Alege o culoare!');
-      if (rafId === null) {
-        lastTime = null;
-        rafId = requestAnimationFrame(loop);
-      }
+      loop.start();
     },
     deactivate: function () {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
+      loop.stop();
       state.running = false;
       stageEl.classList.remove('playing');
       questionEl.style.display = 'none';

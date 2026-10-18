@@ -1,41 +1,27 @@
 // games/car-game.js
 //
-// "Mașina Veselă" — jocul de condus. Foloseste modulul comun Exercises
-// (vezi exercises.js) pentru momentele de invatare, in loc sa-si tina
-// propria logica de intrebari. Valorile reglabile (viteze, tipuri de
-// vehicule) sunt in car-game.config.js; cele partajate cu restul arcade-ului
-// (vieti, gamepad, culori) sunt in config.js. Punctul de intrare public e
-// window.CarGame.activate(), apelat de shell.js cand copilul alege acest
-// joc din meniu.
+// "Mașina Veselă" — jocul de condus: copilul alege culoarea si vehiculul (masina,
+// motocicleta, tractor), apoi se fereste de masini si conuri si aduna steluțe.
+// Scheletul (vieti, scor, pauze de exercitii, comenzi) e in ReflexGame.runner
+// (reflex-presets.js); aici sunt alegerea vehiculului, ce apare pe sosea si
+// desenele. Valorile reglabile sunt in car-game.config.js. Punctul de intrare
+// public e window.CarGame.
 (function () {
   'use strict';
 
-  var canvas = document.getElementById('game');
-  var ctx = canvas.getContext('2d');
+  var C = CarGameConfig;
   var W = GameShared.W, H = GameShared.H;
-
-  var stageEl = document.getElementById('stage');
-  var heartsEl = document.getElementById('hearts');
-  var scoreEl = document.getElementById('score');
 
   var screenSelectEl = document.getElementById('screenSelect');
   var colorRowEl = document.getElementById('colorRow');
   var typeRowEl = document.getElementById('typeRow');
   var startBtnEl = document.getElementById('startBtn');
 
-  // ---------- Road geometry ----------
+  // ---------- drumul ----------
   var ROAD_LEFT = 60, ROAD_RIGHT = W - 60;
   var ROAD_WIDTH = ROAD_RIGHT - ROAD_LEFT;
 
-  // ---------- Sounds (reuse the shared AudioContext from the Exercises module) ----------
-  function sfxStar() { Exercises.beep(880, 0.15, 'triangle'); setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90); }
-  function sfxHit() { Exercises.beep(140, 0.25, 'sawtooth'); }
-
-  // ---------- Vehicle selection ----------
-  var COLOR_NAMES = AppConfig.COLOR_NAMES;
-  var TYPE_NAMES = CarGameConfig.TYPE_NAMES;
-  var VEHICLE_DIMS = CarGameConfig.VEHICLE_DIMS;
-
+  // ---------- alegerea vehiculului ----------
   var vehicle = { type: null, color: null };
 
   AppConfig.COLORS.forEach(function (hex) {
@@ -47,7 +33,7 @@
       Array.prototype.forEach.call(colorRowEl.children, function (c) { c.classList.remove('selected'); });
       b.classList.add('selected');
       refreshStartBtn();
-      Exercises.speak(COLOR_NAMES[hex]);
+      Exercises.speak(AppConfig.COLOR_NAMES[hex]);
     });
     colorRowEl.appendChild(b);
   });
@@ -58,7 +44,7 @@
       Array.prototype.forEach.call(typeRowEl.children, function (c) { c.classList.remove('selected'); });
       b.classList.add('selected');
       refreshStartBtn();
-      Exercises.speak(TYPE_NAMES[vehicle.type]);
+      Exercises.speak(C.TYPE_NAMES[vehicle.type]);
     });
   });
 
@@ -68,242 +54,12 @@
 
   startBtnEl.addEventListener('click', function () {
     screenSelectEl.classList.remove('show');
-    Exercises.askIntro(startGame);
+    game.core.begin();
   });
 
-  // ---------- Game state ----------
-  var car = {
-    x: W / 2,
-    y: H - 120,
-    w: 46,
-    h: 74,
-    speed: CarGameConfig.CAR_SPEED
-  };
-
-  var state = {
-    running: false,
-    score: 0,
-    lives: 3,
-    maxLives: 3,
-    invuln: 0,        // ms remaining of invulnerability
-    roadOffset: 0,
-    spawnTimer: 0,
-    spawnInterval: CarGameConfig.SPAWN_INTERVAL_START,
-    speed: CarGameConfig.WORLD_SPEED_START,
-    entities: []        // obstacles + stars
-  };
-
-  function startGame() {
-    var dims = VEHICLE_DIMS[vehicle.type] || VEHICLE_DIMS.car;
-    car.w = dims.w;
-    car.h = dims.h;
-    car.x = W / 2;
-
-    state.maxLives = GameShared.maxLives();
-    state.score = 0;
-    state.lives = state.maxLives;
-    state.invuln = 1200;
-    state.entities = [];
-    state.spawnTimer = 0;
-    state.spawnInterval = CarGameConfig.SPAWN_INTERVAL_START;
-    state.speed = CarGameConfig.WORLD_SPEED_START;
-    state.running = true;
-
-    stageEl.classList.add('playing');
-    touchControlsEl.style.display = 'flex';
-    updateHUD();
-  }
-
-  function continueGameAfterBreak() {
-    state.lives = state.maxLives;
-    state.invuln = 1500;
-    state.entities = [];
-    state.running = true;
-    stageEl.classList.add('playing');
-    touchControlsEl.style.display = 'flex';
-    updateHUD();
-  }
-
-  function updateHUD() {
-    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
-    scoreEl.textContent = '⭐ ' + state.score;
-  }
-
-  // ---------- Input: keyboard ----------
-  var keyLeft = false, keyRight = false;
-  window.addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keyLeft = true;
-    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keyRight = true;
-  });
-  window.addEventListener('keyup', function (e) {
-    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keyLeft = false;
-    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keyRight = false;
-  });
-
-  // ---------- Input: touch (sageti stanga/dreapta + swipe direct pe sosea) ----------
-  var touchControlsEl = document.createElement('div');
-  touchControlsEl.className = 'carTouchControls';
-  touchControlsEl.innerHTML =
-    '<button type="button" class="dpadBtn dpadLeft" aria-label="stânga">◀</button>' +
-    '<button type="button" class="dpadBtn dpadRight" aria-label="dreapta">▶</button>';
-  touchControlsEl.style.display = 'none';
-  stageEl.appendChild(touchControlsEl);
-  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadLeft'), function () { keyLeft = true; }, function () { keyLeft = false; });
-  GameShared.bindHoldButton(touchControlsEl.querySelector('.dpadRight'), function () { keyRight = true; }, function () { keyRight = false; });
-
-  // swipe: tragi degetul stanga/dreapta pe sosea si masina il urmareste direct
-  GameShared.attachDragAxis(canvas, 'x', W, function () { return state.running; }, function (dx) {
-    car.x += dx;
-    var half = car.w / 2;
-    if (car.x < ROAD_LEFT + half) car.x = ROAD_LEFT + half;
-    if (car.x > ROAD_RIGHT - half) car.x = ROAD_RIGHT - half;
-  });
-
-  // ---------- Input: Gamepad / steering wheel ----------
-  var gamepadIndex = null;
-  var gamepadAxisValue = 0; // -1..1
-
-  window.addEventListener('gamepadconnected', function (e) {
-    gamepadIndex = e.gamepad.index;
-  });
-  window.addEventListener('gamepaddisconnected', function (e) {
-    if (gamepadIndex === e.gamepad.index) gamepadIndex = null;
-    gamepadAxisValue = 0;
-  });
-
-  function pollGamepad() {
-    var pads = (navigator.getGamepads) ? navigator.getGamepads() : [];
-    var found = null;
-    for (var i = 0; i < pads.length; i++) {
-      if (pads[i]) { found = pads[i]; break; }
-    }
-    if (found) {
-      gamepadIndex = found.index;
-      // Most racing wheels report steering on axis 0.
-      var axis = found.axes && found.axes.length ? found.axes[0] : 0;
-      if (Math.abs(axis) < AppConfig.GAMEPAD_DEADZONE) {
-        axis = 0;
-      } else {
-        var sign = axis < 0 ? -1 : 1;
-        axis = sign * Math.min(1, Math.abs(axis) * AppConfig.GAMEPAD_GAIN);
-      }
-      gamepadAxisValue = axis;
-
-      // Also allow D-pad buttons (some wheels/pads expose steering as buttons 14/15)
-      var padLeft = found.buttons[14] && found.buttons[14].pressed;
-      var padRight = found.buttons[15] && found.buttons[15].pressed;
-      if (padLeft) gamepadAxisValue = -1;
-      if (padRight) gamepadAxisValue = 1;
-
-      if (Debug.isOn()) renderDebugPanel(found);
-    } else {
-      gamepadIndex = null;
-      gamepadAxisValue = 0;
-      if (Debug.isOn()) renderDebugPanel(null);
-    }
-  }
-
-  function getVoiceDebugLines() {
-    var info = Exercises.getDebugInfo();
-    var lines = [];
-    lines.push('VOICE (Text-to-Speech, din modulul Exercises):');
-    if (!window.speechSynthesis) {
-      lines.push('  speechSynthesis API indisponibila in acest browser.');
-      lines.push('');
-      return lines;
-    }
-    lines.push('  voce romana folosita: ' + (info.romanianVoice ? (info.romanianVoice.name + '  [' + info.romanianVoice.lang + ']' + (info.romanianVoice.localService ? '  (locala)' : '  (retea)')) : 'NICIUNA — se foloseste vocea implicita a sistemului'));
-    if (!info.romanianVoice) {
-      lines.push('  -> Instaleaza o voce romana: Windows Settings > Time & Language > Language & region');
-      lines.push('     > Add a language > Romana > bifeaza "Text-to-speech".');
-    }
-    lines.push('  total voci disponibile: ' + info.voicesCount);
-    var roVoices = (info.voicesCache || []).filter(function (v) { return /^ro([-_]|$)/i.test(v.lang); });
-    if (roVoices.length) {
-      lines.push('  voci romana gasite:');
-      roVoices.forEach(function (v) {
-        lines.push('    - ' + v.name + '  [' + v.lang + ']' + (v.localService ? '  local' : '  retea'));
-      });
-    }
-    lines.push('');
-    return lines;
-  }
-
-  function getSystemDebugLines() {
-    var rect = stageEl.getBoundingClientRect();
-    var lines = [];
-    lines.push('SYSTEM:');
-    lines.push('  fps: ' + fps.toFixed(1));
-    lines.push('  viewport: ' + window.innerWidth + 'x' + window.innerHeight);
-    lines.push('  stage (CSS px): ' + Math.round(rect.width) + 'x' + Math.round(rect.height));
-    lines.push('  canvas (logic px): ' + W + 'x' + H);
-    lines.push('  url: ' + window.location.href);
-    lines.push('  userAgent: ' + navigator.userAgent);
-    lines.push('');
-    return lines;
-  }
-
-  function getGameDebugLines() {
-    var screenName = state.running ? 'playing'
-      : Exercises.isShowing() ? 'exercise'
-      : screenSelectEl.classList.contains('show') ? 'select'
-      : 'menu';
-    var lines = [];
-    lines.push('GAME STATE (car-game):');
-    lines.push('  screen: ' + screenName);
-    lines.push('  vehicle: ' + (vehicle.type || '-') + ' / ' + (vehicle.color || '-'));
-    lines.push('  score: ' + state.score + '   lives: ' + state.lives + '/' + state.maxLives);
-    lines.push('  invuln (ms ramase): ' + Math.max(0, Math.round(state.invuln)));
-    lines.push('  car: x=' + car.x.toFixed(1) + '  w=' + car.w + '  h=' + car.h);
-    lines.push('  world speed: ' + state.speed.toFixed(2) + '   spawnInterval: ' + Math.round(state.spawnInterval) + 'ms');
-    lines.push('  entities active: ' + state.entities.length);
-    lines.push('');
-    lines.push('INPUT:');
-    lines.push('  tastatura: stanga=' + keyLeft + '  dreapta=' + keyRight);
-    lines.push('  gamepad axis folosit: ' + gamepadAxisValue.toFixed(3));
-    lines.push('');
-    return lines;
-  }
-
-  function renderDebugPanel(gp) {
-    var lines = getSystemDebugLines().concat(getGameDebugLines()).concat(getVoiceDebugLines());
-
-    if (!gp) {
-      lines.push('GAMEPAD:');
-      lines.push('  Niciun gamepad detectat.');
-      lines.push('  Apasa un buton pe volan ca browserul sa-l "trezeasca".');
-      Debug.render(lines);
-      return;
-    }
-
-    lines.push('GAMEPAD:');
-    lines.push('  id: ' + gp.id);
-    lines.push('  index: ' + gp.index + '   mapping: ' + (gp.mapping || '(none)'));
-    lines.push('');
-    lines.push('  AXES (' + gp.axes.length + '):');
-    for (var a = 0; a < gp.axes.length; a++) {
-      var v = gp.axes[a];
-      var marker = (a === 0) ? '  <- folosita pentru viraj' : '';
-      lines.push('    [' + a + '] ' + v.toFixed(3) + marker);
-    }
-    lines.push('');
-    lines.push('  BUTTONS (' + gp.buttons.length + '):');
-    var btnLine = '';
-    for (var b = 0; b < gp.buttons.length; b++) {
-      var pressed = gp.buttons[b].pressed || gp.buttons[b].value > 0.08;
-      var val = gp.buttons[b].value;
-      btnLine += '[' + b + ']' + (pressed ? '*' + val.toFixed(2) : '-') + '  ';
-      if ((b + 1) % 6 === 0) { lines.push('    ' + btnLine); btnLine = ''; }
-    }
-    if (btnLine) lines.push('    ' + btnLine);
-    lines.push('');
-    lines.push('  valoare directie folosita: ' + gamepadAxisValue.toFixed(3));
-    Debug.render(lines);
-  }
-
-  // ---------- Entities ----------
-  // types: 'car' (obstacle), 'cone' (obstacle), 'star' (collectible)
-  function spawnEntity() {
+  // ---------- ce apare pe sosea ----------
+  // tipuri: 'car' si 'cone' (obstacole), 'star' (colectabil)
+  function spawnEntity(core) {
     var roll = Math.random();
     var type;
     if (roll < 0.45) type = 'car';
@@ -314,101 +70,57 @@
     var h = type === 'car' ? 68 : (type === 'cone' ? 30 : 30);
     var x = ROAD_LEFT + w / 2 + Math.random() * (ROAD_WIDTH - w);
 
-    var colors = CarGameConfig.OBSTACLE_COLORS;
-    state.entities.push({
-      type: type,
-      x: x,
-      y: -h,
-      w: w,
-      h: h,
+    var colors = C.OBSTACLE_COLORS;
+    core.state.entities.push({
+      type: type, x: x, y: -h, w: w, h: h,
       color: colors[Math.floor(Math.random() * colors.length)],
       collected: false
     });
   }
 
-  function rectsOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
-    return Math.abs(ax - bx) < (aw + bw) / 2 * 0.8 &&
-           Math.abs(ay - by) < (ah + bh) / 2 * 0.8;
-  }
+  var game = window.CarGame = ReflexGame.runner({
+    name: 'car',
+    intro: 'Alege o culoare, apoi mașina!',
+    lane: [ROAD_LEFT, ROAD_RIGHT],
+    player: { w: 46, h: 74, speed: C.CAR_SPEED },
+    world: {
+      speed: [C.WORLD_SPEED_START, C.WORLD_SPEED_MAX, C.WORLD_SPEED_RAMP],
+      spawn: [C.SPAWN_INTERVAL_START, C.SPAWN_INTERVAL_MIN, C.SPAWN_INTERVAL_RAMP]
+    },
+    prize: { type: 'star', w: 30, h: 30 },
+    spawn: spawnEntity,
 
-  // ---------- Update ----------
-  var lastTime = null;
-  function update(dt) {
-    // the road only moves while actually playing — frozen on the select/exercise
-    // screens so it's unmistakable that those are a separate mode from driving
-    if (!state.running) return;
+    // intai ecranul de alegere a vehiculului, abia apoi exercitiile si jocul
+    onActivate: function () {
+      screenSelectEl.classList.add('show');
+      Exercises.speak('Alege o culoare, apoi mașina!');
+      return true;
+    },
+    onDeactivate: function () { screenSelectEl.classList.remove('show'); },
 
-    var tempo = GameShared.tempoMultiplier(state.score);
-    var scrollSpeed = state.speed * tempo * (dt / 16.6667);
-    state.roadOffset += scrollSpeed;
-    if (state.roadOffset > 40) state.roadOffset -= 40;
+    // dimensiunile vehiculului ales
+    reset: function (core, player) {
+      var dims = C.VEHICLE_DIMS[vehicle.type] || C.VEHICLE_DIMS.car;
+      player.w = dims.w;
+      player.h = dims.h;
+    },
 
-    // --- car horizontal movement ---
-    var dir = 0;
-    if (keyLeft) dir -= 1;
-    if (keyRight) dir += 1;
-    if (gamepadAxisValue !== 0) dir = gamepadAxisValue;
-
-    var move = dir * car.speed * (dt / 16.6667);
-    car.x += move;
-    var half = car.w / 2;
-    if (car.x < ROAD_LEFT + half) car.x = ROAD_LEFT + half;
-    if (car.x > ROAD_RIGHT - half) car.x = ROAD_RIGHT - half;
-
-    // --- spawn ---
-    GameShared.tickSpawn(state, dt, spawnEntity);
-
-    // --- gentle difficulty ramp (very mild, capped) ---
-    GameShared.rampDifficulty(state, dt, CarGameConfig.WORLD_SPEED_MAX, CarGameConfig.WORLD_SPEED_RAMP, CarGameConfig.SPAWN_INTERVAL_MIN, CarGameConfig.SPAWN_INTERVAL_RAMP);
-
-    // --- invulnerability timer ---
-    if (state.invuln > 0) state.invuln -= dt;
-
-    // --- entities update ---
-    for (var i = state.entities.length - 1; i >= 0; i--) {
-      var ent = state.entities[i];
-      ent.y += scrollSpeed;
-
-      if (ent.y - ent.h > H) {
-        state.entities.splice(i, 1);
-        continue;
-      }
-
-      if (ent.collected) continue;
-
-      var hit = rectsOverlap(car.x, car.y, car.w, car.h, ent.x, ent.y, ent.w, ent.h);
-      if (hit) {
-        if (ent.type === 'star') {
-          ent.collected = true;
-          state.entities.splice(i, 1);
-          state.score += 1;
-          GameShared.awardMatch();
-          updateHUD();
-          sfxStar();
-          if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) { triggerLearningBreak(); break; }
-        } else if (state.invuln <= 0) {
-          state.lives -= 1;
-          state.invuln = 1500;
-          updateHUD();
-          sfxHit();
-          if (window.Credits) Credits.deduct(AppConfig.CREDIT_PENALTY_PER_MISTAKE);
-          if (state.lives <= 0) {
-            triggerLearningBreak();
-          }
-        }
-      }
+    drawScene: drawRoad,
+    drawPrize: function (ctx, e) { GameDraw.star(ctx, e.x, e.y, e.w); },
+    drawObstacle: function (ctx, e) {
+      if (e.type === 'cone') drawCone(ctx, e.x, e.y, e.w, e.h);
+      else drawCarShape(ctx, e.x, e.y, e.w, e.h, e.color, false);
+    },
+    drawPlayer: function (ctx, p, blink) {
+      var color = vehicle.color || '#43a047', type = vehicle.type || 'car';
+      if (type === 'moto') drawMotorcycle(ctx, p.x, p.y, p.w, p.h, color, blink);
+      else if (type === 'tractor') drawTractor(ctx, p.x, p.y, p.w, p.h, color, blink);
+      else drawCarShape(ctx, p.x, p.y, p.w, p.h, color, blink);
     }
-  }
+  });
 
-  function triggerLearningBreak() {
-    state.running = false;
-    stageEl.classList.remove('playing');
-    touchControlsEl.style.display = 'none';
-    Exercises.ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', continueGameAfterBreak);
-  }
-
-  // ---------- Draw ----------
-  function drawRoad() {
+  // ---------- desene ----------
+  function drawRoad(ctx, state) {
     // grass
     ctx.fillStyle = '#7bc96f';
     ctx.fillRect(0, 0, W, H);
@@ -426,14 +138,15 @@
     ctx.fillStyle = '#f5f5f5';
     var laneX = ROAD_LEFT + ROAD_WIDTH / 2;
     var dashH = 26, gap = 20;
-    var y = -40 + state.roadOffset;
+    var y = -40 + state.offset;
     while (y < H) {
       ctx.fillRect(laneX - 3, y, 6, dashH);
       y += dashH + gap;
     }
   }
 
-  function drawCarShape(x, y, w, h, bodyColor, blink) {
+
+  function drawCarShape(ctx, x, y, w, h, bodyColor, blink) {
     if (blink) return; // skip draw this frame for blink effect
     ctx.save();
     ctx.translate(x, y);
@@ -446,17 +159,17 @@
 
     // body
     ctx.fillStyle = bodyColor;
-    roundRect(-w / 2, -h / 2, w, h, 10);
+    GameDraw.roundRect(ctx, -w / 2, -h / 2, w, h, 10);
     ctx.fill();
 
     // windshield
     ctx.fillStyle = '#bbdefb';
-    roundRect(-w / 2 + 7, -h / 2 + 10, w - 14, h * 0.32, 6);
+    GameDraw.roundRect(ctx, -w / 2 + 7, -h / 2 + 10, w - 14, h * 0.32, 6);
     ctx.fill();
 
     // rear window
     ctx.fillStyle = '#bbdefb';
-    roundRect(-w / 2 + 7, h / 2 - h * 0.32 - 8, w - 14, h * 0.24, 6);
+    GameDraw.roundRect(ctx, -w / 2 + 7, h / 2 - h * 0.32 - 8, w - 14, h * 0.24, 6);
     ctx.fill();
 
     // wheels
@@ -469,7 +182,7 @@
     ctx.restore();
   }
 
-  function drawMotorcycle(x, y, w, h, bodyColor, blink) {
+  function drawMotorcycle(ctx, x, y, w, h, bodyColor, blink) {
     if (blink) return;
     ctx.save();
     ctx.translate(x, y);
@@ -486,12 +199,12 @@
 
     // body
     ctx.fillStyle = bodyColor;
-    roundRect(-w / 2, -h / 2 + 14, w, h - 28, 8);
+    GameDraw.roundRect(ctx, -w / 2, -h / 2 + 14, w, h - 28, 8);
     ctx.fill();
 
     // seat
     ctx.fillStyle = '#3e2723';
-    roundRect(-w / 2 + 4, h / 2 - 26, w - 8, 10, 4);
+    GameDraw.roundRect(ctx, -w / 2 + 4, h / 2 - 26, w - 8, 10, 4);
     ctx.fill();
 
     // headlight
@@ -501,7 +214,7 @@
     ctx.restore();
   }
 
-  function drawTractor(x, y, w, h, bodyColor, blink) {
+  function drawTractor(ctx, x, y, w, h, bodyColor, blink) {
     if (blink) return;
     ctx.save();
     ctx.translate(x, y);
@@ -513,12 +226,12 @@
 
     // body
     ctx.fillStyle = bodyColor;
-    roundRect(-w / 2, -h / 2, w, h, 8);
+    GameDraw.roundRect(ctx, -w / 2, -h / 2, w, h, 8);
     ctx.fill();
 
     // cab window
     ctx.fillStyle = '#bbdefb';
-    roundRect(-w / 2 + 6, -h / 2 + 8, w - 12, h * 0.3, 6);
+    GameDraw.roundRect(ctx, -w / 2 + 6, -h / 2 + 8, w - 12, h * 0.3, 6);
     ctx.fill();
 
     // big rear wheels
@@ -537,13 +250,7 @@
     ctx.restore();
   }
 
-  function drawPlayerVehicle(x, y, w, h, color, type, blink) {
-    if (type === 'moto') drawMotorcycle(x, y, w, h, color, blink);
-    else if (type === 'tractor') drawTractor(x, y, w, h, color, blink);
-    else drawCarShape(x, y, w, h, color, blink);
-  }
-
-  function drawCone(x, y, w, h) {
+  function drawCone(ctx, x, y, w, h) {
     ctx.save();
     ctx.translate(x, y);
     ctx.fillStyle = 'rgba(0,0,0,0.15)';
@@ -564,101 +271,4 @@
 
     ctx.restore();
   }
-
-  function drawStar(x, y, size) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = '#ffd54f';
-    ctx.strokeStyle = '#ff9800';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    var spikes = 5, outerR = size / 2, innerR = outerR / 2.3;
-    var rot = Math.PI / 2 * 3;
-    var step = Math.PI / spikes;
-    ctx.moveTo(0, -outerR);
-    for (var i = 0; i < spikes; i++) {
-      var xo = Math.cos(rot) * outerR, yo = Math.sin(rot) * outerR;
-      ctx.lineTo(xo, yo);
-      rot += step;
-      var xi = Math.cos(rot) * innerR, yi = Math.sin(rot) * innerR;
-      ctx.lineTo(xi, yi);
-      rot += step;
-    }
-    ctx.lineTo(0, -outerR);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  function roundRect(x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-  }
-
-  function draw() {
-    drawRoad();
-
-    if (!state.running) return;
-
-    for (var i = 0; i < state.entities.length; i++) {
-      var ent = state.entities[i];
-      if (ent.type === 'star') drawStar(ent.x, ent.y, ent.w);
-      else if (ent.type === 'cone') drawCone(ent.x, ent.y, ent.w, ent.h);
-      else drawCarShape(ent.x, ent.y, ent.w, ent.h, ent.color, false);
-    }
-
-    var blinking = state.invuln > 0 && Math.floor(state.invuln / 100) % 2 === 0;
-    drawPlayerVehicle(car.x, car.y, car.w, car.h, vehicle.color || '#43a047', vehicle.type || 'car', blinking);
-  }
-
-  // ---------- Main loop ----------
-  var fps = 0;
-  function loop(ts) {
-    if (lastTime === null) lastTime = ts;
-    var dt = ts - lastTime;
-    lastTime = ts;
-    if (dt > 60) dt = 60; // clamp for tab-switch / slow frame spikes
-    if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
-
-    pollGamepad();
-    update(dt);
-    draw();
-
-    rafId = requestAnimationFrame(loop);
-  }
-
-  updateHUD();
-
-  // ---------- Public entry point (called by shell.js when chosen from the menu) ----------
-  // The render loop only runs while this game is the active one — otherwise its
-  // canvas draws (and debug panel updates) would fight with another game running
-  // in the background. shell.js calls deactivate() on the previous game before
-  // activating a new one.
-  var rafId = null;
-  window.CarGame = {
-    activate: function () {
-      screenSelectEl.classList.add('show');
-      Exercises.speak('Alege o culoare, apoi mașina!');
-      if (rafId === null) {
-        lastTime = null;
-        rafId = requestAnimationFrame(loop);
-      }
-    },
-    deactivate: function () {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-      state.running = false;
-      stageEl.classList.remove('playing');
-      touchControlsEl.style.display = 'none';
-      screenSelectEl.classList.remove('show');
-    }
-  };
 })();

@@ -1,7 +1,8 @@
 // games/snake-game.js
 //
 // "Șarpele Vesel" — sarpele clasic, fara voce si fara pauze de exercitii:
-// copilul il conduce (swipe pe ecran, sageti sau tastatura) ca sa mance mere.
+// copilul il conduce ca sa mance mere: glisand cu degetul de ORIUNDE pe ecran, atingand
+// locul unde vrea sa mearga, cu sagetile de jos sau de la tastatura.
 // Fiecare para mancata e o steluta. Peretii si propria coada costa o viata
 // (cei mici, 2-3 ani, trec prin pereti), iar cand se termina vietile apare
 // un ecran cu scorul si butonul "Joaca din nou". Dificultatea (viteza)
@@ -42,12 +43,12 @@
 
   try { state.best = parseInt(window.localStorage.getItem(C.BEST_KEY), 10) || 0; } catch (e) { /* ignora */ }
 
-  // ---------- DOM: butoane de directie + ecran de final ----------
+  // ---------- DOM: sageti (in forma de T, sub tabla) + ecran de final ----------
   var controlsEl = document.createElement('div');
   controlsEl.className = 'snakeControls';
   controlsEl.innerHTML =
-    '<button type="button" class="dpadBtn" data-dir="left" aria-label="stânga">◀</button>' +
     '<button type="button" class="dpadBtn" data-dir="up" aria-label="sus">▲</button>' +
+    '<button type="button" class="dpadBtn" data-dir="left" aria-label="stânga">◀</button>' +
     '<button type="button" class="dpadBtn" data-dir="down" aria-label="jos">▼</button>' +
     '<button type="button" class="dpadBtn" data-dir="right" aria-label="dreapta">▶</button>';
   controlsEl.style.display = 'none';
@@ -55,6 +56,24 @@
   Array.prototype.forEach.call(controlsEl.querySelectorAll('.dpadBtn'), function (btn) {
     btn.addEventListener('pointerdown', function (e) { e.preventDefault(); turn(DIRS[btn.getAttribute('data-dir')]); });
   });
+
+  // indiciu scurt (fara voce): primele 3 jocuri de pe acest telefon, cateva secunde, apoi dispare singur
+  var hintEl = document.createElement('div');
+  hintEl.className = 'snakeHint';
+  hintEl.textContent = '👆 Glisează cu degetul sau atinge unde vrei să meargă';
+  hintEl.style.display = 'none';
+  stageEl.appendChild(hintEl);
+  var hintTimer = null;
+  function showHint() {
+    var seen = 0;
+    try { seen = parseInt(window.localStorage.getItem(C.HINT_KEY), 10) || 0; } catch (e) { /* ignora */ }
+    if (seen >= C.HINT_TIMES) return;
+    try { window.localStorage.setItem(C.HINT_KEY, String(seen + 1)); } catch (e) { /* ignora */ }
+    hintEl.style.display = '';
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(hideHint, C.HINT_MS);
+  }
+  function hideHint() { clearTimeout(hintTimer); hintEl.style.display = 'none'; }
 
   var overEl = document.createElement('div');
   overEl.className = 'screen';
@@ -104,8 +123,9 @@
     state.running = true;
     overEl.classList.remove('show');
     stageEl.classList.add('playing');
-    controlsEl.style.display = 'flex';
+    controlsEl.style.display = 'grid';
     updateHUD();
+    showHint();
   }
 
   function turn(dir) {
@@ -113,6 +133,7 @@
     var last = state.queue.length ? state.queue[state.queue.length - 1] : state.dir;
     if (dir === last || (dir.x === -last.x && dir.y === -last.y)) return; // aceeasi sau inapoi
     if (state.queue.length < 2) state.queue.push(dir);
+    hideHint(); // a inteles cum se conduce
   }
 
   function loseLife() {
@@ -126,6 +147,7 @@
 
   function endGame() {
     state.running = false;
+    hideHint();
     stageEl.classList.remove('playing');
     controlsEl.style.display = 'none';
     var newBest = state.score > state.best;
@@ -187,26 +209,35 @@
     ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right'
   };
   window.addEventListener('keydown', function (e) {
-    if (KEYS[e.key]) { e.preventDefault(); turn(DIRS[KEYS[e.key]]); }
+    if (!state.running || !KEYS[e.key]) return; // doar cat se joaca: altfel am bloca sagetile/literele peste tot
+    e.preventDefault();
+    turn(DIRS[KEYS[e.key]]);
   });
 
-  // ---------- Input: swipe pe scena ----------
-  var swipe = null;
-  var SWIPE_MIN = 18; // px CSS
-  canvas.addEventListener('pointerdown', function (e) {
-    if (!state.running) return;
-    e.preventDefault();
-    swipe = { x: e.clientX, y: e.clientY };
+  // ---------- Input: gesturi pe tot ecranul ----------
+  //  - glisare cu degetul, de oriunde (si pe marginea din jurul scenei): sarpele o ia in directia glisarii
+  //  - atingere scurta pe tabla: sarpele vireaza spre locul atins (deasupra/dedesubtul capului daca merge
+  //    pe orizontala, stanga/dreapta daca merge pe verticala)
+  function tapSteer(clientX, clientY) {
+    var rect = canvas.getBoundingClientRect();
+    var lx = (clientX - rect.left) * (W / rect.width);
+    var ly = (clientY - rect.top) * (GameShared.H / rect.height);
+    if (lx < 0 || lx > W || ly < C.TOP || ly > C.TOP + C.ROWS * C.CELL) return; // in afara tablei
+    var head = state.snake[0];
+    if (!head) return;
+    var dx = lx - (head.x * C.CELL + C.CELL / 2);
+    var dy = ly - (C.TOP + head.y * C.CELL + C.CELL / 2);
+    var last = state.queue.length ? state.queue[state.queue.length - 1] : state.dir;
+    var half = C.CELL / 2;
+    if (last.y === 0) { if (Math.abs(dy) > half) turn(dy < 0 ? DIRS.up : DIRS.down); }       // merge pe orizontala
+    else if (Math.abs(dx) > half) turn(dx < 0 ? DIRS.left : DIRS.right);                      // merge pe verticala
+  }
+
+  GameInput.gestures({
+    isActive: function () { return state.running; },
+    onSwipe: function (name) { turn(DIRS[name]); },
+    onTap: tapSteer
   });
-  canvas.addEventListener('pointermove', function (e) {
-    if (!swipe || !state.running) return;
-    var dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
-    if (Math.abs(dx) < SWIPE_MIN && Math.abs(dy) < SWIPE_MIN) return;
-    turn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? DIRS.right : DIRS.left) : (dy > 0 ? DIRS.down : DIRS.up));
-    swipe = { x: e.clientX, y: e.clientY }; // permite o a doua intoarcere in aceeasi miscare
-  });
-  window.addEventListener('pointerup', function () { swipe = null; });
-  window.addEventListener('pointercancel', function () { swipe = null; });
 
   // ---------- Desen ----------
   function cellRect(x, y) { return { x: x * C.CELL, y: C.TOP + y * C.CELL }; }
@@ -283,6 +314,7 @@
       '  score/best: ' + state.score + '/' + state.best,
       '  lives: ' + state.lives + '/' + state.maxLives,
       '  length: ' + state.snake.length + '  tick: ' + Math.round(state.tickMs) + 'ms',
+      '  dir: ' + (state.dir === DIRS.up ? 'up' : state.dir === DIRS.down ? 'down' : state.dir === DIRS.left ? 'left' : 'right') + '  queue: ' + state.queue.length,
       ''
     ];
   }
@@ -291,6 +323,8 @@
 
   // ---------- Intrare publica (apelata de shell.js) ----------
   window.SnakeGame = {
+    state: state,   // citit de teste si de panoul de debug
+    DIRS: DIRS,
     activate: function () {
       gameLoop.start();
       startGame(); // fara voce si fara exercitii: direct in joc
@@ -299,6 +333,7 @@
       gameLoop.stop();
       state.running = false;
       state.snake = [];
+      hideHint();
       stageEl.classList.remove('playing');
       controlsEl.style.display = 'none';
       overEl.classList.remove('show');

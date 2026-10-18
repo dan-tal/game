@@ -11,19 +11,14 @@
 // decat cea dinainte — nivelul creste in cadrul rundei curente, la fel ca
 // in Labirintul Magic (vezi PuzzleGameConfig.LEVELS_BY_TIER si maze-game.js).
 // Punctul de intrare public e window.PuzzleGame.activate().
+//
+// Ciclul de viata (activare, exercitii de intro, scor, pauze de invatare, bucla de desen,
+// debug) vine din BoardGame (games/board-game.js); aici e doar ce e specific jocului.
 (function () {
   'use strict';
 
-  var canvas = document.getElementById('game');
-  var ctx = canvas.getContext('2d');
-  var W = GameShared.W, H = GameShared.H;
-
   var stageEl = document.getElementById('stage');
-  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
-  var timers = GameShared.createTimers();
-
-  var heartsEl = document.getElementById('hearts');
-  var scoreEl = document.getElementById('score');
+  var shuffle = GameShared.shuffle;
 
   // nivelul curent (in cadrul rundei) determina cate piese are poza — vezi
   // PuzzleGameConfig.LEVELS_BY_TIER si afterPuzzleComplete() mai jos
@@ -71,23 +66,32 @@
   wrapEl.appendChild(trayEl);
   stageEl.appendChild(wrapEl);
 
-  function sfxLevelUp() { Exercises.beep(660, 0.12, 'triangle'); setTimeout(function () { Exercises.beep(880, 0.12, 'triangle'); }, 100); setTimeout(function () { Exercises.beep(1100, 0.18, 'triangle'); }, 200); }
+  var game = window.PuzzleGame = BoardGame.create({
+    name: 'puzzle-game',
+    intro: 'Hai să facem un puzzle!',
+    els: [wrapEl],
+    extraState: { filledCount: 0 },
+    onStart: function () { levelIndex = 0; },
+    build: buildPuzzle,
+    debug: function (core) {
+      return [
+        '  nivel: ' + (levelIndex + 1) + '/' + levels().length + '   grid: ' + GRID + 'x' + GRID,
+        '  piese la loc: ' + core.state.filledCount + '/' + PIECE_COUNT
+      ];
+    },
+    // o piesa apucata chiar cand s-a apasat "acasa" a fost mutata direct in #stage (vezi pointerdown mai
+    // jos) — fara asta ar ramane vizibila peste meniu, in afara lui .puzzleWrap care tocmai s-a ascuns
+    onDeactivate: function () {
+      Array.prototype.forEach.call(stageEl.querySelectorAll('.puzzlePiece'), function (el) { el.remove(); });
+    },
 
-  var shuffle = GameShared.shuffle;
-
-  var state = {
-    running: false,
-    score: 0,
-    lives: AppConfig.NORMAL_MAX_LIVES,
-    maxLives: AppConfig.NORMAL_MAX_LIVES,
-    filledCount: 0
-  };
-
-  // jocul nu scade vieti (o piesa pusa gresit se intoarce in tava) — nu afisam inimi
-  function updateHUD() {
-    heartsEl.textContent = '';
-    scoreEl.textContent = '⭐ ' + state.score;
-  }
+    // fundal simplu, fara elemente interactive
+    draw: function (ctx) {
+      ctx.fillStyle = '#00695c';
+      ctx.fillRect(0, 0, GameShared.W, GameShared.H);
+    }
+  });
+  var core = game.core, state = core.state;
 
   function makePieceArt(icon, row, col, grid, size) {
     var art = document.createElement('div');
@@ -209,9 +213,9 @@
         if (state.filledCount === PIECE_COUNT) {
           state.score += 1;
           GameShared.awardMatch();
-          updateHUD();
+          core.hud();
           Exercises.speak('Bravo! Ai terminat puzzle-ul!');
-          timers.set(afterPuzzleComplete, 1200);
+          core.timers.set(afterPuzzleComplete, 1200);
         }
       } else {
         trayEl.appendChild(piece);
@@ -225,85 +229,9 @@
     if (!state.running) return; // s-a apasat "acasa" cat timp astepta
     if (levelIndex < levels().length - 1) {
       levelIndex++;
-      sfxLevelUp();
+      GameShared.sfxLevelUp();
     }
-    if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) triggerLearningBreak();
+    if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) core.learningBreak();
     else buildPuzzle();
   }
-
-  function startGame() {
-    timers.clearAll();
-    state.score = 0;
-    state.maxLives = GameShared.maxLives();
-    state.lives = state.maxLives;
-    state.running = true;
-    levelIndex = 0;
-
-    buildPuzzle();
-    stageEl.classList.add('playing');
-    updateHUD();
-  }
-
-  function triggerLearningBreak() {
-    state.running = false;
-    stageEl.classList.remove('playing');
-    Exercises.ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', function () {
-      state.running = true;
-      buildPuzzle();
-      stageEl.classList.add('playing');
-      updateHUD();
-    });
-  }
-
-  function getGameDebugLines() {
-    var screenName = state.running ? 'playing' : Exercises.isShowing() ? 'exercise' : 'menu';
-    return [
-      'GAME STATE (puzzle-game):',
-      '  screen: ' + screenName,
-      '  nivel: ' + (levelIndex + 1) + '/' + levels().length + '   grid: ' + GRID + 'x' + GRID,
-      '  piese la loc: ' + state.filledCount + '/' + PIECE_COUNT,
-      '  score: ' + state.score,
-      ''
-    ];
-  }
-  function renderDebugPanel() {
-    Debug.render(GameShared.debugLines(getGameDebugLines(), gameLoop.fps()));
-  }
-
-  // ---------- Draw: fundal simplu, fara elemente interactive ----------
-  function drawBoard() {
-    ctx.fillStyle = '#00695c';
-    ctx.fillRect(0, 0, W, H);
-  }
-
-  function draw() {
-    drawBoard();
-    if (Debug.isOn()) renderDebugPanel();
-  }
-
-  // ---------- Main loop (fara reflexe — doar redeseneaza fundalul) ----------
-  var gameLoop = GameShared.createLoop({ draw: draw, interval: 100 }); // scena e statica: 10 desene/s scutesc bateria
-
-  updateHUD();
-
-  // ---------- Public entry point (called by shell.js when chosen from the menu) ----------
-  window.PuzzleGame = {
-    activate: function () {
-      wrapEl.style.display = '';
-      Exercises.speak('Hai să facem un puzzle!');
-      gameLoop.start();
-      Exercises.askIntro(startGame);
-    },
-    deactivate: function () {
-      gameLoop.stop();
-      timers.clearAll();
-      state.running = false;
-      stageEl.classList.remove('playing');
-      wrapEl.style.display = 'none';
-      // o piesa apucata chiar cand s-a apasat "acasa" a fost mutata direct in
-      // #stage (vezi pointerdown mai sus) — fara asta ar ramane vizibila
-      // peste meniu, in afara lui .puzzleWrap care tocmai s-a ascuns
-      Array.prototype.forEach.call(stageEl.querySelectorAll('.puzzlePiece'), function (el) { el.remove(); });
-    }
-  };
 })();

@@ -68,10 +68,16 @@ module.exports = function createRoomManager(plugins, transport, options) {
   }
 
   // la create/join: true daca a reusit
+  // camera in care a fost cineva s-a putut inchide intre timp (adversarul a plecat): atunci clientul e liber
+  function forgetClosedRoom(ws) {
+    if (ws.roomCode && !rooms[ws.roomCode]) { ws.roomCode = null; ws.playerNum = null; }
+  }
+
   function create(ws, gameKey, msg) {
+    forgetClosedRoom(ws);
     // un client are cel mult o camera: fara asta, apasari repetate creau camere
     // "orfane" (la inchidere se sterge doar ultima) care raman in memorie
-    if (ws.roomCode && rooms[ws.roomCode]) return false;
+    if (ws.roomCode) return false;
     var p = plugin(gameKey || 'mathduel');
     if (!p) { transport.send(ws, { type: 'error', message: 'Jocul nu există.' }); return false; }
     if (Object.keys(rooms).length >= maxRooms) {
@@ -101,7 +107,8 @@ module.exports = function createRoomManager(plugins, transport, options) {
   }
 
   function join(ws, code, gameKey) {
-    if (ws.roomCode) return false; // e deja intr-o camera
+    forgetClosedRoom(ws);
+    if (ws.roomCode) { transport.send(ws, { type: 'error', message: 'Ești deja într-o cameră.' }); return false; }
     var room = rooms[code];
     if (!room || (gameKey && gameKey !== room.game)) {
       transport.send(ws, { type: 'error', message: 'Camera nu există. Verifică codul.' }); return false;

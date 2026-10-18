@@ -3,7 +3,7 @@
 // Cutia de scule comuna a jocurilor. Aici traieste tot ce NU tine de regulile
 // unui joc anume, ca un joc nou sa fie doar logica lui:
 //   - aleatoriu:   rand, pick, shuffle
-//   - sunet:       sfxGood, sfxBad (aceleasi sunete in tot arcade-ul)
+//   - sunet:       sfxGood, sfxBad, sfxHit, sfxLevelUp (aceleasi sunete in tot arcade-ul)
 //   - bucla:       createLoop (rAF cu dt + fps, pornit/oprit curat)
 //   - debug:       debugLines (SYSTEM + VOICE, gata de pus langa liniile jocului)
 //   - dificultate: ramp-ul vitezei, tempoul legat de steluțe, aparitiile (jocurile cu reflexe)
@@ -33,17 +33,8 @@ var GameShared = (function () {
   var mainCanvas = document.getElementById('game');
   if (mainCanvas) setupCanvas(mainCanvas);
 
-  // ---------- aleatoriu ----------
-  function rand(n) { return Math.floor(Math.random() * n); }
-  function pick(list) { return list[rand(list.length)]; }
-  // amesteca pe loc (Fisher-Yates) si intoarce aceeasi lista
-  function shuffle(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = rand(i + 1);
-      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    }
-    return arr;
-  }
+  // ---------- aleatoriu (vezi util.js) ----------
+  var rand = Util.rand, pick = Util.pick, shuffle = Util.shuffle;
 
   // ---------- sunete (WebAudio, prin modulul Exercises: respecta mut/pauza) ----------
   function sfxGood() {
@@ -51,6 +42,14 @@ var GameShared = (function () {
     setTimeout(function () { Exercises.beep(1180, 0.15, 'triangle'); }, 90);
   }
   function sfxBad() { Exercises.beep(260, 0.15, 'sine'); }
+  // lovitura / obstacol (jocurile cu reflexe: s-a pierdut o viata)
+  function sfxHit() { Exercises.beep(140, 0.25, 'sawtooth'); }
+  // nivel nou / puzzle terminat
+  function sfxLevelUp() {
+    Exercises.beep(660, 0.12, 'triangle');
+    setTimeout(function () { Exercises.beep(880, 0.12, 'triangle'); }, 100);
+    setTimeout(function () { Exercises.beep(1100, 0.18, 'triangle'); }, 200);
+  }
 
   // ---------- bucla de joc ----------
   // requestAnimationFrame cu dt (ms, plafonat ca sa nu "teleporteze" lumea
@@ -200,31 +199,34 @@ var GameShared = (function () {
     el.addEventListener('pointerleave', onUp);
   }
 
-  // tragere cu degetul pe canvas, pe o singura axa ('x' sau 'y') — apeleaza
-  // onDelta(deltaInLogicalPx) cat timp degetul se misca si isActiveFn()
-  // e adevarat. Touch-ul vine in px CSS, dar jocurile lucreaza in px logice
-  // (420x700), de-asta scalarea cu getBoundingClientRect().
+  // tragere cu degetul pe o singura axa ('x' sau 'y') — apeleaza onDelta(deltaInLogicalPx) cat timp
+  // degetul se misca si isActiveFn() e adevarat. Merge de ORIUNDE pe ecran, nu doar pe canvas: un copil
+  // apuca degetul pe marginea albastra din jurul scenei sau pe inimi, nu tinteste canvasul (doar butoanele
+  // de pe ecran isi vad de ale lor). Touch-ul vine in px CSS, dar jocurile lucreaza in px logice (420x700),
+  // de-asta scalarea cu getBoundingClientRect() al canvasului.
   function attachDragAxis(canvas, axis, logicalSize, isActiveFn, onDelta) {
     var prop = axis === 'x' ? 'clientX' : 'clientY';
-    var active = false, last = 0;
-    canvas.addEventListener('pointerdown', function (e) {
-      if (!isActiveFn()) return;
+    var pointerId = null, last = 0;
+    window.addEventListener('pointerdown', function (e) {
+      if (pointerId !== null || !isActiveFn()) return;
+      if (e.target && e.target.closest && e.target.closest('button, a, input, select, textarea')) return;
       e.preventDefault();
-      active = true;
+      pointerId = e.pointerId;
       last = e[prop];
     });
-    canvas.addEventListener('pointermove', function (e) {
-      if (!active || !isActiveFn()) return;
+    window.addEventListener('pointermove', function (e) {
+      if (e.pointerId !== pointerId) return;
+      if (!isActiveFn()) { pointerId = null; return; }
       e.preventDefault();
-      var coord = e[prop];
-      var delta = coord - last;
-      last = coord;
+      var delta = e[prop] - last;
+      last = e[prop];
       var rect = canvas.getBoundingClientRect();
       var cssSize = axis === 'x' ? rect.width : rect.height;
       onDelta(delta * (logicalSize / cssSize));
     });
-    window.addEventListener('pointerup', function () { active = false; });
-    window.addEventListener('pointercancel', function () { active = false; });
+    function end(e) { if (e.pointerId === pointerId) pointerId = null; }
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
   }
 
   return {
@@ -235,6 +237,8 @@ var GameShared = (function () {
     shuffle: shuffle,
     sfxGood: sfxGood,
     sfxBad: sfxBad,
+    sfxHit: sfxHit,
+    sfxLevelUp: sfxLevelUp,
     createLoop: createLoop,
     debugLines: debugLines,
     setupCanvas: setupCanvas,

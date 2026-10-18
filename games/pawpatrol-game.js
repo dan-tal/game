@@ -10,19 +10,13 @@
 // jocuri din arcade), pana apasa "acasă". Valorile reglabile sunt in
 // pawpatrol-game.config.js. Punctul de intrare public e
 // window.PawPatrolGame.activate().
+//
+// Ciclul de viata (activare, exercitii de intro, scor, pauze de invatare, bucla de desen,
+// debug) vine din BoardGame (games/board-game.js); aici e doar ce e specific jocului.
 (function () {
   'use strict';
 
-  var canvas = document.getElementById('game');
-  var ctx = canvas.getContext('2d');
-  var W = GameShared.W, H = GameShared.H;
-
   var stageEl = document.getElementById('stage');
-  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
-  var timers = GameShared.createTimers();
-
-  var heartsEl = document.getElementById('hearts');
-  var scoreEl = document.getElementById('score');
 
   var targetIndicatorEl = document.createElement('div');
   targetIndicatorEl.className = 'gameTarget';
@@ -50,31 +44,38 @@
     CHARACTER_IMAGES[ch.key] = img;
   });
 
-  var sfxGood = GameShared.sfxGood;
-  function sfxTryAgain() { Exercises.beep(260, 0.15, 'sine'); }
   function sfxFanfare() {
-    sfxGood();
+    GameShared.sfxGood();
     setTimeout(function () { Exercises.beep(1400, 0.2, 'triangle'); }, 200);
   }
 
   var shuffle = GameShared.shuffle;
 
-  var state = {
-    running: false,
-    score: 0,
-    phase: 'character', // 'character' | 'vehicle'
-    order: [],
-    index: 0,
-    target: CHARACTERS[0],
-    capped: {},       // chei ale personajelor carora li s-a pus deja caciula in aceasta sesiune
-    firstRoundEver: true
-  };
-
-  // jocul nu scade vieti (o greseala doar mai cere o incercare) — nu afisam inimi
-  function updateHUD() {
-    heartsEl.textContent = '';
-    scoreEl.textContent = '⭐ ' + state.score;
-  }
+  var game = window.PawPatrolGame = BoardGame.create({
+    name: 'pawpatrol-game',
+    intro: 'Hai să ajutăm Patrula Cățelușilor!',
+    els: [targetIndicatorEl, optionsWrapEl],
+    extraState: {
+      phase: 'character', // 'character' | 'vehicle'
+      order: [],
+      index: 0,
+      target: CHARACTERS[0],
+      capped: {},         // chei ale personajelor carora li s-a pus deja caciula in aceasta sesiune
+      firstRoundEver: true
+    },
+    onStart: function (core) { core.state.capped = {}; },
+    build: function () { /* masa se construieste in begin(): episodul porneste dupa ce HUD-ul e actualizat */ },
+    begin: newEpisode,
+    debug: function (core) {
+      return ['  phase: ' + core.state.phase, '  target: ' + (core.state.target ? core.state.target.name : '-')];
+    },
+    draw: function (ctx, core) {
+      drawScene(ctx);
+      if (!core.state.running) return;
+      drawTargetVisual(ctx, core.state);
+    }
+  });
+  var core = game.core, state = core.state;
 
   // ---------- Optiuni (butoane) ----------
   function renderCharacterOptions(target) {
@@ -161,8 +162,8 @@
   function correctCharacter(ch, btn) {
     state.capped[ch.key] = true;
     state.score += 1;
-    sfxGood();
-    updateHUD();
+    GameShared.sfxGood();
+    core.hud();
     var msg = ch.key === PawPatrolGameConfig.FIRST_TARGET_KEY
       ? 'Bravo! Iată căciula verde a lui Ryder!'
       : 'Bravo!';
@@ -180,8 +181,8 @@
 
   function correctVehicle(btn) {
     state.score += 1;
-    sfxGood();
-    updateHUD();
+    GameShared.sfxGood();
+    core.hud();
     Exercises.speak('Bravo!');
     disableOptions();
     afterCorrect(function () {
@@ -202,9 +203,9 @@
     if (window.Credits) Credits.add(AppConfig.CREDIT_PER_EXERCISE);
     targetIndicatorEl.textContent = '🎉';
     optionsWrapEl.innerHTML = '';
-    timers.set(function () {
+    core.timers.set(function () {
       if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) {
-        triggerLearningBreak(newEpisode);
+        core.learningBreak(newEpisode);
       } else {
         newEpisode();
       }
@@ -218,14 +219,14 @@
   function afterCorrect(next) {
     GameShared.awardMatch();
     if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) {
-      timers.set(function () { triggerLearningBreak(next); }, 600);
+      core.timers.set(function () { core.learningBreak(next); }, 600);
     } else {
-      timers.set(next, 700);
+      core.timers.set(next, 700);
     }
   }
 
   function wrong(btn) {
-    sfxTryAgain();
+    GameShared.sfxBad();
     if (btn) {
       btn.classList.add('shake');
       setTimeout(function () { btn.classList.remove('shake'); }, 400);
@@ -234,65 +235,10 @@
     Exercises.speak('Mai încearcă');
   }
 
-  function triggerLearningBreak(resume) {
-    state.running = false;
-    stageEl.classList.remove('playing');
-    Exercises.ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', function () {
-      state.running = true;
-      stageEl.classList.add('playing');
-      resume();
-    });
-  }
-
-  function startGame() {
-    timers.clearAll();
-    state.score = 0;
-    state.capped = {};
-    state.running = true;
-    stageEl.classList.add('playing');
-    updateHUD();
-    newEpisode();
-  }
-
-  function getSystemDebugLines() {
-    var rect = stageEl.getBoundingClientRect();
-    var lines = [];
-    lines.push('SYSTEM:');
-    lines.push('  fps: ' + fps.toFixed(1));
-    lines.push('  stage (CSS px): ' + Math.round(rect.width) + 'x' + Math.round(rect.height));
-    lines.push('  canvas (logic px): ' + W + 'x' + H);
-    lines.push('');
-    return lines;
-  }
-
-  function getGameDebugLines() {
-    var screenName = state.running ? 'playing' : Exercises.isShowing() ? 'exercise' : 'menu';
-    var lines = [];
-    lines.push('GAME STATE (pawpatrol-game):');
-    lines.push('  screen: ' + screenName);
-    lines.push('  phase: ' + state.phase);
-    lines.push('  target: ' + (state.target ? state.target.name : '-'));
-    lines.push('  score: ' + state.score);
-    lines.push('');
-    return lines;
-  }
-
-  function getVoiceDebugLines() {
-    var info = Exercises.getDebugInfo();
-    var lines = [];
-    lines.push('VOICE:');
-    lines.push('  voce romana folosita: ' + (info.romanianVoice ? (info.romanianVoice.name + '  [' + info.romanianVoice.lang + ']') : 'NICIUNA — se foloseste vocea implicita'));
-    lines.push('');
-    return lines;
-  }
-
-  function renderDebugPanel() {
-    var lines = getSystemDebugLines().concat(getGameDebugLines()).concat(getVoiceDebugLines());
-    Debug.render(lines);
-  }
 
   // ---------- Draw ----------
-  function drawScene() {
+  function drawScene(ctx) {
+    var W = GameShared.W, H = GameShared.H;
     var grad = ctx.createLinearGradient(0, 0, 0, H);
     grad.addColorStop(0, '#81d4fa');
     grad.addColorStop(0.72, '#b3e5fc');
@@ -320,7 +266,8 @@
     ctx.fill();
   }
 
-  function drawTargetVisual() {
+  function drawTargetVisual(ctx, state) {
+    var W = GameShared.W, H = GameShared.H;
     if (!state.running || !state.target) return;
     ctx.save();
     ctx.textAlign = 'center';
@@ -344,56 +291,4 @@
     ctx.restore();
   }
 
-  function draw() {
-    drawScene();
-    if (!state.running) return;
-    drawTargetVisual();
-  }
-
-  // ---------- Main loop ----------
-  var fps = 0;
-  var lastTime = null;
-  var lastDraw = 0;
-  function loop(ts) {
-    if (lastTime === null) lastTime = ts;
-    var dt = ts - lastTime;
-    lastTime = ts;
-    if (dt > 60) dt = 60;
-    if (dt > 0) fps = fps ? (fps * 0.9 + (1000 / dt) * 0.1) : (1000 / dt);
-
-    // scena e statica (jocul se joaca prin butoane HTML) — 10 desene pe secunda
-    // ajung, si scutesc bateria telefonului de 60
-    if (ts - lastDraw >= 100) { lastDraw = ts; draw(); }
-    if (Debug.isOn()) renderDebugPanel();
-
-    rafId = requestAnimationFrame(loop);
-  }
-
-  updateHUD();
-
-  // ---------- Public entry point (called by shell.js when chosen from the menu) ----------
-  var rafId = null;
-  window.PawPatrolGame = {
-    activate: function () {
-      targetIndicatorEl.style.display = '';
-      optionsWrapEl.style.display = '';
-      Exercises.speak('Hai să ajutăm Patrula Cățelușilor!');
-      if (rafId === null) {
-        lastTime = null;
-        rafId = requestAnimationFrame(loop);
-      }
-      Exercises.askIntro(startGame);
-    },
-    deactivate: function () {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-      timers.clearAll();
-      state.running = false;
-      stageEl.classList.remove('playing');
-      targetIndicatorEl.style.display = 'none';
-      optionsWrapEl.style.display = 'none';
-    }
-  };
 })();

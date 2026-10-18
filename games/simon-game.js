@@ -7,45 +7,51 @@
 // minte); o apasare gresita scade o viata si arata din nou acelasi sir, nu
 // unul mai lung — ca sa nu se piarda tot progresul dintr-o singura greseala
 // de neatentie. Punctul de intrare public e window.SimonGame.activate().
+//
+// Ciclul de viata (activare, exercitii de intro, scor, pauze de invatare, bucla de desen,
+// debug) vine din BoardGame (games/board-game.js); aici e doar ce e specific jocului.
 (function () {
   'use strict';
 
-  var canvas = document.getElementById('game');
-  var ctx = canvas.getContext('2d');
-  var W = GameShared.W, H = GameShared.H;
-
   var stageEl = document.getElementById('stage');
-  // timere anulabile: daca se apasa 🏠 cat asteapta o pauza, nu mai ruleaza nimic
-  var timers = GameShared.createTimers();
-
-  var heartsEl = document.getElementById('hearts');
-  var scoreEl = document.getElementById('score');
+  var PADS = SimonGameConfig.PADS;
 
   var boardEl = document.createElement('div');
   boardEl.className = 'simonBoard';
   boardEl.style.display = 'none';
   stageEl.appendChild(boardEl);
 
-  var PADS = SimonGameConfig.PADS;
+  var game = window.SimonGame = BoardGame.create({
+    name: 'simon-game',
+    intro: 'Hai să repetăm șirul!',
+    els: [boardEl],
+    hearts: true,
+    extraState: {
+      mode: 'idle', // 'showing' (jocul arata sirul) | 'awaiting' (asteapta apasarile copilului)
+      sequence: [],
+      inputIndex: 0,
+      pads: []      // { el, pad }
+    },
+    onStart: function (core) { core.state.sequence = []; },
+    build: buildBoard,
+    onResume: function (core) { core.state.sequence = []; },   // dupa pauza sirul o ia de la capat, pastilele raman
+    begin: nextRound,
+    debug: function (core) {
+      return [
+        '  mode: ' + core.state.mode,
+        '  sir: ' + core.state.sequence.map(function (p) { return p.key; }).join(','),
+        '  input index: ' + core.state.inputIndex
+      ];
+    },
+    onDeactivate: function (core) { core.state.mode = 'idle'; },
 
-  var sfxGood = GameShared.sfxGood;
-  function sfxBad() { Exercises.beep(220, 0.2, 'sine'); }
-
-  var state = {
-    running: false,
-    mode: 'idle', // 'showing' (jocul arata sirul) | 'awaiting' (asteapta apasarile copilului)
-    score: 0,
-    lives: AppConfig.NORMAL_MAX_LIVES,
-    maxLives: AppConfig.NORMAL_MAX_LIVES,
-    sequence: [],
-    inputIndex: 0,
-    pads: [] // { el, ...PADS[i] }
-  };
-
-  function updateHUD() {
-    GameShared.renderHearts(heartsEl, state.maxLives, state.lives);
-    scoreEl.textContent = '⭐ ' + state.score;
-  }
+    // fundal simplu, fara elemente interactive
+    draw: function (ctx) {
+      ctx.fillStyle = '#212121';
+      ctx.fillRect(0, 0, GameShared.W, GameShared.H);
+    }
+  });
+  var core = game.core, state = core.state, timers = core.timers;
 
   function buildBoard() {
     boardEl.innerHTML = '';
@@ -114,24 +120,24 @@
         setPadsEnabled(false);
         state.score += 1;
         GameShared.awardMatch();
-        sfxGood();
-        updateHUD();
+        GameShared.sfxGood();
+        core.hud();
         Exercises.speak('Bravo!');
         timers.set(afterRoundDelay, 900);
       }
     } else {
       state.mode = 'idle';
       setPadsEnabled(false);
-      sfxBad();
+      Exercises.beep(220, 0.2, 'sine');
       if (window.Credits) Credits.deduct(AppConfig.CREDIT_PENALTY_PER_MISTAKE);
       state.lives -= 1;
-      updateHUD();
+      core.hud();
       Exercises.speak('Mai încearcă!');
       if (state.lives <= 0) {
         timers.set(function () {
           state.lives = state.maxLives;
           state.sequence = [];
-          updateHUD();
+          core.hud();
           nextRound();
         }, SimonGameConfig.RETRY_DELAY_MS);
       } else {
@@ -142,83 +148,7 @@
 
   function afterRoundDelay() {
     if (!state.running) return; // s-a apasat "acasa" cat timp astepta
-    if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) triggerLearningBreak();
+    if (state.score % AppConfig.EXERCISE_EVERY_SCORE === 0) core.learningBreak();
     else nextRound();
   }
-
-  function startGame() {
-    timers.clearAll();
-    state.score = 0;
-    state.maxLives = GameShared.maxLives();
-    state.lives = state.maxLives;
-    state.sequence = [];
-    state.running = true;
-
-    buildBoard();
-    stageEl.classList.add('playing');
-    updateHUD();
-    nextRound();
-  }
-
-  function triggerLearningBreak() {
-    state.running = false;
-    stageEl.classList.remove('playing');
-    Exercises.ask('audio', 'Hai să învățăm ceva! 🌟', 'Ascultă și alege:', function () {
-      state.running = true;
-      state.sequence = [];
-      stageEl.classList.add('playing');
-      updateHUD();
-      nextRound();
-    });
-  }
-
-  function getGameDebugLines() {
-    var screenName = state.running ? 'playing' : Exercises.isShowing() ? 'exercise' : 'menu';
-    return [
-      'GAME STATE (simon-game):',
-      '  screen: ' + screenName,
-      '  mode: ' + state.mode,
-      '  sir: ' + state.sequence.map(function (p) { return p.key; }).join(','),
-      '  input index: ' + state.inputIndex,
-      '  score: ' + state.score,
-      ''
-    ];
-  }
-  function renderDebugPanel() {
-    Debug.render(GameShared.debugLines(getGameDebugLines(), gameLoop.fps()));
-  }
-
-  // ---------- Draw: fundal simplu, fara elemente interactive ----------
-  function drawBoard() {
-    ctx.fillStyle = '#212121';
-    ctx.fillRect(0, 0, W, H);
-  }
-
-  function draw() {
-    drawBoard();
-    if (Debug.isOn()) renderDebugPanel();
-  }
-
-  // ---------- Main loop (fara reflexe — doar redeseneaza fundalul) ----------
-  var gameLoop = GameShared.createLoop({ draw: draw, interval: 100 }); // scena e statica: 10 desene/s scutesc bateria
-
-  updateHUD();
-
-  // ---------- Public entry point (called by shell.js when chosen from the menu) ----------
-  window.SimonGame = {
-    activate: function () {
-      boardEl.style.display = '';
-      Exercises.speak('Hai să repetăm șirul!');
-      gameLoop.start();
-      Exercises.askIntro(startGame);
-    },
-    deactivate: function () {
-      gameLoop.stop();
-      timers.clearAll();
-      state.running = false;
-      state.mode = 'idle';
-      stageEl.classList.remove('playing');
-      boardEl.style.display = 'none';
-    }
-  };
 })();
