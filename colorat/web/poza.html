@@ -25,7 +25,11 @@ button:disabled{opacity:.45;cursor:default}
 #pal{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px}
 .sw{width:40px;height:40px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #bbb;cursor:pointer}
 .sw.on{box-shadow:0 0 0 5px var(--ink)}
-#stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:8px}
+#stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px}
+#orig{max-width:100%;max-height:26vh;border:3px solid var(--line);border-radius:10px;background:#fff}
+#stage figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:2px;max-width:100%}
+#stage figcaption{font-size:15px;opacity:.7}
+@media(min-width:800px){#stage{flex-direction:row;gap:16px}#orig{max-width:36vw;max-height:calc(100vh - 260px)}#cv{max-width:56vw}}
 #cv{max-width:100%;max-height:calc(100vh - 260px);min-height:200px;background:#fff;border:3px solid var(--line);border-radius:10px;touch-action:manipulation;cursor:pointer}
 #printarea{display:none}
 @media print{
@@ -57,11 +61,11 @@ button:disabled{opacity:.45;cursor:default}
   <button id="png">⬇ PNG</button>
  </div>
  <div id="opts">
-  <label>Detalii <input id="detail" type="range" min="1" max="10" value="5"></label>
-  <label>Linii groase <input id="thick" type="range" min="1" max="4" value="2"></label>
+  <label>Detalii <input id="detail" type="range" min="1" max="10" value="4"></label>
+  <label>Linii groase <input id="thick" type="range" min="1" max="4" value="3"></label>
  </div>
  <div id="pal"></div>
- <div id="stage"><canvas id="cv"></canvas></div>
+ <div id="stage"><figure><img id="orig" alt=""><figcaption>Poza ta</figcaption></figure><canvas id="cv"></canvas></div>
 </div>
 <div id="printarea"></div>
 
@@ -83,6 +87,7 @@ function load(f){
   const c=document.createElement("canvas");c.width=W;c.height=H;
   const g=c.getContext("2d",{willReadFrequently:true});
   g.fillStyle="#fff";g.fillRect(0,0,W,H);g.drawImage(im,0,0,W,H);
+  $("orig").src=c.toDataURL("image/jpeg",.85);
   URL.revokeObjectURL(u);
   const d=g.getImageData(0,0,W,H).data;
   const ch=[0,1,2].map(k=>{const a=new Float32Array(W*H);for(let i=0;i<W*H;i++)a[i]=d[i*4+k];return a});
@@ -127,7 +132,7 @@ function makeLines(){
    if(cur[i]||cur[i-1]||cur[i+1]||cur[i-W]||cur[i+W])n[i]=1}
   cur=n}
  // scoate punctele mici (zgomot)
- const seen=new Uint8Array(W*H),min=thick*thick*12,st=[];
+ const seen=new Uint8Array(W*H),min=thick*thick*30,st=[];
  for(let s=0;s<W*H;s++){
   if(!cur[s]||seen[s])continue;
   const comp=[s];seen[s]=1;st.length=0;st.push(s);
@@ -147,7 +152,7 @@ let tm=0;
 const redo=()=>{clearTimeout(tm);tm=setTimeout(makeLines,120)};
 $("detail").oninput=redo;$("thick").oninput=redo;
 
-const LINE=0xff262626,WHITE=0xffffffff;
+const LINE=0xff111111,WHITE=0xffffffff;
 function draw(){
  for(let i=0;i<W*H;i++)img32[i]=lines[i]?LINE:(fillCol[i]||WHITE);
  ctx.putImageData(imgData,0,0);
