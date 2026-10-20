@@ -11,6 +11,7 @@ body{margin:0;font-family:"Trebuchet MS",system-ui,sans-serif;background:var(--b
 header{padding:12px 16px 4px;text-align:center}
 h1{margin:0 0 8px;font-size:clamp(22px,5vw,36px)}
 .nav a{display:inline-block;margin:2px;font-size:17px;padding:8px 14px;border-radius:20px;color:#fff;text-decoration:none;font-weight:bold}
+select{font:inherit;font-size:16px;padding:9px 8px;border-radius:12px;border:3px solid var(--line);background:#fff}
 button,.btn{font:inherit;font-size:17px;padding:9px 14px;border-radius:12px;border:3px solid var(--line);background:#fff;cursor:pointer;color:var(--ink)}
 button.main,.btn.main{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:bold}
 button:disabled{opacity:.45;cursor:default}
@@ -35,8 +36,9 @@ button:disabled{opacity:.45;cursor:default}
 @media print{
  @page{size:A4;margin:10mm}
  body.printing>*:not(#printarea){display:none!important}
- body.printing #printarea{display:flex;justify-content:center}
- #printarea img{max-width:190mm;max-height:272mm}
+ body.printing #printarea{display:flex;flex-direction:column;align-items:center;gap:4mm}
+ #printarea .big{max-width:190mm;max-height:228mm}
+ #printarea .small{align-self:flex-end;width:42mm;max-height:34mm;object-fit:contain;border:1px solid #999}
 }
 </style>
 </head>
@@ -57,12 +59,13 @@ button:disabled{opacity:.45;cursor:default}
   <button id="new">📷 Altă poză</button>
   <button id="undo">↩ Înapoi</button>
   <button id="reset">↺ Șterge culorile</button>
+  <select id="pmode" title="Ce se printează"><option value="lines">🖍 Doar conturul</option><option value="color">🎨 Cu culorile mele</option></select>
   <button id="print" class="main">🖨 Printează</button>
   <button id="png">⬇ PNG</button>
  </div>
  <div id="opts">
-  <label>Detalii <input id="detail" type="range" min="1" max="10" value="4"></label>
-  <label>Linii groase <input id="thick" type="range" min="1" max="4" value="3"></label>
+  <label>Detalii <input id="detail" type="range" min="1" max="10" value="7"></label>
+  <label>Linii groase <input id="thick" type="range" min="1" max="4" value="2"></label>
  </div>
  <div id="pal"></div>
  <div id="stage"><figure><img id="orig" alt=""><figcaption>Poza ta</figcaption></figure><canvas id="cv"></canvas></div>
@@ -115,7 +118,7 @@ function blur(src,r){ // doua treceri de medie pe orizontala si verticala
 
 function makeLines(){
  const detail=+$("detail").value,thick=+$("thick").value;
-  const thr=210-detail*18; // mai multe detalii => prag mai mic
+  const thr=220-detail*19; // mai multe detalii => prag mai mic
  const m=new Uint8Array(W*H);
  for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){
   const i=y*W+x;
@@ -132,7 +135,7 @@ function makeLines(){
    if(cur[i]||cur[i-1]||cur[i+1]||cur[i-W]||cur[i+W])n[i]=1}
   cur=n}
  // scoate punctele mici (zgomot)
- const seen=new Uint8Array(W*H),min=thick*thick*30,st=[];
+ const seen=new Uint8Array(W*H),min=thick*thick*20,st=[];
  for(let s=0;s<W*H;s++){
   if(!cur[s]||seen[s])continue;
   const comp=[s];seen[s]=1;st.length=0;st.push(s);
@@ -181,9 +184,17 @@ $("undo").onclick=()=>{if(undo.length){fillCol=undo.pop();draw()}};
 $("reset").onclick=()=>{undo.push(fillCol.slice());fillCol=new Uint32Array(W*H);draw()};
 $("png").onclick=()=>{const a=document.createElement("a");a.href=$("cv").toDataURL("image/png");a.download="poza-colorata.png";a.click()};
 $("print").onclick=()=>{
- const pa=$("printarea"),im=new Image();
- im.src=$("cv").toDataURL("image/png");
- pa.innerHTML="";pa.appendChild(im);document.body.classList.add("printing");
+ let src;
+ if($("pmode").value==="color")src=$("cv").toDataURL("image/png");
+ else{ // doar conturul, pe alb
+  const c=document.createElement("canvas");c.width=W;c.height=H;
+  const g=c.getContext("2d"),d=g.createImageData(W,H),p=new Uint32Array(d.data.buffer);
+  for(let i=0;i<W*H;i++)p[i]=lines[i]?LINE:WHITE;
+  g.putImageData(d,0,0);src=c.toDataURL("image/png");
+ }
+ const pa=$("printarea"),big=new Image(),small=new Image();
+ big.className="big";big.src=src;small.className="small";small.src=$("orig").src;
+ pa.innerHTML="";pa.append(small,big);document.body.classList.add("printing");
  const done=()=>{document.body.classList.remove("printing");pa.innerHTML="";window.removeEventListener("afterprint",done)};
  window.addEventListener("afterprint",done);
  setTimeout(()=>window.print(),150);
