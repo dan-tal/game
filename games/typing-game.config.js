@@ -9,6 +9,10 @@
 //   nums  — numere de `digits` cifre
 //   name  — numele copilului (il intreaba o data si il tine minte)
 //   phrases — propozitii scurte cu imagine; spatiul se tasteaza cu bara de spatiu
+// `minAge` (optional): treapta apare doar de la acea varsta (varsta aleasa in joc);
+// celelalte se sar, iar Maestrul amesteca doar treptele potrivite varstei.
+// Itemii se trag fara repetari din `pool` / `words`, deci un `count` cat pool-ul
+// (sau multiplu) trece prin toate semnele.
 var TypingGameConfig = {
   PROGRESS_KEY: 'arcadeTypingProgress',
   STAGE_BONUS_STARS: 2,   // steluțe la terminarea unei trepte
@@ -19,7 +23,7 @@ var TypingGameConfig = {
   STAGES: [
     { title: 'Vocalele', kind: 'chars', what: 'litera', pool: 'AEIOU', count: 8 },
     { title: 'Litere ușoare', kind: 'chars', what: 'litera', pool: 'MTSRNLAEIOU', count: 10 },
-    { title: 'Toate literele', kind: 'chars', what: 'litera', pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', count: 12 },
+    { title: 'Toate literele', kind: 'chars', what: 'litera', pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', count: 26 },
     { title: 'Cifrele 1-5', kind: 'chars', what: 'cifra', pool: '12345', count: 8 },
     { title: 'Toate cifrele', kind: 'chars', what: 'cifra', pool: '0123456789', count: 10 },
     { title: 'Cuvinte scurte', kind: 'words', count: 8, words: [
@@ -27,15 +31,15 @@ var TypingGameConfig = {
       ['MĂR', '🍎'], ['PUI', '🐥'], ['MAMA', '👩'], ['TATA', '👨'], ['CASĂ', '🏠'], ['LUNĂ', '🌙'],
       ['TREN', '🚂'], ['PEȘTE', '🐟'], ['STEA', '⭐'], ['FLOARE', '🌸']
     ] },
-    { title: 'Cuvinte lungi', kind: 'words', count: 8, words: [
+    { title: 'Cuvinte lungi', kind: 'words', count: 8, minAge: 5, words: [
       ['PISICĂ', '🐱'], ['ALBINĂ', '🐝'], ['FLUTURE', '🦋'], ['ELEFANT', '🐘'], ['MAȘINĂ', '🚗'],
       ['BANANĂ', '🍌'], ['COPAC', '🌳'], ['AVION', '✈️'], ['GIRAFĂ', '🦒'], ['BALON', '🎈'],
       ['CURCUBEU', '🌈'], ['BROASCĂ', '🐸'], ['ROCHETĂ', '🚀'], ['PEPENE', '🍉'], ['FRAGĂ', '🍓']
     ] },
     { title: 'Numere', kind: 'nums', what: 'numărul', digits: 2, count: 8 },
-    { title: 'Numere mari', kind: 'nums', what: 'numărul', digits: 3, count: 8 },
+    { title: 'Numere mari', kind: 'nums', what: 'numărul', digits: 3, count: 8, minAge: 6 },
     { title: 'Numele tău', kind: 'name', count: 3 },
-    { title: 'Propoziții', kind: 'phrases', count: 8, words: [
+    { title: 'Propoziții', kind: 'phrases', count: 8, minAge: 6, words: [
       ['MAMA ARE MERE', '🍎'], ['EU AM O PISICĂ', '🐱'], ['SOARELE ESTE SUS', '☀️'], ['LUNA ESTE MARE', '🌙'],
       ['TATA ȘI MAMA', '👨‍👩‍👧'], ['CÂINELE LATRĂ', '🐶'], ['PEȘTELE ÎNOATĂ', '🐟'], ['TRENUL ESTE MARE', '🚂'],
       ['EU MĂ JOC', '🎮'], ['FLOAREA ESTE ROȘIE', '🌹']

@@ -79,8 +79,11 @@ var AppConfig = {
     { stars: 260, bump: 3, emoji: '🎓', name: 'Profesor' },
     { stars: 380, bump: 4, emoji: '🏆', name: 'Geniu' }
   ],
-  // plafon pentru `bump`, pe trepte de varsta (un copil de 3 ani nu sare direct la calcule)
-  LEVEL_MAX_BUMP: { toddler: 2, preschool: 4, school: 3 },
+  // plafon pentru `bump`, pe trepte de varsta: cu cat copilul e mai mic, cu atat
+  // sare mai putin peste varsta lui (un copil de 3-6 ani nu ajunge la inmultiri
+  // sau sume de doua cifre, oricate steluțe ar strange; un scolar poate urca
+  // pana la +3). Un parinte care vrea mai mult schimba varsta din admin.html.
+  LEVEL_MAX_BUMP: { toddler: 1, preschool: 1, school: 3 },
 
   // "Duel cu prietenul": bonus de steluțe pentru cine castiga meciul (primul la
   // 10 puncte — pragul e in server/games/scoreduel.js)

@@ -103,7 +103,7 @@
       if (res) state.mistakes += res.wrong;
       if (n < C.LESSON_LENGTH) askStep(n + 1);
       else timers.set(finishLesson, 0);
-    }, review ? { cat: review } : null);
+    }, review ? { cat: review, learned: true } : null);
   }
 
   function finishLesson() {

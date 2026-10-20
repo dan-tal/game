@@ -19,7 +19,9 @@
 
   var ROWS = ['1234567890', 'QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM', ' '];
 
-  var state = { active: false, stage: 0, done: 0, item: null, pos: 0, misses: 0 };
+  // bags/last: itemii se trag "din punga" (fara repetari pana se golesc toti), ca
+  // fiecare litera/cifra/cuvant sa apara si sa nu vina acelasi item de doua ori la rand
+  var state = { active: false, stage: 0, done: 0, item: null, pos: 0, misses: 0, bags: {}, last: {} };
 
   // ---------- progres salvat ----------
   function loadProgress() {
@@ -34,6 +36,28 @@
   }
   function stageInfo() {
     return state.stage < C.STAGES.length ? C.STAGES[state.stage] : null;
+  }
+
+  // treptele cu `minAge` apar doar de la acea varsta (varsta aleasa in joc, vezi
+  // age.js): un copil de 4-5 ani nu ajunge la numere de 3 cifre sau propozitii
+  function stageAllowed(s) {
+    var age = window.ChildAge ? ChildAge.effective() : 5;
+    return !s.minAge || age >= s.minAge;
+  }
+  // treptele nepotrivite varstei se sar (progresul se salveaza la urmatorul item)
+  function skipDisallowed() {
+    while (state.stage < C.STAGES.length && !stageAllowed(C.STAGES[state.stage])) { state.stage += 1; state.done = 0; }
+  }
+  function draw(key, list) {
+    var bag = state.bags[key];
+    if (!bag || !bag.length) {
+      bag = state.bags[key] = Util.shuffle(list.slice());
+      // prima din punga noua nu repeta ultimul item tras din cea veche
+      if (bag.length > 1 && bag[bag.length - 1] === state.last[key]) bag.unshift(bag.pop());
+    }
+    var v = bag.pop();
+    state.last[key] = v;
+    return v;
   }
 
   // ---------- DOM ----------
@@ -95,7 +119,7 @@
     if (!n) {
       var typed = '';
       try { typed = window.prompt('Cum te cheamă? (ca să scriem numele tău)') || ''; } catch (e) { typed = ''; }
-      n = typed.toUpperCase().replace(/[^A-ZĂÂÎȘȚŞŢ]/g, '').slice(0, 10);
+      n = typed.toUpperCase().replace(/[^A-ZĂÂÎȘȚŞŢ ]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14);
       if (n) { try { localStorage.setItem(C.NAME_KEY, n); } catch (e2) { /* fara salvare */ } }
     }
     return n;
@@ -105,18 +129,21 @@
   function makeItem() {
     var st = stageInfo();
     if (st && st.kind === 'name' && !childName()) { // fara nume: treapta se sare
-      state.stage += 1; state.done = 0; saveProgress();
+      state.stage += 1; state.done = 0; skipDisallowed(); saveProgress();
       return makeItem();
     }
     var kind = st ? st.kind : null;
-    if (!st) { // maestru: cuvinte lungi, numere sau propozitii
-      st = Util.pick(C.STAGES.filter(function (s) { return s.kind === 'words' || s.kind === 'nums' || s.kind === 'phrases'; }));
+    var si = state.stage;   // cheia "pungii" de itemi
+    if (!st) { // maestru: cuvinte, numere sau propozitii potrivite varstei
+      var kinds = [];
+      C.STAGES.forEach(function (s, i) { if ((s.kind === 'words' || s.kind === 'nums' || s.kind === 'phrases') && stageAllowed(s)) kinds.push(i); });
+      si = Util.pick(kinds);
+      st = C.STAGES[si];
       kind = st.kind;
     }
     var chars, emoji = '', say;
     if (kind === 'chars') {
-      var c = Util.pick(st.pool.split(''));
-      if (state.item && state.item.chars[0] === c && st.pool.length > 1) c = Util.pick(st.pool.replace(c, '').split(''));
+      var c = draw(si, st.pool.split(''));
       chars = [c];
       say = 'Scrie ' + st.what + ' ' + c;
     } else if (kind === 'name') {
@@ -125,13 +152,16 @@
       emoji = '😊';
       say = 'Scrie numele tău: ' + nm.toLowerCase();
     } else if (kind === 'words' || kind === 'phrases') {
-      var w = Util.pick(st.words);
+      var w = draw(si, st.words);
       chars = w[0].split('');
       emoji = w[1];
       say = (kind === 'words' ? 'Scrie cuvântul ' : 'Scrie propoziția ') + w[0].toLowerCase();
     } else {
-      var n = '' + (1 + Util.rand(9));
-      for (var i = 1; i < st.digits; i++) n += Util.rand(10);
+      var n, prev = state.item ? state.item.chars.join('') : '';
+      do {
+        n = '' + (1 + Util.rand(9));
+        for (var i = 1; i < st.digits; i++) n += Util.rand(10);
+      } while (n === prev);
       chars = n.split('');
       say = 'Scrie numărul ' + n;
     }
@@ -140,12 +170,13 @@
 
   function render() {
     var st = stageInfo();
-    var total = C.STAGES.reduce(function (a, s) { return a + s.count; }, 0);
+    var list = C.STAGES.filter(stageAllowed);   // doar treptele potrivite varstei
+    var total = list.reduce(function (a, s) { return a + s.count; }, 0);
     var before = 0;
-    for (var i = 0; i < state.stage; i++) before += C.STAGES[i].count;
+    for (var i = 0; i < state.stage; i++) if (stageAllowed(C.STAGES[i])) before += C.STAGES[i].count;
     fillEl.style.width = Math.round(100 * Math.min(1, (before + (st ? state.done : 0)) / total)) + '%';
     titleEl.textContent = st
-      ? '⌨️ ' + (state.stage + 1) + '/' + C.STAGES.length + ' · ' + st.title + ' (' + state.done + '/' + st.count + ')'
+      ? '⌨️ ' + (list.indexOf(st) + 1) + '/' + list.length + ' · ' + st.title + ' (' + state.done + '/' + st.count + ')'
       : '🏆 ' + C.MASTER_TITLE;
   }
 
@@ -229,13 +260,18 @@
     GameShared.sfxGood();
     var it = state.item;
     Exercises.speak(it.big ? 'Bravo!' : 'Bravo! ' + it.chars.join('').toLowerCase());
-    GameShared.awardMatch();
     var st = stageInfo();
+    // treptele dau steluțe (un punct + 1 ⭐); Maestrul e fara sfarsit, deci da doar
+    // punctul pentru Duel — altfel steluțele (care urca si nivelul Academiei
+    // Vesele) s-ar putea strange la nesfarsit doar apasand taste
+    if (st) GameShared.awardMatch();
+    else window.dispatchEvent(new CustomEvent('arcade:point'));
     if (st) {
       state.done += 1;
       if (state.done >= st.count) {
         state.stage += 1;
         state.done = 0;
+        skipDisallowed();
         saveProgress();
         timers.set(function () { stageUp(); }, C.NEXT_DELAY_MS);
         return;
@@ -264,7 +300,14 @@
     if (!state.active || e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key.length !== 1) return;
     var ch = baseChar(e.key);
-    if (/^[A-Z0-9 ]$/.test(ch)) { e.preventDefault(); press(ch); }
+    if (/^[A-Z0-9 ]$/.test(ch)) {
+      e.preventDefault();
+      // un copil mic tine tasta apasata: repetarile nu sunt apasari noi (altfel
+      // "22" din "220" se completa dintr-o apasare lunga, iar dupa un item reusit
+      // tasta ramasa apasata ar conta ca greseala la urmatorul)
+      if (e.repeat) return;
+      press(ch);
+    }
   });
 
   function drawBackdrop() {
@@ -279,7 +322,10 @@
     activate: function () {
       state.active = true;
       locked = false;
+      state.bags = {};
+      state.last = {};
       loadProgress();
+      skipDisallowed();
       drawBackdrop();
       screenEl.classList.add('show');
       newItem();

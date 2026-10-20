@@ -25,9 +25,9 @@ var Exercises = (function () {
 
   var COLORS = AppConfig.COLORS;
   var COLOR_NAMES = AppConfig.COLOR_NAMES;
-  // numarul de optiuni si greutatea exercitiilor se adapteaza dupa varsta
-  // aleasa pe ecranul de start (vezi age.js) — OPTION_COUNT e recalculat la
-  // fiecare exercitiu nou, in newRound(), pe baza lui ageTier()
+  // greutatea exercitiilor se adapteaza dupa varsta aleasa pe ecranul de start
+  // (vezi age.js), iar numarul de optiuni dupa varsta reala (supportTier) —
+  // OPTION_COUNT e recalculat la fiecare exercitiu nou, in newRound()
   var OPTION_COUNT = 5;
 
   // varsta dupa care se alege greutatea exercitiilor. De obicei e varsta
@@ -50,6 +50,13 @@ var Exercises = (function () {
   // rezultatul ultimului exercitiu rezolvat, citit de jocurile care il cer
   // (ex: Academia numara greselile unei lectii): { category, wrong }
   var lastResult = null;
+
+  // sprijinul (cate optiuni, cand clipeste raspunsul) urmeaza varsta REALA a
+  // copilului, nu varsta "impinsa" de nivelul Academiei (setDifficultyAge):
+  // cand exercitiile devin mai grele, ajutorul nu trebuie sa scada
+  function supportTier() {
+    return window.ChildAge ? ChildAge.tier() : 'preschool';
+  }
 
   function optionCountForTier(tier) {
     if (tier === 'toddler') return 3;
@@ -331,10 +338,26 @@ var Exercises = (function () {
     }
   }
 
-  function makeDigitRound(mode) {
+  // onlyLearned (recapitularea din Academie): se intreaba doar din cifrele deja
+  // invatate cu cardul de mai jos; pana sunt MIN_KNOWN_DIGITS, mai intai se
+  // invata una noua (la fel ca la litere, vezi makeFirstLetterRound)
+  function makeDigitRound(mode, onlyLearned) {
     var maxDigit = maxDigitForTier(ageTier());
-    var target = 1 + rand(maxDigit);
-    var options = pickOptions(target, 1, maxDigit, OPTION_COUNT);
+    var target, options;
+    if (onlyLearned) {
+      var known = learnedDigits();
+      if (known.length < MIN_KNOWN_DIGITS) {
+        var fresh = LESSON_DIGITS.filter(function (d) { return known.indexOf(d) < 0; });
+        if (fresh.length) return makeDigitLessonRound(fresh[0]);
+      }
+      target = pick(known);
+      options = [target];
+      shuffle(known.filter(function (d) { return d !== target; })).slice(0, OPTION_COUNT - 1).forEach(function (d) { options.push(d); });
+      shuffle(options);
+    } else {
+      target = 1 + rand(maxDigit);
+      options = pickOptions(target, 1, maxDigit, OPTION_COUNT);
+    }
     return {
       category: 'digits',
       correctValue: target,
@@ -547,6 +570,7 @@ var Exercises = (function () {
   // vazut si auzit — altfel un copil de 5 ani care nu stie literele ghiceste.
   var LETTERS_KEY = 'arcade.learnedLetters';
   var MIN_KNOWN_LETTERS = 3;     // atatea litere se invata inainte de prima intrebare
+  var MIN_KNOWN_DIGITS = 3;      // la fel pentru cifre
   var NEW_LETTER_CHANCE = 0.22;  // dupa aceea, din cand in cand apare cate o litera noua
   var DIGITS_KEY = 'arcade.learnedDigits';
   var LESSON_DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -571,6 +595,7 @@ var Exercises = (function () {
     var icon = pick(['🍎', '⭐', '🐶', '🎈', '🚗', '🐟']);
     return {
       category: 'digits',
+      lesson: true,
       correctValue: d,
       speakText: 'Cifra ' + d + ', ' + DIGIT_WORDS[d] + '. Uite ' + d + ' ' + (icon === '🍎' ? 'mere' : 'lucruri') + '. Atinge cifra ' + d + '!',
       prompt: 'Învățăm o cifră nouă! Atinge-o:',
@@ -585,8 +610,9 @@ var Exercises = (function () {
 
   // Urmatoarea lectie noua din programa Academiei (litere si cifre pe rand;
   // literele de la 4 ani). null = a invatat tot.
+  function learnAge() { return window.ChildAge ? ChildAge.effective() : 5; }
   function nextLessonRound() {
-    var letters = currentAge() >= 4 ? WORDS.filter(function (w) { return learnedLetters().indexOf(w.letter) < 0; }) : [];
+    var letters = learnAge() >= 4 ? WORDS.filter(function (w) { return learnedLetters().indexOf(w.letter) < 0; }) : [];
     var digits = LESSON_DIGITS.filter(function (d) { return learnedDigits().indexOf(d) < 0; });
     var wantLetter = letters.length && (!digits.length || learnedLetters().length <= learnedDigits().length);
     if (wantLetter) return makeLetterLessonRound(letters[0]);
@@ -594,7 +620,7 @@ var Exercises = (function () {
     return null;
   }
   function learnProgress() {
-    var letterTotal = currentAge() >= 4 ? WORD_LETTERS.length : 0;
+    var letterTotal = learnAge() >= 4 ? WORD_LETTERS.length : 0;
     return {
       learned: learnedDigits().length + (letterTotal ? learnedLetters().length : 0),
       total: LESSON_DIGITS.length + letterTotal,
@@ -608,6 +634,7 @@ var Exercises = (function () {
   function makeLetterLessonRound(word) {
     return {
       category: 'firstletter',
+      lesson: true,
       correctValue: word.letter,
       speakText: 'Litera ' + word.letter + '. ' + word.letter + ' ca în ' + word.name + '. Atinge litera ' + word.letter + '!',
       prompt: 'Învățăm o literă nouă! Atinge-o:',
@@ -766,7 +793,7 @@ var Exercises = (function () {
     { cat: 'fruits',      min: 2, max: 6,  make: function (m) { return makeFruitRound(m); } },
     { cat: 'vehicles',    min: 2, max: 6,  make: function (m) { return makeVehicleRound(m); } },
     { cat: 'counting',    min: 2, max: 7,  make: function () { return makeCountRound(); } },
-    { cat: 'digits',      min: 4, max: 8,  make: function (m) { return makeDigitRound(m); } },
+    { cat: 'digits',      min: 4, max: 8,  make: function (m, t, f) { return makeDigitRound(m, !!(f && f.learned)); } },
     { cat: 'patterns',    min: 4, max: 10, make: function (m, t) { return makePatternRound(t); } },
     { cat: 'more',        min: 4, max: 6,  make: function () { return makeMoreRound(); } },
     { cat: 'addition',    min: 4, max: 7,  make: function (m, t) { return makeAdditionRound(t); }, on: function () { return AppConfig.EXERCISE_ADDITION_ENABLED; } },
@@ -850,10 +877,13 @@ var Exercises = (function () {
       btn.classList.remove('hint');
       btn.classList.add('correct');
       speak('Bravo!');
-      if (window.Credits) Credits.add(AppConfig.CREDIT_PER_EXERCISE);
+      // cardul de invatare (o singura optiune) nu e o intrebare: nu da steluțe si
+      // nu intra in statistica / misiunea zilei, altfel ar umfla nivelul
+      var isLesson = !!currentRound.lesson;
+      if (window.Credits && !isLesson) Credits.add(AppConfig.CREDIT_PER_EXERCISE);
 
       lastResult = { category: currentRound.category, wrong: wrongCount };
-      var goalReached = window.Progress ? Progress.record(currentRound.category, wrongCount === 0) : false;
+      var goalReached = window.Progress && !isLesson ? Progress.record(currentRound.category, wrongCount === 0) : false;
       var delay = 1000;
       if (goalReached) {
         if (window.Credits) Credits.grant(AppConfig.DAILY_GOAL_BONUS_STARS);
@@ -881,13 +911,13 @@ var Exercises = (function () {
       speak('Mai încearcă');
       setTimeout(function () { btn.classList.remove('shake'); }, 400);
       if (window.Credits) Credits.deduct(AppConfig.CREDIT_PENALTY_PER_MISTAKE);
-      if (wrongCount >= hintAfterForTier(ageTier())) showHint();
+      if (wrongCount >= hintAfterForTier(supportTier())) showHint();
     }
   }
 
   function newRound(mode, forced) {
     var tier = ageTier();
-    OPTION_COUNT = optionCountForTier(tier);
+    OPTION_COUNT = optionCountForTier(supportTier());
     wrongCount = 0;
 
     if (forced && forced.round) {
@@ -898,7 +928,7 @@ var Exercises = (function () {
       if (forced && forced.cat) gen = GENERATORS.filter(function (g) { return g.cat === forced.cat; })[0] || null;
       if (!gen) gen = pickGenerator();
       lastCategory = gen.cat;
-      currentRound = gen.make(mode, tier);
+      currentRound = gen.make(mode, tier, forced);
     }
 
     // cutie de tinta curata pentru fiecare runda — generatorii adauga doar ce le trebuie

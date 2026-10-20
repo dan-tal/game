@@ -2,258 +2,90 @@
 <html lang="ro">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fff8ec">
 <title>Colorează poza ta</title>
-<style>
-:root{--bg:#fff8ec;--ink:#2b2b3a;--accent:#ff7a59;--line:#f1dfc2;--ok:#3a9d5d}
-*{box-sizing:border-box}
-body{margin:0;font-family:"Trebuchet MS",system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
-header{padding:12px 16px 4px;text-align:center}
-h1{margin:0 0 8px;font-size:clamp(22px,5vw,36px)}
-.nav a{display:inline-block;margin:2px;font-size:17px;padding:8px 14px;border-radius:20px;color:#fff;text-decoration:none;font-weight:bold}
-select{font:inherit;font-size:16px;padding:9px 8px;border-radius:12px;border:3px solid var(--line);background:#fff}
-button,.btn{font:inherit;font-size:17px;padding:9px 14px;border-radius:12px;border:3px solid var(--line);background:#fff;cursor:pointer;color:var(--ink)}
-button.main,.btn.main{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:bold}
-button:disabled{opacity:.45;cursor:default}
-#start{text-align:center;padding:30px 16px}
-#start .btn{display:inline-block;font-size:24px;padding:18px 28px;margin:8px}
-#start p{font-size:18px;opacity:.8}
-#work{display:none;flex:1;flex-direction:column;min-height:0}
-#work.on{display:flex}
-#bar,#opts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:8px;background:#fff;border-bottom:3px solid var(--line)}
-#opts{font-size:16px;background:#fff8ece8}
-#opts input[type=range]{width:130px}
-#pal{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px}
-.sw{width:40px;height:40px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #bbb;cursor:pointer}
-.sw.on{box-shadow:0 0 0 5px var(--ink)}
-#stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px}
-#orig{max-width:100%;max-height:26vh;border:3px solid var(--line);border-radius:10px;background:#fff}
-#stage figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:2px;max-width:100%}
-#stage figcaption{font-size:15px;opacity:.7}
-@media(min-width:800px){#stage{flex-direction:row;gap:16px}#orig{max-width:36vw;max-height:calc(100vh - 260px)}#cv{max-width:56vw}}
-#cv{max-width:100%;max-height:calc(100vh - 260px);min-height:200px;background:#fff;border:3px solid var(--line);border-radius:10px;touch-action:manipulation;cursor:pointer}
-#crop{display:none;flex-direction:column;align-items:center;gap:10px;padding:12px;text-align:center}
-#crop.on{display:flex}
-#crop p{margin:0;font-size:18px}
-#cbox{position:relative;display:inline-block;line-height:0;touch-action:none;user-select:none}
-#cimg{max-width:100%;max-height:60vh;display:block;border-radius:6px}
-#csel{position:absolute;border:3px solid #fff;box-shadow:0 0 0 2000px #0008,0 0 0 2px var(--accent) inset;cursor:move}
-.hd{position:absolute;width:30px;height:30px;background:var(--accent);border:3px solid #fff;border-radius:50%}
-.hd[data-c="nw"]{left:-4px;top:-4px;cursor:nwse-resize}.hd[data-c="ne"]{right:-4px;top:-4px;cursor:nesw-resize}
-.hd[data-c="sw"]{left:-4px;bottom:-4px;cursor:nesw-resize}.hd[data-c="se"]{right:-4px;bottom:-4px;cursor:nwse-resize}
-#cbox{overflow:hidden;border-radius:6px}
-#printarea{display:none}
-@media print{
- @page{size:A4;margin:10mm}
- body.printing>*:not(#printarea){display:none!important}
- body.printing #printarea{display:flex;flex-direction:column;align-items:center;gap:4mm}
- #printarea .big{max-width:190mm;max-height:228mm}
- #printarea .small{align-self:flex-end;width:42mm;max-height:34mm;object-fit:contain;border:1px solid #999}
-}
-</style>
+<link rel="stylesheet" href="poza.css">
 </head>
 <body>
-<header>
- <h1>📷 Colorează poza ta</h1>
- <div class="nav"><a href="./" style="background:#3a9d5d">🎨 Planșe</a><a href="/" style="background:#ff7a59">🎮 Jocurile</a></div>
-</header>
+<div id="app">
+ <header id="top">
+  <a class="hb" href="./" style="background:#3a9d5d">‹ Planșe</a>
+  <h1>📷 Colorează poza ta</h1>
+  <a class="hb" href="/" style="background:#ff7a59">🎮</a>
+ </header>
 
-<div id="start">
- <p>Fă o poză sau alege una din telefon, iar eu o transform într-o planșă de colorat.</p>
- <label class="btn main">📸 Fă o poză<input id="cam" type="file" accept="image/*" capture="environment" hidden></label>
- <label class="btn">🖼 Alege o poză<input id="file" type="file" accept="image/*" hidden></label>
+ <section id="start" class="scr on">
+  <p>Fă o poză sau alege una din telefon, iar eu o transform într-o planșă de colorat.</p>
+  <label class="btn main big">📸 Fă o poză<input id="cam" type="file" accept="image/*" capture="environment" hidden></label>
+  <label class="btn big">🖼 Alege o poză<input id="file" type="file" accept="image/*" hidden></label>
+  <p class="hint">Poți alege între <b>linii</b>, <b>zone</b> sau <b>poligoane</b>, poți pune <b>numere</b> pe culori și poți printa.</p>
+ </section>
+
+ <section id="crop" class="scr">
+  <p>✂️ Trage colțurile ca să alegi ce vrei să colorezi</p>
+  <div id="cbox"><img id="cimg" alt=""><div id="csel"><i class="hd" data-c="nw"></i><i class="hd" data-c="ne"></i><i class="hd" data-c="sw"></i><i class="hd" data-c="se"></i></div></div>
+  <div class="row"><button id="cback">⬅ Înapoi</button> <button id="call">Toată poza</button> <button id="cok" class="main">✂️ Decupează</button></div>
+ </section>
+
+ <section id="work" class="scr">
+  <div id="toolbar">
+   <button id="bNew"><b>📷</b>Altă poză</button>
+   <button id="bSet"><b>⚙️</b>Setări</button>
+   <button id="bNum"><b>🔢</b>Numere</button>
+   <button id="bAuto"><b>✨</b>Model</button>
+   <button id="bUndo"><b>↩</b>Înapoi</button>
+   <button id="bZoom"><b>🔍</b><span id="zl">1×</span></button>
+   <button id="bPrint" class="main"><b>🖨</b>Print</button>
+  </div>
+  <div id="stage">
+   <div id="origbox"><img id="orig" alt="Poza ta" title="Atinge poza ca să iei o culoare din ea"><span class="badge">🎯</span></div>
+   <div id="cwrap"><div id="cstack"><canvas id="cv"></canvas><svg id="nums" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"></svg></div></div>
+  </div>
+  <div id="pal"></div>
+ </section>
 </div>
 
-<div id="crop">
- <p>✂️ Trage colțurile ca să alegi ce vrei să colorezi</p>
- <div id="cbox"><img id="cimg" alt=""><div id="csel"><i class="hd" data-c="nw"></i><i class="hd" data-c="ne"></i><i class="hd" data-c="sw"></i><i class="hd" data-c="se"></i></div></div>
- <div><button id="cback">⬅ Înapoi</button> <button id="call">Toată poza</button> <button id="cok" class="main">✂️ Decupează</button></div>
-</div>
-
-<div id="work">
- <div id="bar">
-  <button id="new">📷 Altă poză</button>
-  <button id="undo">↩ Înapoi</button>
-  <button id="reset">↺ Șterge culorile</button>
-  <select id="pmode" title="Ce se printează"><option value="lines">🖍 Doar conturul</option><option value="color">🎨 Cu culorile mele</option></select>
-  <button id="print" class="main">🖨 Printează</button>
-  <button id="png">⬇ PNG</button>
+<div id="sheetbg" class="modal" hidden>
+ <div id="sheet" role="dialog" aria-label="Setări">
+  <h2>⚙️ Setări planșă</h2>
+  <div class="seg" id="modes">
+   <button data-m="lines">✏️ Linii</button><button data-m="zones">🧩 Zone</button><button data-m="poly">🔷 Poligoane</button>
+  </div>
+  <p class="hint" id="modeHint"></p>
+  <label class="sl"><span>Detalii</span><input id="rDetail" type="range" min="1" max="10"><output id="oDetail"></output></label>
+  <label class="sl"><span>Simplifică <small>(mai puține obiecte mici)</small></span><input id="rSimp" type="range" min="0" max="10"><output id="oSimp"></output></label>
+  <label class="sl"><span>Linii groase</span><input id="rThick" type="range" min="1" max="4"><output id="oThick"></output></label>
+  <label class="sl"><span>Culori în paletă</span><input id="rPal" type="range" min="3" max="12"><output id="oPal"></output></label>
+  <h3>✨ Optimizează poza</h3>
+  <label class="chk"><input id="cAuto" type="checkbox"> Îmbunătățire automată (lumină și contrast)</label>
+  <label class="sl"><span>☀️ Lumină</span><input id="rLight" type="range" min="-50" max="50"><output id="oLight"></output></label>
+  <label class="sl"><span>◐ Contrast</span><input id="rContrast" type="range" min="-50" max="50"><output id="oContrast"></output></label>
+  <label class="sl"><span>Calitate</span>
+   <select id="sQual"><option value="0">Auto (potrivit telefonului)</option><option value="640">Rapid</option><option value="900">Normal</option><option value="1300">Fin</option></select></label>
+  <p class="hint">Dacă schimbi setările, planșa se reface și culorile puse se șterg.</p>
+  <div class="row"><button id="bRecrop">✂️ Decupează din nou</button> <button id="bClear">↺ Șterge culorile</button> <button id="bDef">Valori implicite</button></div>
+  <button id="bDone" class="main wide">✔ Gata</button>
  </div>
- <div id="opts">
-  <label>Detalii <input id="detail" type="range" min="1" max="10" value="7"></label>
-  <label>Linii groase <input id="thick" type="range" min="1" max="4" value="2"></label>
- </div>
- <div id="pal"></div>
- <div id="stage"><figure><img id="orig" alt=""><figcaption>Poza ta</figcaption></figure><canvas id="cv"></canvas></div>
 </div>
+
+<div id="pdlg" class="modal" hidden>
+ <div id="pbox" role="dialog" aria-label="Printare">
+  <h2>🖨 Printare</h2>
+  <div id="pvwrap"><div id="pv"></div></div>
+  <div class="popts">
+   <div class="seg" id="pwhat"><button data-w="lines">🖍 Doar conturul</button><button data-w="color">🎨 Cu culorile mele</button></div>
+   <label class="chk"><input id="pNums" type="checkbox"> 🔢 Numere și culorile pozei (legendă)</label>
+   <label class="chk"><input id="pOrig" type="checkbox"> 🖼 Poza ta în colț</label>
+   <label class="chk"><input id="pModel" type="checkbox"> ✨ Model colorat în colț</label>
+   <label class="sl"><span>Foaie</span><select id="pOri"><option value="auto">Auto</option><option value="portrait">Vertical</option><option value="landscape">Orizontal</option></select></label>
+  </div>
+  <div class="row"><button id="pClose">Închide</button> <button id="pSave">⬇ Salvează poza</button> <button id="pGo" class="main">🖨 Printează</button></div>
+ </div>
+</div>
+
+<div id="busy" hidden>🎨 Se lucrează…</div>
 <div id="printarea"></div>
-
-<script>
-const COLORS=["#e53935","#fb8c00","#fdd835","#7cb342","#2e7d32","#00acc1","#1e88e5","#3949ab","#8e24aa","#ec407a","#8d6e63","#212121","#9e9e9e","#ffffff"];
-const $=id=>document.getElementById(id);
-const MAX=900;
-let W=0,H=0,gray=null,lines=null,fillCol=null,img32=null,imgData=null,ctx=$("cv").getContext("2d"),color=COLORS[0],undo=[];
-
-$("pal").innerHTML=COLORS.map(c=>`<div class="sw${c===color?" on":""}" data-c="${c}" style="background:${c}"></div>`).join("");
-$("pal").onclick=e=>{const c=e.target.dataset.c;if(!c)return;color=c;document.querySelectorAll(".sw").forEach(s=>s.classList.toggle("on",s.dataset.c===c))};
-
-let srcIm=null,srcUrl="",cr={x:0,y:0,w:0,h:0};
-function load(f){
- if(!f)return;
- const im=new Image(),u=URL.createObjectURL(f);
- im.onload=()=>{
-  if(srcUrl)URL.revokeObjectURL(srcUrl);
-  srcIm=im;srcUrl=u;
-  $("start").style.display="none";$("work").classList.remove("on");
-  $("cimg").src=u;$("crop").classList.add("on");
-  if($("cimg").complete)initCrop();else $("cimg").onload=initCrop;
- };
- im.onerror=()=>{URL.revokeObjectURL(u);alert("Nu am putut deschide poza. Încearcă alta.")};
- im.src=u;
-}
-function initCrop(){const i=$("cimg");setCrop(0,0,i.clientWidth,i.clientHeight)}
-function setCrop(x,y,w,h){
- const i=$("cimg"),MW=i.clientWidth,MH=i.clientHeight,m=40;
- w=Math.max(m,Math.min(w,MW));h=Math.max(m,Math.min(h,MH));
- x=Math.max(0,Math.min(x,MW-w));y=Math.max(0,Math.min(y,MH-h));
- cr={x,y,w,h};const e=$("csel").style;
- e.left=x+"px";e.top=y+"px";e.width=w+"px";e.height=h+"px";
-}
-let drag=null;
-$("cbox").onpointerdown=e=>{
- const c=e.target.dataset.c||(e.target===$("csel")?"mv":null);
- if(!c)return;
- drag={c,px:e.clientX,py:e.clientY,r:{...cr}};$("cbox").setPointerCapture(e.pointerId);e.preventDefault();
-};
-$("cbox").onpointermove=e=>{
- if(!drag)return;
- const dx=e.clientX-drag.px,dy=e.clientY-drag.py,r=drag.r,c=drag.c;
- let x=r.x,y=r.y,w=r.w,h=r.h;
- if(c==="mv"){x+=dx;y+=dy}
- else{
-  if(c[1]==="w"){x+=dx;w-=dx}else w+=dx;
-  if(c[0]==="n"){y+=dy;h-=dy}else h+=dy;
-  if(w<40){if(c[1]==="w")x-=40-w;w=40}
-  if(h<40){if(c[0]==="n")y-=40-h;h=40}
- }
- setCrop(x,y,w,h);
-};
-$("cbox").onpointerup=$("cbox").onpointercancel=()=>{drag=null};
-$("call").onclick=initCrop;
-$("cback").onclick=()=>{$("crop").classList.remove("on");$("start").style.display=""};
-$("cok").onclick=()=>{
- const i=$("cimg"),k=srcIm.naturalWidth/i.clientWidth;
- const sx=Math.round(cr.x*k),sy=Math.round(cr.y*k),sw=Math.max(1,Math.round(cr.w*k)),sh=Math.max(1,Math.round(cr.h*k));
- const z=Math.min(1,MAX/Math.max(sw,sh));
- W=Math.max(1,Math.round(sw*z));H=Math.max(1,Math.round(sh*z));
- const c=document.createElement("canvas");c.width=W;c.height=H;
- const g=c.getContext("2d",{willReadFrequently:true});
- g.fillStyle="#fff";g.fillRect(0,0,W,H);g.drawImage(srcIm,sx,sy,sw,sh,0,0,W,H);
- const d=g.getImageData(0,0,W,H).data;
- const ch=[0,1,2].map(q=>{const a=new Float32Array(W*H);for(let n=0;n<W*H;n++)a[n]=d[n*4+q];return a});
- gray=ch.map(a=>blur(blur(a,1),1)); // R,G,B netezite (zgomotul din poze nu devine linii)
- $("orig").src=c.toDataURL("image/jpeg",.85);
- $("crop").classList.remove("on");$("work").classList.add("on");
- makeLines();
-};
-$("cam").onchange=e=>{load(e.target.files[0]);e.target.value=""};
-$("file").onchange=e=>{load(e.target.files[0]);e.target.value=""};
-$("new").onclick=()=>{$("work").classList.remove("on");$("start").style.display=""};
-
-function blur(src,r){ // doua treceri de medie pe orizontala si verticala
- const t=new Float32Array(W*H),o=new Float32Array(W*H),n=2*r+1;
- for(let y=0;y<H;y++){let s=0;const b=y*W;
-  for(let x=-r;x<=r;x++)s+=src[b+Math.min(W-1,Math.max(0,x))];
-  for(let x=0;x<W;x++){t[b+x]=s/n;s+=src[b+Math.min(W-1,x+r+1)]-src[b+Math.max(0,x-r)]}}
- for(let x=0;x<W;x++){let s=0;
-  for(let y=-r;y<=r;y++)s+=t[Math.min(H-1,Math.max(0,y))*W+x];
-  for(let y=0;y<H;y++){o[y*W+x]=s/n;s+=t[Math.min(H-1,y+r+1)*W+x]-t[Math.max(0,y-r)*W+x]}}
- return o;
-}
-
-function makeLines(){
- const detail=+$("detail").value,thick=+$("thick").value;
-  const thr=220-detail*19; // mai multe detalii => prag mai mic
- const m=new Uint8Array(W*H);
- for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){
-  const i=y*W+x;
-  for(const b of gray){ // culoarea conteaza, nu doar luminozitatea (galben pe albastru deschis)
-   const gx=b[i-W+1]+2*b[i+1]+b[i+W+1]-b[i-W-1]-2*b[i-1]-b[i+W-1];
-   const gy=b[i+W-1]+2*b[i+W]+b[i+W+1]-b[i-W-1]-2*b[i-W]-b[i-W+1];
-   if(Math.abs(gx)+Math.abs(gy)>thr){m[i]=1;break}
-  }
- }
- // ingroasa liniile
- let cur=m;
- for(let t=1;t<thick;t++){const n=cur.slice();
-  for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const i=y*W+x;
-   if(cur[i]||cur[i-1]||cur[i+1]||cur[i-W]||cur[i+W])n[i]=1}
-  cur=n}
- // scoate punctele mici (zgomot)
- const seen=new Uint8Array(W*H),min=thick*thick*20,st=[];
- for(let s=0;s<W*H;s++){
-  if(!cur[s]||seen[s])continue;
-  const comp=[s];seen[s]=1;st.length=0;st.push(s);
-  while(st.length){const p=st.pop(),x=p%W;
-   for(const q of [x>0?p-1:-1,x<W-1?p+1:-1,p-W,p+W]){
-    if(q<0||q>=W*H||!cur[q]||seen[q])continue;seen[q]=1;comp.push(q);st.push(q)}}
-  if(comp.length<min)for(const p of comp)cur[p]=0;
- }
- lines=cur;
- fillCol=new Uint32Array(W*H); // 0 = nevopsit (alb)
- undo=[];
- const cv=$("cv");cv.width=W;cv.height=H;
- imgData=ctx.createImageData(W,H);img32=new Uint32Array(imgData.data.buffer);
- draw();
-}
-let tm=0;
-const redo=()=>{clearTimeout(tm);tm=setTimeout(makeLines,120)};
-$("detail").oninput=redo;$("thick").oninput=redo;
-
-const LINE=0xff111111,WHITE=0xffffffff;
-function draw(){
- for(let i=0;i<W*H;i++)img32[i]=lines[i]?LINE:(fillCol[i]||WHITE);
- ctx.putImageData(imgData,0,0);
-}
-function rgb(hex){const n=parseInt(hex.slice(1),16);return(0xff000000|((n&255)<<16)|(n&0xff00)|(n>>16))>>>0}
-
-function flood(sx,sy){
- const s=sy*W+sx;
- if(lines[s])return;
- const c=rgb(color),from=fillCol[s];
- if(from===c)return;
- undo.push(fillCol.slice());if(undo.length>15)undo.shift();
- const st=[s];fillCol[s]=c;
- while(st.length){const p=st.pop(),x=p%W;
-  for(const q of [x>0?p-1:-1,x<W-1?p+1:-1,p-W,p+W]){
-   if(q<0||q>=W*H||lines[q]||fillCol[q]!==from)continue;
-   fillCol[q]=c;st.push(q)}}
- draw();
-}
-$("cv").onclick=e=>{
- const r=$("cv").getBoundingClientRect();
- const x=Math.floor((e.clientX-r.left)*W/r.width),y=Math.floor((e.clientY-r.top)*H/r.height);
- if(x>=0&&y>=0&&x<W&&y<H)flood(x,y);
-};
-$("undo").onclick=()=>{if(undo.length){fillCol=undo.pop();draw()}};
-$("reset").onclick=()=>{undo.push(fillCol.slice());fillCol=new Uint32Array(W*H);draw()};
-$("png").onclick=()=>{const a=document.createElement("a");a.href=$("cv").toDataURL("image/png");a.download="poza-colorata.png";a.click()};
-$("print").onclick=()=>{
- let src;
- if($("pmode").value==="color")src=$("cv").toDataURL("image/png");
- else{ // doar conturul, pe alb
-  const c=document.createElement("canvas");c.width=W;c.height=H;
-  const g=c.getContext("2d"),d=g.createImageData(W,H),p=new Uint32Array(d.data.buffer);
-  for(let i=0;i<W*H;i++)p[i]=lines[i]?LINE:WHITE;
-  g.putImageData(d,0,0);src=c.toDataURL("image/png");
- }
- const pa=$("printarea"),big=new Image(),small=new Image();
- big.className="big";big.src=src;small.className="small";small.src=$("orig").src;
- pa.innerHTML="";pa.append(small,big);document.body.classList.add("printing");
- const done=()=>{document.body.classList.remove("printing");pa.innerHTML="";window.removeEventListener("afterprint",done)};
- window.addEventListener("afterprint",done);
- setTimeout(()=>window.print(),150);
-};
-</script>
+<script src="poza.js"></script>
 </body>
 </html>
