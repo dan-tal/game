@@ -32,6 +32,16 @@ button:disabled{opacity:.45;cursor:default}
 #stage figcaption{font-size:15px;opacity:.7}
 @media(min-width:800px){#stage{flex-direction:row;gap:16px}#orig{max-width:36vw;max-height:calc(100vh - 260px)}#cv{max-width:56vw}}
 #cv{max-width:100%;max-height:calc(100vh - 260px);min-height:200px;background:#fff;border:3px solid var(--line);border-radius:10px;touch-action:manipulation;cursor:pointer}
+#crop{display:none;flex-direction:column;align-items:center;gap:10px;padding:12px;text-align:center}
+#crop.on{display:flex}
+#crop p{margin:0;font-size:18px}
+#cbox{position:relative;display:inline-block;line-height:0;touch-action:none;user-select:none}
+#cimg{max-width:100%;max-height:60vh;display:block;border-radius:6px}
+#csel{position:absolute;border:3px solid #fff;box-shadow:0 0 0 2000px #0008,0 0 0 2px var(--accent) inset;cursor:move}
+.hd{position:absolute;width:30px;height:30px;background:var(--accent);border:3px solid #fff;border-radius:50%}
+.hd[data-c="nw"]{left:-4px;top:-4px;cursor:nwse-resize}.hd[data-c="ne"]{right:-4px;top:-4px;cursor:nesw-resize}
+.hd[data-c="sw"]{left:-4px;bottom:-4px;cursor:nesw-resize}.hd[data-c="se"]{right:-4px;bottom:-4px;cursor:nwse-resize}
+#cbox{overflow:hidden;border-radius:6px}
 #printarea{display:none}
 @media print{
  @page{size:A4;margin:10mm}
@@ -52,6 +62,12 @@ button:disabled{opacity:.45;cursor:default}
  <p>Fă o poză sau alege una din telefon, iar eu o transform într-o planșă de colorat.</p>
  <label class="btn main">📸 Fă o poză<input id="cam" type="file" accept="image/*" capture="environment" hidden></label>
  <label class="btn">🖼 Alege o poză<input id="file" type="file" accept="image/*" hidden></label>
+</div>
+
+<div id="crop">
+ <p>✂️ Trage colțurile ca să alegi ce vrei să colorezi</p>
+ <div id="cbox"><img id="cimg" alt=""><div id="csel"><i class="hd" data-c="nw"></i><i class="hd" data-c="ne"></i><i class="hd" data-c="sw"></i><i class="hd" data-c="se"></i></div></div>
+ <div><button id="cback">⬅ Înapoi</button> <button id="call">Toată poza</button> <button id="cok" class="main">✂️ Decupează</button></div>
 </div>
 
 <div id="work">
@@ -81,26 +97,65 @@ let W=0,H=0,gray=null,lines=null,fillCol=null,img32=null,imgData=null,ctx=$("cv"
 $("pal").innerHTML=COLORS.map(c=>`<div class="sw${c===color?" on":""}" data-c="${c}" style="background:${c}"></div>`).join("");
 $("pal").onclick=e=>{const c=e.target.dataset.c;if(!c)return;color=c;document.querySelectorAll(".sw").forEach(s=>s.classList.toggle("on",s.dataset.c===c))};
 
+let srcIm=null,srcUrl="",cr={x:0,y:0,w:0,h:0};
 function load(f){
  if(!f)return;
  const im=new Image(),u=URL.createObjectURL(f);
  im.onload=()=>{
-  const k=Math.min(1,MAX/Math.max(im.naturalWidth,im.naturalHeight));
-  W=Math.max(1,Math.round(im.naturalWidth*k));H=Math.max(1,Math.round(im.naturalHeight*k));
-  const c=document.createElement("canvas");c.width=W;c.height=H;
-  const g=c.getContext("2d",{willReadFrequently:true});
-  g.fillStyle="#fff";g.fillRect(0,0,W,H);g.drawImage(im,0,0,W,H);
-  $("orig").src=c.toDataURL("image/jpeg",.85);
-  URL.revokeObjectURL(u);
-  const d=g.getImageData(0,0,W,H).data;
-  const ch=[0,1,2].map(k=>{const a=new Float32Array(W*H);for(let i=0;i<W*H;i++)a[i]=d[i*4+k];return a});
-  gray=ch.map(a=>blur(blur(a,1),1)); // R,G,B netezite (zgomotul din poze nu devine linii)
-  $("start").style.display="none";$("work").classList.add("on");
-  makeLines();
+  if(srcUrl)URL.revokeObjectURL(srcUrl);
+  srcIm=im;srcUrl=u;
+  $("start").style.display="none";$("work").classList.remove("on");
+  $("cimg").src=u;$("crop").classList.add("on");
+  if($("cimg").complete)initCrop();else $("cimg").onload=initCrop;
  };
  im.onerror=()=>{URL.revokeObjectURL(u);alert("Nu am putut deschide poza. Încearcă alta.")};
  im.src=u;
 }
+function initCrop(){const i=$("cimg");setCrop(0,0,i.clientWidth,i.clientHeight)}
+function setCrop(x,y,w,h){
+ const i=$("cimg"),MW=i.clientWidth,MH=i.clientHeight,m=40;
+ w=Math.max(m,Math.min(w,MW));h=Math.max(m,Math.min(h,MH));
+ x=Math.max(0,Math.min(x,MW-w));y=Math.max(0,Math.min(y,MH-h));
+ cr={x,y,w,h};const e=$("csel").style;
+ e.left=x+"px";e.top=y+"px";e.width=w+"px";e.height=h+"px";
+}
+let drag=null;
+$("cbox").onpointerdown=e=>{
+ const c=e.target.dataset.c||(e.target===$("csel")?"mv":null);
+ if(!c)return;
+ drag={c,px:e.clientX,py:e.clientY,r:{...cr}};$("cbox").setPointerCapture(e.pointerId);e.preventDefault();
+};
+$("cbox").onpointermove=e=>{
+ if(!drag)return;
+ const dx=e.clientX-drag.px,dy=e.clientY-drag.py,r=drag.r,c=drag.c;
+ let x=r.x,y=r.y,w=r.w,h=r.h;
+ if(c==="mv"){x+=dx;y+=dy}
+ else{
+  if(c[1]==="w"){x+=dx;w-=dx}else w+=dx;
+  if(c[0]==="n"){y+=dy;h-=dy}else h+=dy;
+  if(w<40){if(c[1]==="w")x-=40-w;w=40}
+  if(h<40){if(c[0]==="n")y-=40-h;h=40}
+ }
+ setCrop(x,y,w,h);
+};
+$("cbox").onpointerup=$("cbox").onpointercancel=()=>{drag=null};
+$("call").onclick=initCrop;
+$("cback").onclick=()=>{$("crop").classList.remove("on");$("start").style.display=""};
+$("cok").onclick=()=>{
+ const i=$("cimg"),k=srcIm.naturalWidth/i.clientWidth;
+ const sx=Math.round(cr.x*k),sy=Math.round(cr.y*k),sw=Math.max(1,Math.round(cr.w*k)),sh=Math.max(1,Math.round(cr.h*k));
+ const z=Math.min(1,MAX/Math.max(sw,sh));
+ W=Math.max(1,Math.round(sw*z));H=Math.max(1,Math.round(sh*z));
+ const c=document.createElement("canvas");c.width=W;c.height=H;
+ const g=c.getContext("2d",{willReadFrequently:true});
+ g.fillStyle="#fff";g.fillRect(0,0,W,H);g.drawImage(srcIm,sx,sy,sw,sh,0,0,W,H);
+ const d=g.getImageData(0,0,W,H).data;
+ const ch=[0,1,2].map(q=>{const a=new Float32Array(W*H);for(let n=0;n<W*H;n++)a[n]=d[n*4+q];return a});
+ gray=ch.map(a=>blur(blur(a,1),1)); // R,G,B netezite (zgomotul din poze nu devine linii)
+ $("orig").src=c.toDataURL("image/jpeg",.85);
+ $("crop").classList.remove("on");$("work").classList.add("on");
+ makeLines();
+};
 $("cam").onchange=e=>{load(e.target.files[0]);e.target.value=""};
 $("file").onchange=e=>{load(e.target.files[0]);e.target.value=""};
 $("new").onclick=()=>{$("work").classList.remove("on");$("start").style.display=""};
