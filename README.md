@@ -14,7 +14,7 @@ Live: `https://jocuri.casatd.org` · Panou părinți: `/admin`
 - **Jocuri online** (Duel Online, Cursa Prietenilor) folosesc un server WebSocket separat (`server/`), la `/ws`.
 - **Academia Vesela** e gratuită și își crește singură greutatea după steluțele câștigate; **Șarpele Vesel** e fără voce și fără exerciții și se conduce cum îi vine copilului: glisând cu degetul de oriunde pe ecran, atingând locul unde vrea să meargă, cu săgețile în T de sub tablă sau de la tastatură (`GameInput.gestures`).
 
-- **Academia Tastaturii** (`games/typing-game.js`, trepte în `typing-game.config.js`) e jocul pentru calculator: pe ecran apare o literă, cifră, un cuvânt cu imagine sau un număr, iar copilul îl scrie la tastatură (există și tastatură pe ecran; tasta căutată clipește după greșeli). Diacriticele se arată, dar se tastează litera simplă (Ă = A). Trece singur prin trepte (vocale → litere → cifre → cuvinte → numere → numele copilului, întrebat o dată → propoziții cu spațiu), progresul rămâne salvat pe dispozitiv, iar fiecare item reușit e un punct pentru Duelul cu prietenul.
+- **Academia Tastaturii** (`games/typing-game.js`, trepte în `typing-game.config.js`) e jocul pentru calculator: pe ecran apare o literă, cifră, un cuvânt cu imagine sau un număr, iar copilul îl scrie la tastatură (există și tastatură pe ecran; tasta căutată clipește după greșeli). Diacriticele se arată, dar se tastează litera simplă (Ă = A). Trece singur prin trepte (vocale → litere → cifre → cuvinte → numere → numele copilului, întrebat o dată → propoziții cu spațiu), progresul rămâne salvat pe dispozitiv, iar fiecare item reușit e un punct pentru Duelul cu prietenul. Treptele au `minAge` (cuvinte lungi de la 5 ani, propoziții și numere de 3 cifre de la 6) și se sar dacă vârsta aleasă în joc e mai mică; itemii se trag „din pungă” (fără repetări, deci „Toate literele” trece prin toate cele 26), iar o tastă ținută apăsată (`e.repeat`) nu se numără. Treptele dau 1 ⭐ pe item, dar „Maestrul tastaturii” (fără sfârșit) dă doar punctul pentru Duel, fără steluțe.
 
 ## Cum adaug un joc nou
 
@@ -57,7 +57,7 @@ Dala 🆚 din meniu face din ORICE joc obișnuit un duel pe două telefoane (`ga
 
 ### Academia Vesela (nivel automat)
 
-`levels.js` calculează nivelul din steluțele câștigate în total (`AppConfig.LEVELS`: prag, nume și `bump` = cu câți „ani" urcă dificultatea), iar `Exercises.setDifficultyAge()` face exercițiile mai grele odată cu nivelul. Jocul nu costă steluțe și nu se blochează (`free: true`).
+`levels.js` calculează nivelul din steluțele câștigate în total (`AppConfig.LEVELS`: prag, nume și `bump` = cu câți „ani" urcă dificultatea), iar `Exercises.setDifficultyAge()` face exercițiile mai grele odată cu nivelul. Jocul nu costă steluțe și nu se blochează (`free: true`). `AppConfig.LEVEL_MAX_BUMP` limitează cât poate urca dificultatea peste vârsta copilului (1 an la 2–6 ani, 3 la școlari): un copil de 5 ani nu ajunge la înmulțiri sau sume de două cifre, oricâte steluțe strânge. Ajutorul (numărul de opțiuni, când clipește răspunsul) urmează vârsta reală, nu pe cea „împinsă” de nivel. Cardurile de învățare (literă / cifră nouă) nu dau steluțe și nu intră în statistică, iar recapitularea cifrelor întreabă doar din cele deja învățate.
 
 ### Teste
 
