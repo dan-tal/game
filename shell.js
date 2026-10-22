@@ -63,7 +63,7 @@
   // ---------- Buton de sunet (mut / pornit), doar in meniu ----------
   function renderMute() {
     var muted = Exercises.isMuted();
-    muteBtnEl.textContent = muted ? '🔇' : '🔊';
+    muteBtnEl.querySelector('.ic').textContent = muted ? '🔇' : '🔊';
     muteBtnEl.setAttribute('aria-label', muted ? 'Sunet oprit' : 'Sunet pornit');
   }
   muteBtnEl.addEventListener('click', function () {

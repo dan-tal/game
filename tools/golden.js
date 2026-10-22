@@ -251,7 +251,7 @@ async function playOne(browser, base, key, dumpDir, label) {
       var idx = Math.floor(rnd() * 1000);
       await page.evaluate(function (idx) {
         var all = Array.prototype.filter.call(document.querySelectorAll('#stage button'), function (b) {
-          if (b.disabled || b.id === 'homeBtn' || b.id === 'muteBtn' || b.id === 'debugToggle') return false;
+          if (b.disabled || b.id === 'homeBtn' || b.id === 'muteBtn' || b.id === 'debugToggle' || b.closest('#bottomNav')) return false;
           var r = b.getBoundingClientRect();
           var cs = getComputedStyle(b);
           if (!(r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.pointerEvents !== 'none' && b.offsetParent !== null)) return false;

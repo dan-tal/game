@@ -5,6 +5,7 @@
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><circle cx='24' cy='24' r='18' fill='white' stroke='black' stroke-width='2'/><circle cx='24' cy='24' r='13' fill='%23ffca28' stroke='black' stroke-width='2'/><circle cx='24' cy='24' r='4' fill='%23e53935'/></svg>") 24 24, auto !important;
 }
 html, body {
+  --nav-h: calc(58px + env(safe-area-inset-bottom, 0px));
   margin: 0; padding: 0; height: 100%;
   background: #6ec6f1;
   font-family: 'Comic Sans MS', 'Segoe UI', Verdana, sans-serif;
@@ -27,7 +28,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: calc(100% - var(--nav-h));
   width: 100%;
   /* ecranele cu "notch"/bara de gesturi: nu lasa scena sub ele */
   padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
@@ -44,13 +45,13 @@ body.debug-active #wrap {
    browserului, asa ca partea de jos a scenei (butoane, sageti) ramanea
    ascunsa sub ea pana se ascundea bara. */
 #stage {
-  --avail-h: 100vh;
+  --avail-h: calc(100vh - var(--nav-h));
   position: relative;
   width: min(98vw, calc((var(--avail-h) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) * 0.97 * 420 / 700));
   aspect-ratio: 420 / 700;
 }
 @supports (height: 100dvh) {
-  #stage { --avail-h: 100dvh; }
+  #stage { --avail-h: calc(100dvh - var(--nav-h)); }
 }
 canvas {
   width: 100%;
@@ -80,7 +81,7 @@ canvas {
      #hearts/#score e deja putin, impingandu-le sa se ingramadeasca/rupa pe
      mai multe randuri. clamp() aici copiaza aceleasi praguri ca fontul
      badge-ului, ca rezerva sa creasca doar cand chiar creste si badge-ul */
-  padding-left: 56px;
+  padding-left: 0;
   padding-right: clamp(107px, 17.5vw, 155px);
   display: none;
   justify-content: space-between;
@@ -159,62 +160,32 @@ canvas {
 }
 .dpadBtn:active { background: rgba(255,255,255,0.95); transform: scale(0.94); }
 
-#homeBtn {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  display: none;
-  background: rgba(255,255,255,0.85);
+/* meniul de jos (telefon): acasa, sunet, linkuri — lipit de margini, fara spatii */
+#bottomNav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  background: #fff;
+  border-top: 2px solid #ffb300;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 50;
+}
+#bottomNav > * {
+  flex: 1 1 0;
+  min-width: 0; min-height: 56px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  margin: 0; padding: 4px 0;
+  border: 0; border-radius: 0;
+  background: transparent;
   color: #444;
-  border: none;
-  border-radius: 14px;
-  padding: 4px 9px;
-  min-width: 44px; min-height: 44px; /* tinta de atingere minima pe telefon */
-  font-size: clamp(20px, 2.8vw, 26px);
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  z-index: 6;
-}
-#homeBtn.show { display: block; }
-
-/* buton de sunet — doar in meniu, in acelasi colt ca 🏠 din jocuri */
-#menuIcons {
-  position: absolute;
-  top: 10px; left: 10px;
-  display: flex; gap: 8px;
-  z-index: 6;
-}
-#resetStarsBtn {
-  position: absolute;
-  top: 52px; right: 10px;
-  min-height: 40px; padding: 0 12px;
-  border: none; border-radius: 12px;
-  background: rgba(255,255,255,0.85);
-  font-size: 14px; color: #444;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  z-index: 6;
-}
-#muteBtn {
-  min-width: 44px; min-height: 44px;
-  border: none;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.85);
-  font-size: 22px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  z-index: 6;
-}
-#muteBtn:active { transform: scale(0.94); }
-#tvLink,
-#colorLink {
-  min-width: 44px; min-height: 44px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.85);
-  font-size: 22px;
+  font: inherit;
   text-decoration: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  z-index: 6;
+  cursor: pointer;
 }
+#bottomNav > * + * { border-left: 1px solid #ffe0a3; }
+#bottomNav > *:active { background: #fff3c4; }
+#bottomNav .ic { font-size: 24px; line-height: 1; }
+#bottomNav .lb { font-size: 11px; margin-top: 2px; white-space: nowrap; }
 
 #creditsBadge {
   position: absolute;
@@ -884,7 +855,7 @@ canvas {
 
 #appFooter {
   position: fixed;
-  bottom: 4px;
+  bottom: calc(var(--nav-h) + 2px);
   right: 8px;
   font-size: 10px;
   font-family: Consolas, 'Courier New', monospace;

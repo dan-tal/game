@@ -19,11 +19,18 @@
 <button id="debugToggle">🐞 debug</button>
 <div id="debugPanel"></div>
 <div id="appFooter"></div>
+<nav id="bottomNav" aria-label="Meniu">
+  <button id="homeBtn" type="button" title="Acasă"><span class="ic">🏠</span><span class="lb">Acasă</span></button>
+  <button id="muteBtn" type="button" title="Sunet"><span class="ic">🔊</span><span class="lb">Sunet</span></button>
+  <a id="colorLink" href="colorat/" title="Colorat, scris și învățat"><span class="ic">🎨</span><span class="lb">Colorat</span></a>
+  <a id="tvLink" href="tv.html" title="Joc pentru televizor (2 copii)"><span class="ic">📺</span><span class="lb">TV</span></a>
+  <button id="resetStarsBtn" type="button" title="Șterge steluțele"><span class="ic">🔄</span><span class="lb">Steluțe</span></button>
+  <a id="adminLink" href="admin.html" title="Panou pentru părinți"><span class="ic">⚙️</span><span class="lb">Părinți</span></a>
+</nav>
 <div id="rotateHint">📱 Întoarce telefonul pe verticală ca să joci mai mare</div>
 <div id="wrap">
   <div id="stage">
     <canvas id="game" width="420" height="700"></canvas>
-    <button id="homeBtn" title="Acasă">🏠</button>
     <div id="creditsBadge"></div>
     <div id="hud">
       <div id="hearts"></div>
@@ -36,12 +43,6 @@
     </div>
 
     <div id="screenMenu" class="screen menuScreen">
-      <div id="menuIcons">
-        <button id="muteBtn" type="button" title="Sunet">🔊</button>
-        <a id="colorLink" href="colorat/" title="Colorat, scris și învățat">🎨</a>
-        <a id="tvLink" href="tv.html" title="Joc pentru televizor (2 copii)">📺</a>
-      </div>
-      <button id="resetStarsBtn" type="button" title="Șterge steluțele">🔄 Steluțe</button>
       <h1>Ce joc vrei să joci? 🎮</h1>
       <div id="dailyGoal" class="dailyGoal"></div>
       <!-- tile-urile se construiesc in shell.js din games-catalog.js, dupa varsta copilului -->
