@@ -42,7 +42,6 @@ body{font-family:"Trebuchet MS",system-ui,sans-serif;background:var(--bg);color:
 </head>
 <body>
 <div id="top">
- <a href="/" title="Jocurile">🏠</a>
  <div id="bar"><div id="fill"></div></div>
  <div id="cnt"></div>
 </div>
@@ -67,7 +66,6 @@ body{font-family:"Trebuchet MS",system-ui,sans-serif;background:var(--bg);color:
  <button class="sec" id="test">🔊 Testează vocea</button>
  <p id="vstat" style="font-size:14px;opacity:.7"></p>
  <button class="sec" id="reset">↺ Ia-o de la capăt</button>
- <a class="sec" href="index.html" style="text-decoration:none">🎨 Înapoi la colorat</a>
 </div>
 <div id="end">
  <h1>🏆 Bravo!</h1>
@@ -205,5 +203,6 @@ let tx=null;
 $("stage").addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
 $("stage").addEventListener("touchend",e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(dx<-70)$("skip").click()});
 </script>
+<script src="nav.js" data-active="invata"></script>
 </body>
 </html>
