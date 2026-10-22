@@ -1065,3 +1065,25 @@ canvas {
 .tkSlots.long { gap: 4px 3px; }
 .tkSlots.long .tkSlot { min-width: 22px; height: 38px; line-height: 38px; font-size: clamp(22px, 6vw, 30px); padding: 0 1px; border-bottom-width: 4px; }
 .tkSlots.long .tkSlot.sp { min-width: 14px; }
+
+/* setari: foaie deasupra meniului de jos (sunet + panou parinti) */
+#settingsSheet {
+  position: fixed;
+  left: 0; right: 0; bottom: var(--nav-h);
+  display: none;
+  background: #fff;
+  border-top: 2px solid #ffb300;
+  z-index: 49;
+}
+#settingsSheet.open { display: block; }
+#settingsSheet > * {
+  width: 100%; min-height: 56px;
+  display: flex; flex-direction: row; align-items: center; gap: 14px;
+  padding: 8px 20px;
+  border: 0; border-radius: 0; background: transparent;
+  color: #444; font: inherit; font-size: 18px; text-decoration: none; cursor: pointer;
+}
+#settingsSheet > * + * { border-top: 1px solid #ffe0a3; }
+#settingsSheet > *:active { background: #fff3c4; }
+#settingsSheet .ic { font-size: 26px; line-height: 1; }
+#settingsBtn.on { background: #fff3c4; }

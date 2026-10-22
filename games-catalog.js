@@ -21,6 +21,8 @@
 //               cheia lui in server/games/ si in linkurile ?room=COD&game=<roomGame>.
 //               Jocul trebuie sa aiba si activateAsJoiner(cod).
 //   players   — 2 = joc in doi pe ACELASI telefon (ecran impartit); online = in doi pe telefoane diferite
+//   needsVoice — jocul se joaca doar dupa auz (tinta e rostita, nu aratata): cand
+//               sunetul e oprit din setari, jocul dispare din meniu
 //   noVoice   — fara voce si fara exercitii (informativ, aratat parintelui)
 var GamesCatalog = (function () {
   'use strict';
@@ -34,7 +36,7 @@ var GamesCatalog = (function () {
     { key: 'numbers',        global: 'NumbersGame',        emoji: '🔢', name: 'Numere Curajoase',     skill: 'Cifre',               minAge: 3,  maxAge: 7,  stars: 0 },
     { key: 'shapes',         global: 'ShapeGame',          emoji: '🔺', name: 'Formele Zburătoare',   skill: 'Forme',               minAge: 3,  maxAge: 7,  stars: 5 },
     { key: 'zoo',            global: 'ZooGame',            emoji: '🦁', name: 'Zoo Zburător',         skill: 'Animale',             minAge: 2,  maxAge: 6,  stars: 5 },
-    { key: 'pawpatrol',      global: 'PawPatrolGame',      emoji: '🐕‍🦺', name: 'Patrula Cățelușilor',  skill: 'Nume și vehicule',    minAge: 3,  maxAge: 8,  stars: 5 },
+    { key: 'pawpatrol',      global: 'PawPatrolGame',      emoji: '🐕‍🦺', name: 'Patrula Cățelușilor',  skill: 'Nume și vehicule',    minAge: 3,  maxAge: 8,  stars: 5, needsVoice: true },
     { key: 'shapesduel',     global: 'ShapesDuelGame',     emoji: '🎨', name: 'Duel de Forme',        skill: 'Culori și forme, în doi', minAge: 4, maxAge: 8, stars: 5, players: 2 },
     { key: 'farm',           global: 'FarmGame',           emoji: '🐄', name: 'Ferma Veselă',         skill: 'Animale',             minAge: 2,  maxAge: 6,  stars: 10 },
     { key: 'fruit',          global: 'FruitGame',          emoji: '🍓', name: 'Grădina Fructelor',    skill: 'Fructe',              minAge: 2,  maxAge: 6,  stars: 10 },
@@ -125,6 +127,7 @@ var GamesCatalog = (function () {
     var showAll = !!AppConfig.SHOW_ALL_GAMES;
     var list = LIST.filter(function (g) {
       if (isHidden(g.key)) return false;
+      if (g.needsVoice && window.Exercises && Exercises.isMuted()) return false;
       return showAll || age >= g.minAge;
     });
     function fit(g) { return age <= g.maxAge ? 0 : 1; }

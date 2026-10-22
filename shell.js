@@ -70,8 +70,24 @@
     Exercises.setMuted(!Exercises.isMuted());
     renderMute();
     if (!Exercises.isMuted()) Exercises.speak('Sunet pornit');
+    // jocurile care merg doar cu voce apar / dispar din meniu (vezi `needsVoice`)
+    if (menuEl.classList.contains('show')) buildMenu();
   });
   renderMute();
+
+  // ---------- Setari (foaie deasupra meniului de jos): sunet + panou parinti ----------
+  var settingsBtnEl = document.getElementById('settingsBtn');
+  var settingsSheetEl = document.getElementById('settingsSheet');
+  function toggleSettings(open) {
+    open = typeof open === 'boolean' ? open : !settingsSheetEl.classList.contains('open');
+    settingsSheetEl.classList.toggle('open', open);
+    settingsBtnEl.classList.toggle('on', open);
+    settingsBtnEl.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  settingsBtnEl.addEventListener('click', function () { toggleSettings(); });
+  document.addEventListener('pointerdown', function (e) {
+    if (settingsSheetEl.classList.contains('open') && !settingsSheetEl.contains(e.target) && !settingsBtnEl.contains(e.target)) toggleSettings(false);
+  });
 
   // ---------- Reset steluțe din meniu (cu intrebare, ca sa nu se stearga din greseala) ----------
   document.getElementById('resetStarsBtn').addEventListener('click', function () {
